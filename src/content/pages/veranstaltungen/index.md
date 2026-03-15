@@ -1,0 +1,49 @@
+---
+title: "Veranstaltungen"
+---
+
+## 8.7.2023  35 Jahre Polonia Sommerfest
+
+## Einladung zum Sommerfest des K.S. Polonia Hamburg - Gemeinschaft feiern!
+
+Liebe Mitglieder, Freunde und Nachbarn des K.S. Polonia Hamburg,
+
+wir freuen uns, euch alle herzlich zum diesjährigen Sommerfest unseres Vereins einzuladen! Das Fest soll ein Anlass sein, um gemeinsam eine großartige Zeit zu verbringen und die Verbundenheit in unserer Gemeinschaft zu stärken.
+
+Hier sind die Details für das Sommerfest:
+
+**Datum: 8.7.2023**
+
+**Uhrzeit: 11:00 - 19:00**
+
+[**Ort: Finkenau 38**](https://HeTzNeR4SeCuRiTy:UGSasjiA2cyfsGuB@www.ks-polonia.de/sportplatz/)
+
+Wir möchten dieses Fest nutzen, um nicht nur unsere Mitglieder und Fans, sondern auch unsere geschätzten Nachbarn einzubeziehen. Es ist uns wichtig, eine enge Beziehung zu unserer lokalen Gemeinschaft aufzubauen und zu pflegen. Deshalb laden wir euch alle herzlich ein, mit uns gemeinsam zu feiern und einander besser kennenzulernen.
+
+Das Sommerfest wird ein Tag voller Spaß, Sport und Unterhaltung für alle Altersgruppen sein. Wir haben eine Vielzahl von Aktivitäten geplant, darunter Fußballspiele, Wettbewerbe, musikalische Darbietungen und vieles mehr. Natürlich wird auch für das leibliche Wohl bestens gesorgt sein, mit einer Auswahl an köstlichen polnischen und ukrainischen Speisen und Getränken.
+
+Wir möchten diese Gelegenheit nutzen, um unseren treuen Mitgliedern und Fans für ihre anhaltende Unterstützung zu danken. Eure Leidenschaft und Hingabe sind der Motor unseres Vereins und tragen maßgeblich zu unseren Erfolgen bei. Das Sommerfest soll auch dazu dienen, euch unseren Dank auszusprechen und euch in einer fröhlichen Atmosphäre zu ehren.
+
+Wir freuen uns darauf, einen unvergesslichen Tag mit euch allen zu verbringen und unsere Gemeinschaft zu stärken. Ladet gerne eure Familien, Freunde und Bekannten ein, um diesen Tag mit uns zu genießen und neue Kontakte zu knüpfen.
+
+Lasst uns gemeinsam das Sommerfest zu einem Ereignis machen, das noch lange in unseren Erinnerungen nachklingt!
+
+Mit herzlichen Grüßen,
+
+ Manfred Wolny
+
+1\. Vorsitzender 
+
+ 
+
+Ablauf
+
+10:30 Kinderfußballtunier - G,F,E,D und C Jungend
+
+12:30 Siegerehrung Kinderfußballtunier
+
+ab 13:00  Spiel & Spaß bei Polonia  - Torwandschießen, Funino, Badminton, Minifußball, Elfmeterschießen, usw. - alle sind herzlich eingeladen
+
+Grillen, Cocktails, Bier und live Musik
+
+![](../../../assets/images/Carsten_a_childish_drawing_for_a_summer_football_fest_for_polis_d1cbf549-b9ee-4d9e-8efd-a8b964c0d3b8.png) ![](https://HeTzNeR4SeCuRiTy:UGSasjiA2cyfsGuB@www.ks-polonia.de/wp-content/plugins/elementor/assets/images/placeholder.png)

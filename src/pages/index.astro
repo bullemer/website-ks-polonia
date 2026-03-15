@@ -1,0 +1,181 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allNews = await getCollection('news');
+const allPages = await getCollection('pages');
+
+// Sort news by date (newest first), fallback to title
+const sortedNews = allNews.sort((a, b) => {
+    const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
+    const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
+    return dateB - dateA;
+});
+
+const latestNews = sortedNews.slice(0, 6);
+---
+
+<Layout title="Startseite">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>KS Polonia Hamburg</h1>
+            <p class="hero-subtitle">Polnischer Sportverein in Hamburg · seit 1988</p>
+        </div>
+    </section>
+
+    <!-- Latest News -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Aktuelle Nachrichten</h2>
+            <a href="/news" class="view-all">Alle anzeigen →</a>
+        </div>
+        <div class="news-grid">
+            {latestNews.map((post) => (
+                <a href={`/news/${post.id}`} class="news-card">
+                    <div class="news-card-body">
+                        <h3>{post.data.title}</h3>
+                        {post.data.date && (
+                            <time class="news-date">
+                                {new Date(post.data.date).toLocaleDateString('de-DE', {
+                                    day: '2-digit', month: 'long', year: 'numeric'
+                                })}
+                            </time>
+                        )}
+                        {post.data.category && (
+                            <span class="news-category">{post.data.category}</span>
+                        )}
+                    </div>
+                </a>
+            ))}
+        </div>
+    </section>
+
+    <!-- Pages Overview -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Seiten</h2>
+            <a href="/seiten" class="view-all">Alle anzeigen →</a>
+        </div>
+        <div class="pages-grid">
+            {allPages.slice(0, 8).map((page) => (
+                <a href={`/seiten/${page.id}`} class="page-link">
+                    {page.data.title}
+                </a>
+            ))}
+        </div>
+    </section>
+</Layout>
+
+<style>
+    .hero {
+        background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
+        color: white;
+        padding: 4rem 2rem;
+        border-radius: var(--radius);
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(220,20,60,0.25);
+    }
+    .hero h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.5rem;
+    }
+    .hero-subtitle {
+        font-size: 1.15rem;
+        opacity: 0.9;
+        font-weight: 400;
+    }
+
+    .section {
+        margin-bottom: 3rem;
+    }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--color-border);
+        padding-bottom: 0.75rem;
+    }
+    .section-header h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    .view-all {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .news-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.25rem;
+    }
+    .news-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+        text-decoration: none;
+        color: inherit;
+        transition: box-shadow 0.2s, transform 0.15s;
+        display: block;
+    }
+    .news-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        color: inherit;
+    }
+    .news-card h3 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+    .news-date {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    .news-category {
+        font-size: 0.7rem;
+        background: rgba(220,20,60,0.08);
+        color: var(--color-primary);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .pages-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    .page-link {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--color-text);
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .page-link:hover {
+        background: rgba(220,20,60,0.04);
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+    }
+
+    @media (max-width: 600px) {
+        .hero { padding: 3rem 1.5rem; }
+        .hero h1 { font-size: 2rem; }
+        .news-grid { grid-template-columns: 1fr; }
+    }
+</style>

@@ -1,0 +1,150 @@
+---
+// Opt in to SSR for this component (in Astro hybrid mode)
+// Alternatively, setting astro.config.mjs to 'server' mode enables this by default.
+// Adding 'export const prerender = false' explicitly guarantees SSR.
+
+export const prerender = false;
+
+import { fetchPolishLeagues } from '../lib/api';
+
+const liveScores = await fetchPolishLeagues();
+---
+
+<div class="live-scores-widget">
+  <h3>Polish Leagues - Live Scores</h3>
+  
+  {liveScores.length === 0 ? (
+    <p>No matches available right now.</p>
+  ) : (
+    <ul class="match-list">
+      {liveScores.map((match) => (
+        <li class="match-item">
+          <div class="match-league">{match.league}</div>
+            
+          <div class="match-teams">
+            <span class="home-team">{match.homeTeam}</span>
+            <div class="score-container">
+               {match.status === 'SCHEDULED' ? (
+                   <span class="vs">vs</span>
+               ) : (
+                   <span class={`score ${match.status === 'IN_PLAY' ? 'live' : ''}`}>
+                      {match.homeScore} - {match.awayScore}
+                   </span>
+               )}
+            </div>
+            <span class="away-team">{match.awayTeam}</span>
+          </div>
+
+          <div class="match-status">
+            {match.status === 'IN_PLAY' ? (
+              <span class="status-live">Live {match.minute}'</span>
+            ) : match.status === 'FINISHED' ? (
+              <span class="status-finished">FT</span>
+            ) : match.status === 'POSTPONED' ? (
+              <span class="status-postponed">Postponed</span>
+            ) : (
+              <span class="status-scheduled">Scheduled</span>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
+<style>
+  .live-scores-widget {
+    background: #fdfdfd;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    padding: 1.5rem;
+    max-width: 400px;
+    font-family: system-ui, sans-serif;
+  }
+  
+  .live-scores-widget h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: #333;
+    border-bottom: 2px solid #ed1c24; /* Polonia Red */
+    padding-bottom: 0.5rem;
+    display: inline-block;
+  }
+  
+  .match-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .match-item {
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  
+  .match-league {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #666;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  
+  .match-teams {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .home-team, .away-team {
+    flex: 1;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+
+  .home-team { text-align: right; }
+  .away-team { text-align: left; }
+  
+  .score-container {
+    padding: 0 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  
+  .score.live {
+    color: #ed1c24;
+  }
+  
+  .vs {
+    font-size: 0.8rem;
+    color: #999;
+    font-weight: normal;
+  }
+  
+  .match-status {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  .status-live { color: #ed1c24; animation: pulse 2s infinite; }
+  .status-finished { color: #555; }
+  .status-scheduled { color: #888; }
+  .status-postponed { color: #f59e0b; }
+  
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+</style>

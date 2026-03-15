@@ -1,0 +1,72 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+    const news = await getCollection('news');
+    return news.map(entry => ({
+        params: { slug: entry.id },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Layout title={entry.data.title}>
+    <article class="prose">
+        <a href="/news" class="back-link">← Zurück zu Nachrichten</a>
+        <h1>{entry.data.title}</h1>
+        <div class="article-meta">
+            {entry.data.date && (
+                <time>
+                    {new Date(entry.data.date).toLocaleDateString('de-DE', {
+                        day: '2-digit', month: 'long', year: 'numeric'
+                    })}
+                </time>
+            )}
+            {entry.data.category && (
+                <span class="category">{entry.data.category}</span>
+            )}
+        </div>
+        <div class="article-content">
+            <Content />
+        </div>
+    </article>
+</Layout>
+
+<style>
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-text-muted);
+    }
+    .back-link:hover { color: var(--color-primary); }
+
+    .article-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+    .category {
+        background: rgba(220,20,60,0.08);
+        color: var(--color-primary);
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-size: 0.7rem;
+    }
+    .article-content {
+        line-height: 1.8;
+    }
+</style>

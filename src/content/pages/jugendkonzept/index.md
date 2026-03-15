@@ -1,0 +1,15 @@
+---
+title: "Jugendkonzept"
+---
+
+**Liebe Freunde, Eltern, Nachbarn und Spieler des K.S. Polonia,**
+
+seit 2022 gibt es Jugendmannschaften beim K.S. Polonia. Einige Trainer, Eltern und Betreuer engagieren sich  für die Kinder in unseren zahlreichen Jugendmannschaften. Dafür möchten wir uns herzlich bedanken!
+
+Seit 2023 arbeiteten alle Trainer des Grundlagenbereichs gemeinsam an einem sportlichen Jugendkonzept (U5-U11). Das Ergebnis ist Grundlage für das tägliche Training und präsentiert unsere inhaltlichen Schwerpunkte und Haltung als Stadtteilverein nach innen und außen.
+
+[](https://HeTzNeR4SeCuRiTy:UGSasjiA2cyfsGuB@www.ks-polonia.de/wp-content/uploads/2023/04/Sportliches-Jugendkonzept-Polonia.pdf)
+
+### [Jugendkonzept](https://HeTzNeR4SeCuRiTy:UGSasjiA2cyfsGuB@www.ks-polonia.de/wp-content/uploads/2023/04/Sportliches-Jugendkonzept-Polonia.pdf)
+
+Sportliches Jugendkonzept des Vereins

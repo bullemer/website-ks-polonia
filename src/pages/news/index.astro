@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allNews = await getCollection('news');
+
+const sortedNews = allNews.sort((a, b) => {
+    const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
+    const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
+    return dateB - dateA;
+});
+---
+
+<Layout title="Nachrichten">
+    <h1 class="page-title">Nachrichten</h1>
+    <div class="news-list">
+        {sortedNews.map((post) => (
+            <a href={`/news/${post.id}`} class="news-item">
+                <h2>{post.data.title}</h2>
+                <div class="news-meta">
+                    {post.data.date && (
+                        <time>
+                            {new Date(post.data.date).toLocaleDateString('de-DE', {
+                                day: '2-digit', month: 'long', year: 'numeric'
+                            })}
+                        </time>
+                    )}
+                    {post.data.category && (
+                        <span class="category">{post.data.category}</span>
+                    )}
+                </div>
+            </a>
+        ))}
+    </div>
+</Layout>
+
+<style>
+    .page-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        letter-spacing: -0.02em;
+    }
+    .news-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .news-item {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 1.25rem 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        transition: box-shadow 0.2s, transform 0.15s;
+        display: block;
+    }
+    .news-item:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
+        color: inherit;
+    }
+    .news-item h2 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+    .news-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+    }
+    .category {
+        background: rgba(220,20,60,0.08);
+        color: var(--color-primary);
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-size: 0.7rem;
+    }
+</style>

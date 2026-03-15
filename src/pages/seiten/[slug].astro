@@ -1,0 +1,39 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+    const pages = await getCollection('pages');
+    return pages.map(entry => ({
+        params: { slug: entry.id },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Layout title={entry.data.title}>
+    <article class="prose">
+        <a href="/seiten" class="back-link">← Zurück zu Seiten</a>
+        <h1>{entry.data.title}</h1>
+        <div class="article-content">
+            <Content />
+        </div>
+    </article>
+</Layout>
+
+<style>
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-text-muted);
+    }
+    .back-link:hover { color: var(--color-primary); }
+    .article-content {
+        line-height: 1.8;
+    }
+</style>

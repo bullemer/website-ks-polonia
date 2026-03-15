@@ -1,0 +1,77 @@
+import { config, collection, fields } from '@keystatic/core';
+
+export default config({
+  storage: {
+    kind: 'github',
+    repo: {
+      owner: 'ks-polonia',
+      name: 'website',
+    },
+  },
+  collections: {
+    news: collection({
+      label: 'News',
+      slugField: 'title',
+      path: 'src/content/news/*/',
+      format: { contentField: 'content' },
+      schema: {
+        title: fields.slug({ name: { label: 'Title' } }),
+        date: fields.date({ label: 'Date', validation: { isRequired: true } }),
+        category: fields.select({
+          label: 'Category',
+          options: [
+            { label: 'Allgemein', value: 'Allgemein' },
+            { label: 'Kinder', value: 'Kinder' },
+            { label: 'Merchandising', value: 'Merchandising' },
+          ],
+          defaultValue: 'Allgemein',
+        }),
+        summary: fields.text({ label: 'Summary', multiline: true }),
+        coverImage: fields.image({
+          label: 'Cover Image',
+          directory: 'src/assets/images/news',
+          publicPath: '/src/assets/images/news',
+        }),
+        teamLink: fields.relationship({
+          label: 'Related Team',
+          collection: 'teams',
+        }),
+        content: fields.markdoc({ label: 'Content' }),
+      },
+    }),
+    teams: collection({
+      label: 'Teams',
+      slugField: 'teamName',
+      path: 'src/content/teams/*/',
+      format: { contentField: 'content' },
+      schema: {
+        teamName: fields.slug({ name: { label: 'Team Name' } }),
+        ageGroup: fields.text({ label: 'Age Group' }),
+        coach: fields.text({ label: 'Coach' }),
+        trainingTimes: fields.text({ label: 'Training Times', multiline: true }),
+        roster: fields.array(
+          fields.object({
+            name: fields.text({ label: 'Name', validation: { isRequired: true } }),
+            position: fields.text({ label: 'Position' }),
+            number: fields.integer({ label: 'Jersey Number' }),
+          }),
+          {
+            label: 'Roster',
+            itemLabel: (props) => props.fields.name.value || 'New Player',
+          }
+        ),
+        content: fields.markdoc({ label: 'Content' }),
+      },
+    }),
+    pages: collection({
+      label: 'Pages',
+      slugField: 'title',
+      path: 'src/content/pages/*/',
+      format: { contentField: 'content' },
+      schema: {
+        title: fields.slug({ name: { label: 'Title' } }),
+        content: fields.markdoc({ label: 'Content' }),
+      },
+    }),
+  },
+});

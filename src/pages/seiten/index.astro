@@ -1,0 +1,51 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allPages = await getCollection('pages');
+const sortedPages = allPages.sort((a, b) => a.data.title.localeCompare(b.data.title, 'de'));
+---
+
+<Layout title="Seiten">
+    <h1 class="page-title">Seiten</h1>
+    <div class="pages-list">
+        {sortedPages.map((page) => (
+            <a href={`/seiten/${page.id}`} class="page-item">
+                <h2>{page.data.title}</h2>
+            </a>
+        ))}
+    </div>
+</Layout>
+
+<style>
+    .page-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        letter-spacing: -0.02em;
+    }
+    .pages-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+    .page-item {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 1.25rem 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        transition: box-shadow 0.2s, transform 0.15s;
+        display: block;
+    }
+    .page-item:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
+        color: inherit;
+    }
+    .page-item h2 {
+        font-size: 1.05rem;
+        font-weight: 600;
+    }
+</style>

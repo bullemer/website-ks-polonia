@@ -1,0 +1,8 @@
+---
+title: "KS Polonia gewinnt Integrationspreis 2022"
+date: "2022-09-04T10:33:00.000Z"
+category: "Allgemein"
+coverImage: "../../../assets/images/313321756_822671278689182_2016770094589591811_n.jpg"
+---
+
+![](../../../assets/images/Integrationspreis-1024x683-1.jpg) „Durch unseren engen Bezug zur Ukraine und persönlichen Kontakten zu bereits in Hamburg lebenden ukrainischen Staatsangehörigen haben wir bisher fast 60 jugendliche ukrainische Flüchtlinge in unseren sehr kleinen Verein aufgenommen und sage und schreibe 5 (!!!) Jugendmannschaften zum Spielbetrieb für die Saison 2022/2023 angemeldet.“ So begann Manfred Itzen, 2. Vorsitzender des KS Polonia, die Bewerbung seines Vereins für den Integrationspreis 2022. Dass der KS Polonia beim Jahresempfang des Hamburger Fußball-Verbandes am 29. August tatsächlich mit dem Preis ausgezeichnet wurde, kam aber dann doch überraschend für den kleinen Verein nahe der Hamburger Mundsburg. Glücklich nahm Manfred Itzen den von der S-Bahn Hamburg gestifteten und mit 5.000 Euro dotierten Preis entgegen. Überreicht wurden Scheck, Urkunde und Schal von S-Bahn Hamburg-Chef Kay-Uwe Arnecke, Sozialsenatorin Dr. Melanie Leonard und HFV-Vizepräsidentin Kathrin Behn. Durch seine privaten Verbindungen in die Ukraine sei die Integration der ukrainischen Spieler zwar eine Herzensangelegenheit, aber auch mit hohem zeitlichem und finanziellem Aufwand verbunden“, berichtet Itzen und ergänzt: „Inzwischen sind es sogar 69 ukrainische Jugendliche, die wir aufgenommen haben“. Quelle: [https://www.hfv.de/ks-polonia-gewinnt-integrationspreis-2022/](https://www.hfv.de/ks-polonia-gewinnt-integrationspreis-2022/)

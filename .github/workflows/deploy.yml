@@ -23,6 +23,8 @@ jobs:
 
       - name: Build Astro Website
         run: npm run build
+        env:
+          VITE_KEYSTATIC_GITHUB_CLIENT_ID: Ov23livPaxPzjXA7k7vR
 
       - name: Sync files via FTP to Hetzner
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

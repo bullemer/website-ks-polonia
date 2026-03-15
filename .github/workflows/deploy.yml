@@ -31,5 +31,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/ # The Astro output directory
-          server-dir: /public_html/ # IMPORTANT: Change this to the exact target path on your Hetzner webspace
+          server-dir: /public_html/ks-polonia/ # The exact target path on the Hetzner webspace
           dry-run: false # Set to true to test the connection without uploading

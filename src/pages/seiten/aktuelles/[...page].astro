@@ -1,0 +1,287 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection, getEntry, render } from 'astro:content';
+import { Image } from 'astro:assets';
+
+export async function getStaticPaths({ paginate }) {
+    const allNews = await getCollection('news');
+    const sortedNews = allNews.sort((a, b) => {
+        const dateA = a.data.date ? new Date(a.data.date).getTime() : 0;
+        const dateB = b.data.date ? new Date(b.data.date).getTime() : 0;
+        return dateB - dateA;
+    });
+    
+    return paginate(sortedNews, { pageSize: 9 });
+}
+
+const { page } = Astro.props;
+
+// Fetch the "aktuelles" page content if on page 1
+const pageEntry = await getEntry('pages', 'aktuelles');
+let Content;
+if (pageEntry && page.currentPage === 1) {
+    const rendered = await render(pageEntry);
+    Content = rendered.Content;
+}
+
+const images = import.meta.glob<{ default: ImageMetadata }>('../../../assets/images/*.{jpeg,jpg,png,gif,webp}');
+---
+
+<Layout 
+    title={`Aktuelles ${page.currentPage > 1 ? `- Seite ${page.currentPage}` : ''}`}
+    description="Aktuelle Nachrichten und Updates vom KS Polonia Hamburg."
+>
+    <article class="prose">
+        <a href="/seiten" class="back-link">← Zurück zu Seiten</a>
+        
+        {page.currentPage === 1 && (
+            <>
+                <h1>{pageEntry ? pageEntry.data.title : 'Aktuelles'}</h1>
+                {Content && (
+                    <div class="article-content" style="margin-bottom: 3rem;">
+                        <Content />
+                    </div>
+                )}
+            </>
+        )}
+        {page.currentPage > 1 && (
+            <h1 style="margin-bottom: 2rem;">Aktuelles - Seite {page.currentPage}</h1>
+        )}
+
+        <div class="news-grid">
+            {page.data.map((post) => {
+                let imgPromise = null;
+                if (post.data.coverImage && images[post.data.coverImage]) {
+                    imgPromise = images[post.data.coverImage]();
+                }
+
+                return (
+                    <a href={`/news/${post.id}`} class="news-card">
+                        <div class="news-image">
+                            {imgPromise ? (
+                                <Image src={imgPromise} alt={post.data.title || ''} width={600} height={400} />
+                            ) : (
+                                <div class="news-image-placeholder">
+                                    <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none" class="placeholder-icon">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-8H7v8M7 3v5h8" />
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
+                        <div class="news-content">
+                            {post.data.category && (
+                                <span class="category">{post.data.category}</span>
+                            )}
+                            <h2>{post.data.title}</h2>
+                            {post.data.date && (
+                                <time>
+                                    {new Date(post.data.date).toLocaleDateString('de-DE', {
+                                        day: '2-digit', month: 'long', year: 'numeric'
+                                    })}
+                                </time>
+                            )}
+                            {post.data.summary && (
+                                <p class="summary">{post.data.summary}</p>
+                            )}
+                            <span class="read-more">Weiterlesen →</span>
+                        </div>
+                    </a>
+                )
+            })}
+        </div>
+
+        {page.lastPage > 1 && (
+            <div class="pagination">
+                {page.url.prev ? (
+                    <a href={page.url.prev} class="btn">← Neuere Beiträge</a>
+                ) : <span class="btn disabled">← Neuere Beiträge</span>}
+                
+                <span class="page-info">
+                    Seite {page.currentPage} von {page.lastPage}
+                </span>
+
+                {page.url.next ? (
+                    <a href={page.url.next} class="btn">Ältere Beiträge →</a>
+                ) : <span class="btn disabled">Ältere Beiträge →</span>}
+            </div>
+        )}
+    </article>
+</Layout>
+
+<style>
+    .prose {
+        max-width: 1000px;
+    }
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-text-muted);
+    }
+    .back-link:hover { color: var(--color-primary); }
+    
+    .news-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .news-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .news-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04));
+        color: inherit;
+    }
+
+    .news-image {
+        aspect-ratio: 3/2;
+        background: #f1f5f9;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .news-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .news-card:hover .news-image img {
+        transform: scale(1.05);
+    }
+
+    .news-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        color: #94a3b8;
+    }
+
+    .news-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .category {
+        align-self: flex-start;
+        background: rgba(220,20,60,0.08);
+        color: var(--color-primary);
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.7rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .news-content h2 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        line-height: 1.35;
+        margin-bottom: 0.5rem;
+        color: var(--color-text);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .news-content time {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        margin-bottom: 1rem;
+    }
+
+    .summary {
+        font-size: 0.95rem;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .read-more {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--color-primary);
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        transition: gap 0.2s ease;
+    }
+
+    .news-card:hover .read-more {
+        gap: 0.5rem;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 2rem;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .pagination .btn {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        padding: 0.6rem 1.2rem;
+        border-radius: var(--radius);
+        color: var(--color-text);
+        font-weight: 500;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .pagination .btn:hover:not(.disabled) {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .pagination .btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: var(--color-bg);
+    }
+
+    .page-info {
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+        font-weight: 500;
+    }
+
+    @media (max-width: 600px) {
+        .pagination {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+    }
+</style>

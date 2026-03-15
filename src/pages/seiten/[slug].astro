@@ -4,10 +4,12 @@ import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
     const pages = await getCollection('pages');
-    return pages.map(entry => ({
-        params: { slug: entry.id },
-        props: { entry },
-    }));
+    return pages
+        .filter(entry => entry.id !== 'aktuelles')
+        .map(entry => ({
+            params: { slug: entry.id },
+            props: { entry },
+        }));
 }
 
 const { entry } = Astro.props;

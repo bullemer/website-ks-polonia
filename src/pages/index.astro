@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import startpageData from '../content/startpage/index.json';
 
 const allNews = await getCollection('news');
 const allPages = await getCollection('pages');
@@ -19,8 +20,8 @@ const latestNews = sortedNews.slice(0, 6);
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1>KS Polonia Hamburg</h1>
-            <p class="hero-subtitle">Polnischer Sportverein in Hamburg · seit 1988</p>
+            <h1>{startpageData.heroTitle}</h1>
+            <p class="hero-subtitle">{startpageData.heroSubtitle}</p>
         </div>
     </section>
 

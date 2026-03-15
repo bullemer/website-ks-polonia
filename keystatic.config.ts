@@ -1,4 +1,4 @@
-import { config, collection, fields } from '@keystatic/core';
+import { config, collection, singleton, fields } from '@keystatic/core';
 
 export default config({
   storage: {
@@ -75,6 +75,17 @@ export default config({
       schema: {
         title: fields.slug({ name: { label: 'Title' } }),
         content: fields.markdoc({ label: 'Content' }),
+      },
+    }),
+  },
+  singletons: {
+    startpage: singleton({
+      label: 'Startseite',
+      path: 'src/content/startpage/index',
+      format: { data: 'json' },
+      schema: {
+        heroTitle: fields.text({ label: 'Hero Title', defaultValue: 'KS Polonia Hamburg' }),
+        heroSubtitle: fields.text({ label: 'Hero Subtitle', defaultValue: 'Polnischer Sportverein in Hamburg · seit 1988' }),
       },
     }),
   },

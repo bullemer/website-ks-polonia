@@ -2,8 +2,7 @@ import { config, collection, fields } from '@keystatic/core';
 
 export default config({
   storage: {
-    kind: 'github',
-    repo: 'bullemer/website-ks-polonia',
+    kind: 'local',
   },
   collections: {
     news: collection({

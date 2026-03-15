@@ -1,0 +1,227 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getEntry, render } from 'astro:content';
+
+const entry = await getEntry('pages', 'probetraining');
+let Content = null;
+if (entry) {
+    const rendered = await render(entry);
+    Content = rendered.Content;
+}
+---
+
+<Layout 
+    title={entry ? entry.data.title : "Probetraining"}
+    description="Probetraining anfragen beim KS Polonia Hamburg."
+>
+    <article class="prose">
+        <a href="/seiten" class="back-link">← Zurück zu Seiten</a>
+        
+        {entry && <h1>{entry.data.title}</h1>}
+        
+        {Content && (
+            <div class="article-content">
+                <Content />
+            </div>
+        )}
+
+        <div class="form-container">
+            <h2 style="margin-top: 2rem; margin-bottom: 1.5rem;">Probetraining anfragen</h2>
+            <form
+                class="contact-form"
+                action="/api/contact.php"
+                method="POST"
+                id="probetrainingForm"
+            >
+                <div class="form-group">
+                    <label for="name">Name des Spielers *</label>
+                    <input type="text" id="name" name="name" required placeholder="Max Mustermann" />
+                </div>
+
+                <div class="form-group">
+                    <label for="email">E-Mail-Adresse (für Rückmeldung) *</label>
+                    <input type="email" id="email" name="email" required placeholder="max@example.de" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">Jahrgang / Geburtsjahr</label>
+                    <input type="text" id="age" name="age" placeholder="z.B. 2012" />
+                </div>
+
+                <div class="form-group" style="display: none;">
+                    <label for="subject">Betreff</label>
+                    <!-- Predefined subject for Probetraining that matches kontakt.astro expected input -->
+                    <input type="hidden" id="subject" name="subject" value="probetraining" />
+                </div>
+
+                <!-- Honeypot Field for Spam Protection - Do not remove! -->
+                <div class="website-url-group" style="display: none; visibility: hidden; position: absolute; left: -9999px;">
+                    <label for="website_url">Bitte dieses Feld nicht ausfüllen</label>
+                    <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off" />
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Mögliche Vorerfahrungen oder Fragen *</label>
+                    <textarea id="message" name="message" rows="4" required placeholder="Ich habe früher bei Verein XY gespielt..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Anfrage senden</button>
+
+                <div id="formStatus" class="form-status" style="display: none;"></div>
+
+                <p class="form-note">
+                    * Pflichtfelder. Ihre Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.
+                    Mehr Informationen finden Sie in unserer <a href="/seiten/datenschutz">Datenschutzerklärung</a>.
+                </p>
+            </form>
+        </div>
+    </article>
+</Layout>
+
+<style>
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-text-muted);
+    }
+    .back-link:hover { color: var(--color-primary); }
+    .article-content {
+        line-height: 1.8;
+    }
+    
+    .form-container {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--color-border);
+    }
+    
+    .contact-form {
+        max-width: 600px;
+        margin-bottom: 2rem;
+    }
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    .form-group label {
+        display: block;
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        color: var(--color-text);
+    }
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.7rem 0.9rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        background: var(--color-surface);
+        color: var(--color-text);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+    }
+    .submit-btn {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #fff;
+        background: var(--color-primary);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+    }
+    .submit-btn:hover {
+        background: var(--color-primary-dark);
+    }
+    .submit-btn:active {
+        transform: scale(0.98);
+    }
+    .form-note {
+        margin-top: 1.25rem;
+        font-size: 0.78rem;
+        color: var(--color-text-muted);
+        line-height: 1.5;
+    }
+    .form-note a {
+        color: var(--color-primary);
+    }
+    .form-status {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+    .form-status.success {
+        background: #ecfdf5;
+        color: #065f46;
+        border: 1px solid #10b981;
+    }
+    .form-status.error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #ef4444;
+    }
+</style>
+
+<script>
+    const form = document.getElementById('probetrainingForm') as HTMLFormElement;
+    const statusDiv = document.getElementById('formStatus');
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+    if (form && statusDiv && submitBtn) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Wird gesendet...';
+            statusDiv.style.display = 'none';
+            
+            try {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                statusDiv.style.display = 'block';
+                if (response.ok && result.success) {
+                    statusDiv.className = 'form-status success';
+                    statusDiv.textContent = result.message || 'Ihre Anfrage wurde erfolgreich gesendet!';
+                    form.reset();
+                } else {
+                    statusDiv.className = 'form-status error';
+                    statusDiv.textContent = result.error || 'Es gab ein Problem beim Senden Ihrer Anfrage.';
+                }
+            } catch (error) {
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'form-status error';
+                statusDiv.textContent = 'Verbindungsfehler. Bitte versuchen Sie es später noch einmal.';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Anfrage senden';
+            }
+        });
+    }
+</script>

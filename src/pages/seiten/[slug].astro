@@ -5,7 +5,7 @@ import { getCollection, render } from 'astro:content';
 export async function getStaticPaths() {
     const pages = await getCollection('pages');
     return pages
-        .filter(entry => entry.id !== 'aktuelles')
+        .filter(entry => entry.id !== 'aktuelles' && entry.id !== 'probetraining')
         .map(entry => ({
             params: { slug: entry.id },
             props: { entry },

@@ -2,11 +2,7 @@ import { config, collection, fields } from '@keystatic/core';
 
 export default config({
   storage: {
-    kind: 'github',
-    repo: {
-      owner: 'ks-polonia',
-      name: 'website',
-    },
+    kind: 'local',
   },
   collections: {
     news: collection({
@@ -16,7 +12,10 @@ export default config({
       format: { contentField: 'content' },
       schema: {
         title: fields.slug({ name: { label: 'Title' } }),
-        date: fields.date({ label: 'Date', validation: { isRequired: true } }),
+        date: fields.datetime({
+          label: 'Date',
+          validation: { isRequired: false },
+        }),
         category: fields.select({
           label: 'Category',
           options: [
@@ -29,8 +28,8 @@ export default config({
         summary: fields.text({ label: 'Summary', multiline: true }),
         coverImage: fields.image({
           label: 'Cover Image',
-          directory: 'src/assets/images/news',
-          publicPath: '/src/assets/images/news',
+          directory: 'src/assets/images',
+          publicPath: '../../../assets/images/',
         }),
         teamLink: fields.relationship({
           label: 'Related Team',
@@ -41,11 +40,16 @@ export default config({
     }),
     teams: collection({
       label: 'Teams',
-      slugField: 'teamName',
-      path: 'src/content/teams/*/',
+      slugField: 'title',
+      path: 'src/content/teams/*',
       format: { contentField: 'content' },
       schema: {
-        teamName: fields.slug({ name: { label: 'Team Name' } }),
+        title: fields.slug({ name: { label: 'Team Title' } }),
+        externalUrl: fields.url({ label: 'Fussball.de URL' }),
+        sport: fields.text({ label: 'Sport', defaultValue: 'Football' }),
+        spielklasse: fields.text({ label: 'Spielklasse' }),
+        wettbewerb: fields.text({ label: 'Wettbewerb' }),
+        logoUrl: fields.text({ label: 'Logo Image Path' }),
         ageGroup: fields.text({ label: 'Age Group' }),
         coach: fields.text({ label: 'Coach' }),
         trainingTimes: fields.text({ label: 'Training Times', multiline: true }),

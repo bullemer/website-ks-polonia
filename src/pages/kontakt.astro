@@ -1,5 +1,5 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Kontaktformular">
@@ -11,7 +11,7 @@ import Layout from '../../layouts/Layout.astro';
 
     <form
         class="contact-form"
-        action="https://formspree.io/f/YOUR_FORM_ID"
+        action="/api/contact.php"
         method="POST"
         id="contactForm"
     >
@@ -27,7 +27,17 @@ import Layout from '../../layouts/Layout.astro';
 
         <div class="form-group">
             <label for="subject">Betreff</label>
-            <input type="text" id="subject" name="subject" placeholder="z.B. Probetraining, Mitgliedschaft, Frage..." />
+            <select id="subject" name="subject" class="form-select">
+                <option value="allgemein">Allgemeine Anfrage</option>
+                <option value="probetraining">Probetraining</option>
+                <option value="sponsoring">Sponsoring / Unterstützung</option>
+            </select>
+        </div>
+
+        <!-- Honeypot Field for Spam Protection - Do not remove! -->
+        <div class="website-url-group" style="display: none; visibility: hidden; position: absolute; left: -9999px;">
+            <label for="website_url">Bitte dieses Feld nicht ausfüllen</label>
+            <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off" />
         </div>
 
         <div class="form-group">
@@ -35,13 +45,66 @@ import Layout from '../../layouts/Layout.astro';
             <textarea id="message" name="message" rows="6" required placeholder="Ihre Nachricht an uns..."></textarea>
         </div>
 
-        <button type="submit" class="submit-btn">Nachricht senden</button>
+        <button type="submit" class="submit-btn" id="submitBtn">Nachricht senden</button>
+
+        <div id="formStatus" class="form-status" style="display: none;"></div>
 
         <p class="form-note">
             * Pflichtfelder. Ihre Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.
             Mehr Informationen finden Sie in unserer <a href="/seiten/datenschutz">Datenschutzerklärung</a>.
         </p>
     </form>
+
+    <script>
+        const form = document.getElementById('contactForm') as HTMLFormElement;
+        const statusDiv = document.getElementById('formStatus');
+        const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+        if (form && statusDiv && submitBtn) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Wird gesendet...';
+                statusDiv.style.display = 'none';
+                
+                try {
+                    const formData = new FormData(form);
+                    // Convert to JSON
+                    const data = Object.fromEntries(formData.entries());
+
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    statusDiv.style.display = 'block';
+                    if (response.ok && result.success) {
+                        statusDiv.className = 'form-status success';
+                        statusDiv.textContent = result.message || 'Ihre Nachricht wurde erfolgreich gesendet!';
+                        form.reset();
+                    } else {
+                        statusDiv.className = 'form-status error';
+                        statusDiv.textContent = result.error || 'Es gab ein Problem beim Senden Ihrer Nachricht.';
+                    }
+                } catch (error) {
+                    statusDiv.style.display = 'block';
+                    statusDiv.className = 'form-status error';
+                    statusDiv.textContent = 'Verbindungsfehler. Bitte versuchen Sie es später noch einmal.';
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Nachricht senden';
+                }
+            });
+        }
+    </script>
 </Layout>
 
 <style>
@@ -119,5 +182,44 @@ import Layout from '../../layouts/Layout.astro';
     }
     .form-note a {
         color: var(--color-primary, #DC143C);
+    }
+    .form-select {
+        width: 100%;
+        padding: 0.7rem 0.9rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        border: 1px solid var(--color-border, #e5e7eb);
+        border-radius: 8px;
+        background: var(--color-surface, #fff);
+        color: var(--color-text, #1a1a2e);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+    }
+    .form-select:focus {
+        outline: none;
+        border-color: var(--color-primary, #DC143C);
+        box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+    }
+    .form-status {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+    .form-status.success {
+        background: #ecfdf5;
+        color: #065f46;
+        border: 1px solid #10b981;
+    }
+    .form-status.error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #ef4444;
     }
 </style>

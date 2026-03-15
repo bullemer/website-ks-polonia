@@ -16,7 +16,12 @@ const news = defineCollection({
 const teams = defineCollection({
     loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/teams' }),
     schema: z.object({
-        teamName: z.string(),
+        title: z.string().optional(),
+        externalUrl: z.string().optional(),
+        sport: z.string().optional(),
+        spielklasse: z.string().optional(),
+        wettbewerb: z.string().optional(),
+        logoUrl: z.string().optional(),
         ageGroup: z.string().optional(),
         coach: z.string().optional(),
         trainingTimes: z.string().optional(),

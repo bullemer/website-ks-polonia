@@ -1,0 +1,219 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+    const teams = await getCollection('teams');
+    
+    return teams.map(team => ({
+        params: { team: team.id },
+        props: { team },
+    }));
+}
+
+const { team } = Astro.props;
+const { Content } = await render(team);
+---
+
+<Layout title={`${team.data.title || team.data.teamName} | K.S. Polonia Hamburg`}>
+    <div class="team-page-header">
+        {team.data.logoUrl && (
+            <div class="team-logo">
+                <img src={team.data.logoUrl} alt={`${team.data.title || team.data.teamName} Logo`} />
+            </div>
+        )}
+        <div class="team-header-content">
+            <h1>{team.data.title || team.data.teamName}</h1>
+            <div class="team-meta-tags">
+                {team.data.sport && <span class="badge badge-primary">{team.data.sport}</span>}
+                {team.data.spielklasse && <span class="badge badge-secondary">{team.data.spielklasse}</span>}
+                {team.data.wettbewerb && <span class="badge badge-outline">{team.data.wettbewerb}</span>}
+            </div>
+        </div>
+    </div>
+
+    <div class="team-content">
+        <div class="main-column">
+            <section class="prose">
+                <Content />
+            </section>
+            
+            <section class="results-placeholder mt-8">
+                <h2>Aktuelle Ergebnisse / Recent Results</h2>
+                
+                <div class="results-box">
+                    <p class="text-placeholder">Spieldaten werden hier bald geladen... / Match data will be injected here later.</p>
+                </div>
+            </section>
+        </div>
+
+        <aside class="sidebar">
+            <div class="widget">
+                <h3>Offizielle Team-Seite</h3>
+                <p>Besuchen Sie unsere offizielle Seite auf Fussball.de für aktuelle Spielberichte, Tabellen und den vollen Kader.</p>
+                
+                {team.data.externalUrl && (
+                    <a href={team.data.externalUrl} target="_blank" rel="noopener noreferrer" class="btn-primary-large">
+                        Zum Team auf Fussball.de
+                        <svg viewBox="0 0 24 24" fill="none" class="external-icon">
+                            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                )}
+            </div>
+        </aside>
+    </div>
+</Layout>
+
+<style>
+    .team-page-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--color-border);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    .team-logo {
+        flex-shrink: 0;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        border: 2px solid #f1f5f9;
+        overflow: hidden;
+    }
+    .team-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 8px;
+    }
+    .team-header-content {
+        flex-grow: 1;
+    }
+    .team-page-header h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--color-text);
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.02em;
+    }
+    .team-meta-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+    .badge-primary {
+        background: var(--color-primary, #DC143C);
+        color: white;
+    }
+    .badge-secondary {
+        background: #1e293b;
+        color: white;
+    }
+    .badge-outline {
+        background: transparent;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+
+    .team-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    @media (min-width: 900px) {
+        .team-content {
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+        }
+    }
+
+    .mt-8 { margin-top: 3rem; }
+
+    .results-placeholder h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--color-text);
+    }
+
+    .results-box {
+        background: #fff;
+        border: 1px dashed #ccc;
+        border-radius: 8px;
+        padding: 3rem 1.5rem;
+        text-align: center;
+    }
+
+    .text-placeholder {
+        color: var(--color-text-muted);
+        font-size: 0.95rem;
+        font-style: italic;
+    }
+
+    .sidebar .widget {
+        background: var(--color-surface, #fff);
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid var(--color-border, #e5e7eb);
+    }
+
+    .sidebar .widget h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--color-primary, #DC143C);
+    }
+    
+    .sidebar .widget p {
+        font-size: 0.95rem;
+        color: var(--color-text-muted);
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary-large {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 1rem;
+        background: var(--color-primary, #DC143C);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(220, 20, 60, 0.2);
+    }
+
+    .btn-primary-large:hover {
+        background: var(--color-primary-dark, #a5102e);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(220, 20, 60, 0.3);
+    }
+
+    .external-icon {
+        width: 18px;
+        height: 18px;
+    }
+</style>

@@ -1,0 +1,402 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Category display names
+const CATEGORY_LABELS: Record<string, string> = {
+    mannschaften: 'Mannschaften',
+    events: 'Events',
+    verein: 'Verein',
+    jugend: 'Jugend',
+    sportplatz: 'Sportplatz',
+};
+
+// Import images from each category using import.meta.glob
+const globs: Record<string, Record<string, any>> = {
+    mannschaften: import.meta.glob('/src/assets/images/galerie/mannschaften/*.{jpg,jpeg,png,webp}', { eager: true }),
+    events:       import.meta.glob('/src/assets/images/galerie/events/*.{jpg,jpeg,png,webp}', { eager: true }),
+    verein:       import.meta.glob('/src/assets/images/galerie/verein/*.{jpg,jpeg,png,webp}', { eager: true }),
+    jugend:       import.meta.glob('/src/assets/images/galerie/jugend/*.{jpg,jpeg,png,webp}', { eager: true }),
+    sportplatz:   import.meta.glob('/src/assets/images/galerie/sportplatz/*.{jpg,jpeg,png,webp}', { eager: true }),
+};
+
+// Build categorized image list
+type GalleryImage = { filename: string; src: string; category: string };
+const categories: Record<string, GalleryImage[]> = {};
+let allImages: GalleryImage[] = [];
+let totalCount = 0;
+
+for (const [cat, files] of Object.entries(globs)) {
+    const imgs = Object.entries(files)
+        .map(([path, mod]) => ({
+            filename: path.split('/').pop() || '',
+            src: (mod as any).default?.src || (mod as any).default || '',
+            category: cat,
+        }))
+        .filter(img => img.src);
+    categories[cat] = imgs;
+    allImages = allImages.concat(imgs);
+    totalCount += imgs.length;
+}
+
+// Categories with at least 1 image
+const activeCats = Object.keys(categories).filter(c => categories[c].length > 0);
+---
+
+<Layout title="Galerie">
+    <div class="gallery-header">
+        <h1>Galerie</h1>
+        <p class="gallery-count">{totalCount} Fotos</p>
+    </div>
+
+    <!-- Category filter tabs -->
+    <div class="gallery-tabs" id="galleryTabs">
+        <button class="tab active" data-category="alle">
+            Alle <span class="tab-count">{totalCount}</span>
+        </button>
+        {activeCats.map(cat => (
+            <button class="tab" data-category={cat}>
+                {CATEGORY_LABELS[cat] || cat} <span class="tab-count">{categories[cat].length}</span>
+            </button>
+        ))}
+    </div>
+
+    <!-- Photo grid -->
+    <div class="gallery-grid" id="galleryGrid">
+        {allImages.map((img, i) => (
+            <button
+                class="gallery-item"
+                data-index={i}
+                data-src={img.src}
+                data-category={img.category}
+                aria-label={`Foto ${i + 1}`}
+            >
+                <img
+                    src={img.src}
+                    alt={`KS Polonia – ${img.filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')}`}
+                    loading="lazy"
+                    decoding="async"
+                />
+                <span class="item-cat">{CATEGORY_LABELS[img.category] || img.category}</span>
+            </button>
+        ))}
+    </div>
+
+    <p class="gallery-hint">
+        💡 Neue Fotos hinzufügen? Einfach Bilder in den Ordner
+        <code>src/assets/images/galerie/{'{'}Kategorie{'}'}/</code> legen.
+    </p>
+
+    <!-- Lightbox overlay -->
+    <div class="lightbox" id="lightbox" aria-hidden="true">
+        <button class="lb-close" id="lbClose" aria-label="Schließen">&times;</button>
+        <button class="lb-prev" id="lbPrev" aria-label="Vorheriges Bild">&#8249;</button>
+        <button class="lb-next" id="lbNext" aria-label="Nächstes Bild">&#8250;</button>
+        <div class="lb-content">
+            <img id="lbImage" src="" alt="" />
+        </div>
+        <div class="lb-counter" id="lbCounter"></div>
+    </div>
+</Layout>
+
+<script>
+(function() {
+    const lightbox = document.getElementById('lightbox')!;
+    const lbImage  = document.getElementById('lbImage') as HTMLImageElement;
+    const lbCounter = document.getElementById('lbCounter')!;
+    const grid = document.getElementById('galleryGrid')!;
+    const tabs = document.getElementById('galleryTabs')!;
+
+    let current = 0;
+    let visibleItems: HTMLElement[] = [];
+
+    function getVisibleItems() {
+        return [...grid.querySelectorAll('.gallery-item:not([hidden])')] as HTMLElement[];
+    }
+
+    // ── Category filtering ──────────────────────────────────
+    tabs.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest('.tab') as HTMLElement | null;
+        if (!btn) return;
+
+        const cat = btn.dataset.category;
+        tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+
+        grid.querySelectorAll('.gallery-item').forEach((item) => {
+            const el = item as HTMLElement;
+            if (cat === 'alle' || el.dataset.category === cat) {
+                el.removeAttribute('hidden');
+            } else {
+                el.setAttribute('hidden', '');
+            }
+        });
+
+        visibleItems = getVisibleItems();
+    });
+
+    // ── Lightbox ────────────────────────────────────────────
+    function showImage(idx: number) {
+        visibleItems = getVisibleItems();
+        if (!visibleItems.length) return;
+        current = ((idx % visibleItems.length) + visibleItems.length) % visibleItems.length;
+        const src = visibleItems[current].dataset.src || '';
+        lbImage.src = src;
+        lbCounter.textContent = `${current + 1} / ${visibleItems.length}`;
+        lightbox.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        lightbox.setAttribute('aria-hidden', 'true');
+        lbImage.src = '';
+        document.body.style.overflow = '';
+    }
+
+    grid.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest('.gallery-item') as HTMLElement | null;
+        if (!btn || btn.hasAttribute('hidden')) return;
+        visibleItems = getVisibleItems();
+        const idx = visibleItems.indexOf(btn);
+        if (idx >= 0) showImage(idx);
+    });
+
+    document.getElementById('lbClose')!.addEventListener('click', closeLightbox);
+    document.getElementById('lbPrev')!.addEventListener('click', () => showImage(current - 1));
+    document.getElementById('lbNext')!.addEventListener('click', () => showImage(current + 1));
+
+    document.addEventListener('keydown', (e) => {
+        if (lightbox.getAttribute('aria-hidden') === 'true') return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') showImage(current - 1);
+        if (e.key === 'ArrowRight') showImage(current + 1);
+    });
+
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+    });
+
+    // Init
+    visibleItems = getVisibleItems();
+})();
+</script>
+
+<style>
+    .gallery-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 2rem;
+        margin-top: 1rem;
+    }
+    .gallery-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+        color: #1a1a2e;
+    }
+    .gallery-count {
+        color: var(--color-text-muted, #6b7280);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .gallery-hint {
+        margin-top: 3rem;
+        font-size: 0.9rem;
+        text-align: center;
+        color: var(--color-text-muted, #6b7280);
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px dashed #cbd5e1;
+    }
+    .gallery-hint code {
+        background: rgba(0,0,0,0.06);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        color: #e11d48;
+    }
+
+    /* ── Tabs ──────────────────────────────────────────── */
+    .gallery-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+        justify-content: center;
+    }
+    .tab {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.25rem;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #4b5563;
+        background: #f1f5f9;
+        border: 2px solid transparent;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .tab:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    .tab.active {
+        background: var(--color-primary, #DC143C);
+        color: #fff;
+        border-color: var(--color-primary, #DC143C);
+        box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+        transform: translateY(-2px);
+    }
+    .tab-count {
+        background: rgba(0,0,0,0.08);
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-left: 0.25rem;
+    }
+    .tab.active .tab-count {
+        background: rgba(255,255,255,0.25);
+    }
+
+    /* ── Grid ──────────────────────────────────────────── */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 0.75rem;
+    }
+    .gallery-item {
+        position: relative;
+        background: #e5e7eb;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        overflow: hidden;
+        border-radius: 8px;
+        aspect-ratio: 1;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .gallery-item[hidden] { display: none; }
+    .gallery-item:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.5s ease;
+    }
+    .gallery-item:hover img {
+        transform: scale(1.05);
+    }
+    .item-cat {
+        position: absolute;
+        bottom: 0.6rem;
+        left: 0.6rem;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(4px);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* ── Lightbox ──────────────────────────────────────── */
+    .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(8px);
+    }
+    .lightbox[aria-hidden="true"] { display: none; }
+    .lb-content {
+        max-width: 90vw;
+        max-height: 88vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .lb-content img {
+        max-width: 90vw;
+        max-height: 85vh;
+        object-fit: contain;
+        border-radius: 4px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+    .lb-close, .lb-prev, .lb-next {
+        position: absolute;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        z-index: 10;
+        border-radius: 50%;
+    }
+    .lb-close:hover, .lb-prev:hover, .lb-next:hover { 
+        background: rgba(255,255,255,0.25);
+        transform: scale(1.1);
+    }
+    .lb-close { 
+        top: 1.5rem; right: 1.5rem; 
+        width: 3rem; height: 3rem;
+        font-size: 2rem; 
+        line-height: 0;
+    }
+    .lb-prev, .lb-next {
+        top: 50%; transform: translateY(-50%); 
+        width: 4rem; height: 4rem;
+        font-size: 2.5rem;
+    }
+    .lb-prev:hover, .lb-next:hover {
+        transform: translateY(-50%) scale(1.1);
+    }
+    .lb-prev  { left: 1.5rem; }
+    .lb-next  { right: 1.5rem; }
+    
+    .lb-counter {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255,255,255,0.9);
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: rgba(0,0,0,0.5);
+        padding: 0.4rem 1rem;
+        border-radius: 999px;
+        letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 600px) {
+        .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
+        .lb-prev, .lb-next { width: 3rem; height: 3rem; font-size: 1.5rem; }
+        .lb-close { width: 2.5rem; height: 2.5rem; font-size: 1.5rem; }
+        .gallery-tabs { gap: 0.5rem; }
+        .tab { padding: 0.5rem 0.85rem; font-size: 0.85rem; }
+    }
+</style>

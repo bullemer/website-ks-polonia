@@ -24,7 +24,6 @@ if (pageEntry && page.currentPage === 1) {
     Content = rendered.Content;
 }
 
-const images = import.meta.glob<{ default: ImageMetadata }>('../../../assets/images/*.{jpeg,jpg,png,gif,webp}');
 ---
 
 <Layout 
@@ -50,16 +49,16 @@ const images = import.meta.glob<{ default: ImageMetadata }>('../../../assets/ima
 
         <div class="news-grid">
             {page.data.map((post) => {
-                let imgPromise = null;
-                if (post.data.coverImage && images[post.data.coverImage]) {
-                    imgPromise = images[post.data.coverImage]();
+                let imgData = null;
+                if (post.data.coverImage && typeof post.data.coverImage === 'object' && post.data.coverImage.src) {
+                    imgData = post.data.coverImage;
                 }
 
                 return (
                     <a href={`/news/${post.id}`} class="news-card">
                         <div class="news-image">
-                            {imgPromise ? (
-                                <Image src={imgPromise} alt={post.data.title || ''} width={600} height={400} />
+                            {imgData ? (
+                                <Image src={imgData} alt={post.data.title || ''} width={600} height={400} />
                             ) : (
                                 <div class="news-image-placeholder">
                                     <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none" class="placeholder-icon">

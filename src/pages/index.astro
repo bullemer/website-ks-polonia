@@ -52,6 +52,23 @@ const latestNews = sortedNews.slice(0, 6);
         </div>
     </section>
 
+    <!-- Next Matches Widget -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Nächste Spiele</h2>
+            <a href="/spieltermine" class="view-all">Alle Termine →</a>
+        </div>
+        <div class="matches-widget-container" style="background: var(--color-surface); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);">
+            <script is:inline type="text/javascript" src="https://www.fussball.de/widgets.js"></script>
+            <div 
+              class="fussballde_widget"
+              data-id="576e80b1-c9b0-4ea0-a1ca-b7bcf6a4b9b7"
+              data-type="club-matches"
+              style="width: 100%"
+            ></div>
+        </div>
+    </section>
+
     <!-- Pages Overview -->
     <section class="section">
         <div class="section-header">

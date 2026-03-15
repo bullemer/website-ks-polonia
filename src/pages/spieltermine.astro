@@ -1,0 +1,71 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Spieltermine | KS Polonia Hamburg">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Spieltermine</h1>
+      <p>Alle aktuellen Begegnungen unserer Mannschaften auf einen Blick.</p>
+    </div>
+  </div>
+
+  <section class="section-padding">
+    <div class="container">
+      <div class="widget-container">
+        <!-- Fussball.de Widget Integration -->
+        <div class="fussballde_widget" 
+             data-id="2dff7e29-3d07-467d-9c17-3ed4dac1c3bd" 
+             data-type="club-matches" 
+             style="width: 100%">
+        </div>
+        
+        <script type="text/javascript" src="https://www.fussball.de/widgets.js" is:inline></script>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 4rem 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .header-content h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-text);
+    margin: 0 0 1rem 0;
+    letter-spacing: -0.02em;
+  }
+
+  .header-content p {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .section-padding {
+    padding: 2rem 0 6rem 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .widget-container {
+    background: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+  }
+</style>

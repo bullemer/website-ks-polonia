@@ -34,3 +34,5 @@ jobs:
           local-dir: ./dist/ # The Astro output directory
           server-dir: /public_html/ks-polonia/ # The exact target path on the Hetzner webspace
           dry-run: false # Set to true to test the connection without uploading
+          security: loose
+          timeout: 600000

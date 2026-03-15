@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import keystatic from '@keystatic/astro';
 import react from '@astrojs/react';
 import markdoc from '@astrojs/markdoc';
 
@@ -6,7 +7,8 @@ import markdoc from '@astrojs/markdoc';
 export default defineConfig({
     integrations: [
         react(),
-        markdoc()
-    ],
+        markdoc(),
+        process.env.NODE_ENV === 'development' ? keystatic() : null
+    ].filter(Boolean),
     output: 'static'
 });

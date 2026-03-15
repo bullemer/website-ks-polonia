@@ -1,0 +1,35 @@
+name: Deploy to Hetzner Webspace
+
+on:
+  push:
+    branches:
+      - main # Change this to your default branch if it's not 'main'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Recommended version for Astro
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Astro Website
+        run: npm run build
+
+      - name: Sync files via FTP to Hetzner
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/ # The Astro output directory
+          server-dir: /public_html/ # IMPORTANT: Change this to the exact target path on your Hetzner webspace
+          dry-run: false # Set to true to test the connection without uploading

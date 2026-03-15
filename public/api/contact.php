@@ -87,8 +87,8 @@ try {
     $mail->SMTPAuth   = true;
     $mail->Username   = 'info@ks-polonia.de';
     $mail->Password   = 'C4XOidAid08XX7U6';
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Enable implicit TLS encryption
-    $mail->Port       = 465;                         // TCP port to connect to
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Enable TLS encryption
+    $mail->Port       = 587;                         // TCP port to connect to
 
     // Internal encoding
     $mail->CharSet = 'UTF-8';

@@ -15,7 +15,11 @@ const { team } = Astro.props;
 const { Content } = await render(team);
 ---
 
-<Layout title={`${team.data.title || team.data.teamName} | K.S. Polonia Hamburg`}>
+<Layout 
+    title={`${team.data.title || team.data.teamName} | K.S. Polonia Hamburg`}
+    description={`Informationen, Kader und Spielklasse für die Mannschaft ${team.data.title || team.data.teamName} von KS Polonia Hamburg.`}
+    type="profile"
+>
     <div class="team-page-header">
         {team.data.logoUrl && (
             <div class="team-logo">

@@ -2,7 +2,6 @@ import { defineConfig } from 'astro/config';
 import keystatic from '@keystatic/astro';
 import react from '@astrojs/react';
 import markdoc from '@astrojs/markdoc';
-import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
@@ -11,8 +10,5 @@ export default defineConfig({
         markdoc(),
         keystatic()
     ],
-    output: 'static',
-    adapter: node({
-        mode: 'standalone'
-    })
+    output: 'static'
 });

@@ -4,9 +4,18 @@ import { getCollection } from 'astro:content';
 interface Props {
     title: string;
     description?: string;
+    image?: string;
+    canonicalUrl?: string;
+    type?: string;
 }
 
-const { title, description = 'KS Polonia Hamburg e.V. 1988 – Sportverein von der Finkenau' } = Astro.props;
+const { 
+    title, 
+    description = 'KS Polonia Hamburg e.V. 1988 – Polnischer Sportverein an der Finkenau mit Fußball, Basketball und Badminton',
+    image = '/logo.png',
+    canonicalUrl = new URL(Astro.url.pathname, 'https://www.ks-polonia.de').toString(),
+    type = 'website'
+} = Astro.props;
 
 // Fetch and filter the dynamically generated Fussball.de teams
 const allTeams = await getCollection('teams');
@@ -50,9 +59,27 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
+    
+    <!-- SEO and Meta Tags -->
     <title>{title} | KS Polonia Hamburg</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={`${title} | KS Polonia Hamburg`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, 'https://www.ks-polonia.de')} />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta property="twitter:title" content={`${title} | KS Polonia Hamburg`} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={new URL(image, 'https://www.ks-polonia.de')} />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />

@@ -239,7 +239,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 def get_current_username(request: Request):
-    auth_header = request.headers.get("Authorization")
+    auth_header = request.headers.get("Authorization") or request.headers.get("X-Admin-Auth")
     if not auth_header or not auth_header.startswith("Basic "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

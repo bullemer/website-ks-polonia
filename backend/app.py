@@ -246,7 +246,15 @@ async def admin_dashboard_get(request: Request, team_id: Optional[str] = None):
     is_authenticated = request.cookies.get("admin_session") == "authorized"
     
     if not is_authenticated:
-        return templates.TemplateResponse(request=request, name="admin.html", context={"authenticated": False})
+        try:
+            from fastapi.responses import HTMLResponse
+            template = templates.get_template("admin.html")
+            html_content = template.render({"request": request, "authenticated": False})
+            return HTMLResponse(content=html_content)
+        except Exception as e:
+            import traceback
+            from fastapi.responses import PlainTextResponse
+            return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
         
     teams = []
     players = []
@@ -296,10 +304,26 @@ async def admin_dashboard_post(request: Request, team_id: Optional[str] = Form(N
         if secrets.compare_digest(username, "admin") and secrets.compare_digest(password, "polonia2026"):
             is_authenticated = True
         else:
-            return templates.TemplateResponse(request=request, name="admin.html", context={"error": "Falscher Benutzername oder Passwort", "authenticated": False})
+            try:
+                from fastapi.responses import HTMLResponse
+                template = templates.get_template("admin.html")
+                html_content = template.render({"request": request, "error": "Falscher Benutzername oder Passwort", "authenticated": False})
+                return HTMLResponse(content=html_content)
+            except Exception as e:
+                import traceback
+                from fastapi.responses import PlainTextResponse
+                return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
             
     if not is_authenticated:
-        return templates.TemplateResponse(request=request, name="admin.html", context={"authenticated": False})
+        try:
+            from fastapi.responses import HTMLResponse
+            template = templates.get_template("admin.html")
+            html_content = template.render({"request": request, "authenticated": False})
+            return HTMLResponse(content=html_content)
+        except Exception as e:
+            import traceback
+            from fastapi.responses import PlainTextResponse
+            return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
         
     teams = []
     players = []

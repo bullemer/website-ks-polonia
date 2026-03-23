@@ -251,9 +251,7 @@ async def admin_dashboard_get(request: Request, team_id: Optional[str] = None):
         if not is_authenticated:
             try:
                 from fastapi.responses import HTMLResponse
-                template = templates.get_template("admin.html")
-                html_content = template.render({"request": request, "authenticated": False})
-                return HTMLResponse(content=html_content)
+                return HTMLResponse(content="<h1>HELLO ADMIN</h1>")
             except Exception as e:
                 import traceback
                 from fastapi.responses import PlainTextResponse
@@ -289,10 +287,7 @@ async def admin_dashboard_get(request: Request, team_id: Optional[str] = None):
         
     try:
         from fastapi.responses import HTMLResponse
-        template = templates.get_template("admin.html")
-        html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or "", "authenticated": is_authenticated})
-        response = HTMLResponse(content=html_content, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache"})
-        return response
+        return HTMLResponse(content="<h1>HELLO ADMIN DASHBOARD</h1>")
     except Exception as e:
         import traceback
         from fastapi.responses import PlainTextResponse

@@ -177,21 +177,15 @@ import Layout from '../layouts/Layout.astro';
                 try {
                     const formData = new FormData(form);
                     
-                    // Handle multi-select checkboxes for departments
-                    const abteilungen = [];
-                    formData.getAll('abteilungen[]').forEach(val => abteilungen.push(val));
-                    formData.delete('abteilungen[]');
-                    
-                    const data = Object.fromEntries(formData.entries());
-                    data.abteilungen = abteilungen.join(', ');
+                    // The server expects 'abteilungen' as a comma-separated string,
+                    // so we need to convert the multiple 'abteilungen[]' entries.
+                    const abteilungen = formData.getAll('abteilungen[]');
+                    formData.delete('abteilungen[]'); // Remove individual entries
+                    formData.append('abteilungen', abteilungen.join(', ')); // Add as a single string
 
                     const response = await fetch(form.action, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(data)
+                        body: formData // Send FormData directly
                     });
 
                     const result = await response.json();

@@ -1,6 +1,8 @@
 import smtplib
+import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 
 # Hardcoded server configs (as previously found in PHPMailer scripts)
 SMTP_HOST = "mail.your-server.de"
@@ -10,9 +12,9 @@ SMTP_PASSWORD = "C4XOidAid08XX7U6"
 TARGET_EMAIL = "info@ks-polonia.de"
 FROM_EMAIL = "info@ks-polonia.de"
 
-def send_email(subject: str, text_body: str, reply_to_email: str = None, reply_to_name: str = None):
+def send_email(subject: str, text_body: str, reply_to_email: str = None, reply_to_name: str = None, attachments: list = None):
     """
-    Sends a plain text email via the configured SMTP server.
+    Sends a plain text email and optional attachments via the configured SMTP server.
     """
     msg = MIMEMultipart()
     
@@ -28,6 +30,15 @@ def send_email(subject: str, text_body: str, reply_to_email: str = None, reply_t
         name = reply_to_name if reply_to_name else reply_to_email
         msg['Reply-To'] = f"{name} <{reply_to_email}>"
 
+    # Process Attachments
+    if attachments:
+        for file_path in attachments:
+            if os.path.exists(file_path):
+                with open(file_path, "rb") as f:
+                    part = MIMEApplication(f.read(), Name=os.path.basename(file_path))
+                part['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
+                msg.attach(part)
+
     try:
         # Start SMTP TLS connection
         server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
@@ -38,3 +49,4 @@ def send_email(subject: str, text_body: str, reply_to_email: str = None, reply_t
         return True, None
     except Exception as e:
         return False, str(e)
+

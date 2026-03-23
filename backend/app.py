@@ -95,44 +95,92 @@ async def handle_contact(form: ContactForm):
         return JSONResponse({"success": False, "error": "Die Nachricht konnte nicht gesendet werden. Error: " + error_msg}, status_code=500)
 
 # --- Endpoint: Mitgliedsantrag ---
+import os
+import datetime
+from fastapi import UploadFile
+
+UPLOAD_DIR = "/usr/home/trusteei/kspolonia_uploads"
+
 @app.post("/mitgliedsantrag")
-async def handle_membership(form: MembershipForm):
+async def handle_membership(request: Request):
+    form = await request.form()
+    
     # Security: Honeypot Check
-    if form.website_url.strip() != "":
+    website_url = form.get("website_url", "")
+    if isinstance(website_url, str) and website_url.strip() != "":
         return JSONResponse({"success": True, "message": "Ihr Antrag wurde erfolgreich übermittelt!"})
     
-    email_subject = f"Neuer Mitgliedsantrag online: {form.vorname} {form.nachname}"
+    vorname = form.get("vorname", "")
+    nachname = form.get("nachname", "")
+    email = form.get("email", "")
+    
+    # Process Files
+    # Create upload directory if it doesn't exist (e.g. for local testing)
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    
+    id_front = form.get("id_front")
+    id_back = form.get("id_back")
+    
+    if not isinstance(id_front, UploadFile) or not isinstance(id_back, UploadFile):
+        return JSONResponse({"success": False, "error": "Bitte laden Sie die Vorder- und Rückseite Ihres Ausweises hoch."}, status_code=400)
+    
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    front_filename = f"{nachname}_{vorname}_Front_{timestamp}.jpg"
+    back_filename = f"{nachname}_{vorname}_Back_{timestamp}.jpg"
+    
+    front_path = os.path.join(UPLOAD_DIR, front_filename)
+    back_path = os.path.join(UPLOAD_DIR, back_filename)
+    
+    # Save files
+    with open(front_path, "wb") as f_front:
+        f_front.write(await id_front.read())
+        
+    with open(back_path, "wb") as f_back:
+        f_back.write(await id_back.read())
+        
+    email_subject = f"Neuer Mitgliedsantrag online: {vorname} {nachname}"
     
     body = (
         f"Es wurde ein neuer Mitgliedsantrag über das Online-Formular eingereicht:\n\n"
         f"=== 1. ANTRAGSTELLER*IN / MITGLIEDSDATEN ===\n"
-        f"Vorname: {form.vorname}\n"
-        f"Nachname: {form.nachname}\n"
-        f"Straße: {form.strasse}\n"
-        f"PLZ/Ort: {form.plz} {form.ort}\n"
-        f"Land: {form.land}\n"
-        f"Geburtsdatum: {form.geburtsdatum}\n"
-        f"Geschlecht: {form.geschlecht}\n\n"
+        f"Vorname: {vorname}\n"
+        f"Nachname: {nachname}\n"
+        f"Straße: {form.get('strasse', '')}\n"
+        f"PLZ/Ort: {form.get('plz', '')} {form.get('ort', '')}\n"
+        f"Land: {form.get('land', '')}\n"
+        f"Geburtsdatum: {form.get('geburtsdatum', '')}\n"
+        f"Geschlecht: {form.get('geschlecht', '')}\n\n"
         f"=== 2. KONTAKTDATEN ===\n"
-        f"E-Mail: {form.email}\n"
-        f"Telefon: {form.telefon}\n\n"
+        f"E-Mail: {email}\n"
+        f"Telefon: {form.get('telefon', '')}\n\n"
         f"=== 3. VEREINSEINTRITT & ABTEILUNGEN ===\n"
-        f"Gewünschtes Eintrittsdatum: {form.eintrittsdatum}\n"
-        f"Gewählte Abteilungen: {form.abteilungen}\n\n"
+        f"Eintrittsdatum: {form.get('eintrittsdatum', '')}\n"
+        f"Abteilungen: {form.get('abteilungen', '')}\n\n"
         f"=== 4. ZAHLUNGSART ===\n"
-        f"Art: {form.zahlungsart}\n\n"
+        f"Art: {form.get('zahlungsart', '')}\n\n"
     )
 
-    if form.bemerkungen or form.trainer_referenz:
+    bemerkungen = form.get('bemerkungen', '')
+    trainer_referenz = form.get('trainer_referenz', '')
+
+    if bemerkungen or trainer_referenz:
         body += "=== 5. ZUSATZDATEN ===\n"
-        if form.trainer_referenz:
-            body += f"Trainer - Referenz: {form.trainer_referenz}\n"
-        if form.bemerkungen:
-            body += f"Bemerkungen:\n{form.bemerkungen}\n"
+        if trainer_referenz:
+            body += f"Trainer - Referenz: {trainer_referenz}\n"
+        if bemerkungen:
+            body += f"Bemerkungen:\n{bemerkungen}\n"
         body += "\n"
 
     body += (
-        f"=== 6. ZUSTIMMUNGEN ===\n"
+        f"=== 6. AUSWEISDOKUMENTE (SICHERER UPLOAD) ===\n"
+        f"Die hochgeladenen Ausweisbilder wurden im System gespeichert und dieser E-Mail als Anlage beigefügt.\n"
+        f"Storage Verzeichnis: /usr/home/trusteei/kspolonia_uploads/\n"
+        f"1. Vorderseite: {front_filename}\n"
+        f"2. Rückseite: {back_filename}\n\n"
+    )
+
+    body += (
+        f"=== 7. ZUSTIMMUNGEN ===\n"
         f"✓ DSGVO und BDSG zugestimmt.\n"
         f"✓ Rechtsverbindlichkeit des Antrags bestätigt.\n"
     )
@@ -140,14 +188,15 @@ async def handle_membership(form: MembershipForm):
     success, error_msg = send_email(
         subject=email_subject,
         text_body=body,
-        reply_to_email=form.email,
-        reply_to_name=f"{form.vorname} {form.nachname}"
+        reply_to_email=email,
+        reply_to_name=f"{vorname} {nachname}",
+        attachments=[front_path, back_path]
     )
 
     if success:
-        return JSONResponse({"success": True, "message": "Vielen Dank! Ihr Antrag wurde erfolgreich übermittelt. Wir werden uns in Kürze bei Ihnen melden."})
+        return JSONResponse({"success": True, "message": "Vielen Dank! Ihr Antrag wurde erfolgreich übermittelt."})
     else:
-        return JSONResponse({"success": False, "error": "Der Antrag konnte leider nicht gesendet werden. Error: " + error_msg}, status_code=500)
+        return JSONResponse({"success": False, "error": "Der Antrag konnte nicht gesendet werden. Error: " + str(error_msg)}, status_code=500)
 
 # --- Endpoint: DB Health Check ---
 import asyncpg

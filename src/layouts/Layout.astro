@@ -152,6 +152,8 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
                     </ul>
                 </nav>
 
+                <div id="google_translate_element" class="lang-selector"></div>
+
                 <button class="menu-toggle" id="menuToggle" aria-label="Menü öffnen">
                     <span></span><span></span><span></span>
                 </button>
@@ -228,6 +230,18 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
       // Run once after load
       setTimeout(checkSystemHealth, 500);
     </script>
+    
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'de',
+          includedLanguages: 'pl,uk,ru,en,de',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
 
@@ -284,6 +298,8 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
 
     .logo { flex-shrink: 0; line-height: 0; }
     .logo img { width: 52px; height: 52px; object-fit: contain; }
+
+    .lang-selector { margin-left: auto; display: flex; align-items: center; min-height: 35px; }
 
     .header-tagline {
         background: var(--color-bg);

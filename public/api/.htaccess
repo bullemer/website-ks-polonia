@@ -2,19 +2,11 @@
   RewriteEngine On
   RewriteBase /api/
   
-  SetEnvIf Request_URI "^/api/admin" require_auth=true
+  # Prevent Apache from crashing when FastCGI returns 401
+  ErrorDocument 401 "Unauthorized"
   
-  AuthType Basic
-  AuthName "KS Polonia Admin"
-  AuthUserFile /usr/home/trusteei/public_html/ks-polonia/api/.htpasswd
-  
-  <RequireAny>
-      <RequireAll>
-          Require all granted
-          Require not env require_auth
-      </RequireAll>
-      Require valid-user
-  </RequireAny>
+  # Ensure Authorization headers are passed to the FastCGI process
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^(.*)$ api.fcgi/$1 [QSA,L]

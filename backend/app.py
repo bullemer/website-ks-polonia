@@ -290,7 +290,7 @@ async def admin_dashboard(request: Request, team_id: Optional[str] = None, usern
         from fastapi.responses import HTMLResponse
         template = templates.get_template("admin.html")
         html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or ""})
-        return HTMLResponse(content=html_content)
+        return HTMLResponse(content=html_content, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache"})
     except Exception as e:
         import traceback
         from fastapi.responses import PlainTextResponse

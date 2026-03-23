@@ -286,9 +286,13 @@ async def admin_dashboard(request: Request, team_id: Optional[str] = None, usern
     except Exception as e:
         print(f"Database error in admin dashboard: {e}")
         
-    return templates.TemplateResponse("admin.html", {
-        "request": request, 
-        "teams": teams, 
-        "players": players, 
-        "selected_team_id": team_id or ""
-    })
+    try:
+        return templates.TemplateResponse("admin.html", {
+            "request": request, 
+            "teams": teams, 
+            "players": players, 
+            "selected_team_id": team_id or ""
+        })
+    except Exception as render_error:
+        import traceback
+        return JSONResponse({"error": "Template rendering failed", "trace": traceback.format_exc()})

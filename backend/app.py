@@ -296,8 +296,7 @@ async def admin_dashboard_get(request: Request, team_id: Optional[str] = None):
 
         await conn.close()
     except Exception as e:
-        import sys
-        print(f"Database error in admin dashboard: {e}", file=sys.stderr)
+        pass
         
     try:
         from fastapi.responses import HTMLResponse
@@ -366,8 +365,7 @@ async def admin_dashboard_post(request: Request, team_id: Optional[str] = Form(N
 
         await conn.close()
     except Exception as e:
-        import sys
-        print(f"Database error in admin dashboard: {e}", file=sys.stderr)
+        pass
         
     try:
         from fastapi.responses import HTMLResponse

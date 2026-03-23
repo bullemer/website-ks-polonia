@@ -286,12 +286,12 @@ async def admin_dashboard(request: Request, team_id: Optional[str] = None, usern
     except Exception as e:
         print(f"Database error in admin dashboard: {e}")
         
-    return templates.TemplateResponse(
-        request=request, 
-        name="admin.html", 
-        context={
-            "teams": teams, 
-            "players": players, 
-            "selected_team_id": team_id or ""
-        }
-    )
+    try:
+        from fastapi.responses import HTMLResponse
+        template = templates.get_template("admin.html")
+        html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or ""})
+        return HTMLResponse(content=html_content)
+    except Exception as e:
+        import traceback
+        from fastapi.responses import PlainTextResponse
+        return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)

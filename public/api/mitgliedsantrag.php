@@ -81,6 +81,7 @@ $telefon = get_field('telefon');
 $eintrittsdatum = get_field('eintrittsdatum');
 $abteilungen = get_field('abteilungen', 'Keine ausgewählt');
 $zahlungsart = get_field('zahlungsart', 'Überweisung');
+$trainer_referenz = get_field('trainer_referenz');
 $bemerkungen = get_field('bemerkungen');
 
 // Include PHPMailer
@@ -137,9 +138,15 @@ try {
     $body .= "=== 4. ZAHLUNGSART ===\n";
     $body .= "Art: $zahlungsart\n\n";
 
-    if (!empty($bemerkungen)) {
+    if (!empty($bemerkungen) || !empty($trainer_referenz)) {
         $body .= "=== 5. ZUSATZDATEN ===\n";
-        $body .= "Bemerkungen:\n$bemerkungen\n\n";
+        if (!empty($trainer_referenz)) {
+            $body .= "Trainer - Referenz: $trainer_referenz\n";
+        }
+        if (!empty($bemerkungen)) {
+            $body .= "Bemerkungen:\n$bemerkungen\n";
+        }
+        $body .= "\n";
     }
 
     $body .= "=== 6. ZUSTIMMUNGEN ===\n";

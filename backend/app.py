@@ -238,35 +238,23 @@ import secrets
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-def get_current_username(request: Request):
-    auth_header = request.headers.get("Authorization") or request.headers.get("X-Admin-Auth")
-    if not auth_header or not auth_header.startswith("Basic "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated test",
-            headers={"WWW-Authenticate": 'Basic realm="Admin"'},
-        )
-    try:
-        decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
-        username, password = decoded.split(":", 1)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials test",
-            headers={"WWW-Authenticate": 'Basic realm="Admin"'},
-        )
-    correct_username = secrets.compare_digest(username, "admin")
-    correct_password = secrets.compare_digest(password, "polonia2026")
-    if not (correct_username and correct_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password test",
-            headers={"WWW-Authenticate": 'Basic realm="Admin"'},
-        )
-    return username
+from fastapi import Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 @app.get("/admin")
-async def admin_dashboard(request: Request, team_id: Optional[str] = None, username: str = Depends(get_current_username)):
+@app.post("/admin")
+async def admin_dashboard(request: Request, team_id: Optional[str] = Form(None), username: Optional[str] = Form(None), password: Optional[str] = Form(None)):
+    is_authenticated = request.cookies.get("admin_session") == "authorized"
+    
+    # Handle Login Submission
+    if request.method == "POST" and username and password:
+        if secrets.compare_digest(username, "admin") and secrets.compare_digest(password, "polonia2026"):
+            is_authenticated = True
+        else:
+            return templates.TemplateResponse(request=request, name="admin.html", context={"error": "Falscher Benutzername oder Passwort", "authenticated": False})
+            
+    if not is_authenticated:
+        return templates.TemplateResponse(request=request, name="admin.html", context={"authenticated": False})
     teams = []
     players = []
     
@@ -299,8 +287,11 @@ async def admin_dashboard(request: Request, team_id: Optional[str] = None, usern
     try:
         from fastapi.responses import HTMLResponse
         template = templates.get_template("admin.html")
-        html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or ""})
-        return HTMLResponse(content=html_content, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache"})
+        html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or "", "authenticated": is_authenticated})
+        response = HTMLResponse(content=html_content, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache"})
+        if request.method == "POST" and is_authenticated:
+            response.set_cookie(key="admin_session", value="authorized", max_age=86400, httponly=True, secure=True)
+        return response
     except Exception as e:
         import traceback
         from fastapi.responses import PlainTextResponse

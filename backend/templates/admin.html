@@ -28,6 +28,27 @@
 </head>
 <body>
     <div class="container">
+        {% if not authenticated %}
+        <div style="max-width: 400px; margin: 0 auto; text-align: center;">
+            <h1>KS Polonia Login</h1>
+            {% if error %}
+            <div style="background-color: #fef2f2; color: #b91c1c; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-weight: bold;">
+                {{ error }}
+            </div>
+            {% endif %}
+            <form method="POST" action="">
+                <div style="margin-bottom: 1rem; text-align: left;">
+                    <label for="username" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Benutzername</label>
+                    <input type="text" id="username" name="username" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; box-sizing: border-box;">
+                </div>
+                <div style="margin-bottom: 1.5rem; text-align: left;">
+                    <label for="password" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Passwort</label>
+                    <input type="password" id="password" name="password" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; box-sizing: border-box;">
+                </div>
+                <button type="submit" style="width: 100%; padding: 1rem;">Anmelden</button>
+            </form>
+        </div>
+        {% else %}
         <h1>Vereinsübersicht: Mannschaften & Spieler</h1>
         
         <form method="GET" action="" class="form-group">
@@ -35,39 +56,14 @@
             <select name="team_id" id="team_id" onchange="this.form.submit()">
                 <option value="">-- Bitte auswählen --</option>
                 {% for team in teams %}
-                    <option value="{{ team.id }}" {% if selected_team_id == team.id|string %}selected{% endif %}>
-                        {{ team.mannschaftsart }} | {{ team.mannschaftsname }} ({{ team.spielklasse }})
+                    <option value="{{ team['id'] }}" {% if selected_team_id == team['id']|string %}selected{% endif %}>
+                        {{ team['mannschaftsart'] }} | {{ team['mannschaftsname'] }} ({{ team['spielklasse'] }})
                     </option>
                 {% endfor %}
             </select>
             <button type="submit">Anzeigen</button>
         </form>
 
-        {% if selected_team_id %}
-            <h2>Spielerkader</h2>
-            {% if players %}
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Vorname</th>
-                            <th>Geburtsdatum</th>
-                            <th>Passnummer</th>
-                            <th>Spielrecht ab</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for player in players %}
-                        <tr>
-                            <td><strong>{{ player.name }}</strong></td>
-                            <td>{{ player.vorname }}</td>
-                            <td>{{ player.geburtsdatum }}</td>
-                            <td><code>{{ player.passnr }}</code></td>
-                            <td>{{ player.spielrecht_ab }}</td>
-                            <td><span class="badge">Aktiv</span></td>
-                        </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             {% else %}

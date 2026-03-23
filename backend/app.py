@@ -53,7 +53,7 @@ class MembershipForm(BaseModel):
     website_url: Optional[str] = ""  # Honeypot
 
 # --- Endpoint: Contact ---
-@app.post("/api/contact")
+@app.post("/contact")
 async def handle_contact(form: ContactForm):
     # Security: Honeypot Check
     if form.website_url.strip() != "":
@@ -95,7 +95,7 @@ async def handle_contact(form: ContactForm):
         return JSONResponse({"success": False, "error": "Die Nachricht konnte nicht gesendet werden. Error: " + error_msg}, status_code=500)
 
 # --- Endpoint: Mitgliedsantrag ---
-@app.post("/api/mitgliedsantrag")
+@app.post("/mitgliedsantrag")
 async def handle_membership(form: MembershipForm):
     # Security: Honeypot Check
     if form.website_url.strip() != "":
@@ -156,7 +156,7 @@ import pydantic
 API_VERSION = "1.0.1"
 DATABASE_URL = "postgresql://trusteei_0:k6%25KkhF%3B%29FY4@kwnz.your-database.de:5432/kspolonia"
 
-@app.get("/api/health")
+@app.get("/health")
 async def health_check():
     """ Verify the application and database connectivity """
     status = {"api": "ok", "version": API_VERSION, "database": "unknown"}

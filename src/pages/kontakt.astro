@@ -45,6 +45,12 @@ import Layout from '../layouts/Layout.astro';
             <textarea id="message" name="message" rows="6" required placeholder="Ihre Nachricht an uns..."></textarea>
         </div>
 
+        <div class="form-group captcha-group" style="background: #fdfdfd; padding: 1rem; border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 1.5rem;">
+            <label for="captcha_answer" id="captcha_label">Sicherheitsfrage: Was ergibt 5 + 3? *</label>
+            <input type="number" id="captcha_answer" name="captcha_answer" required placeholder="Ihr Ergebnis" style="max-width: 200px;" />
+            <input type="hidden" id="captcha_expected" name="captcha_expected" value="8" />
+        </div>
+
         <button type="submit" class="submit-btn" id="submitBtn">Nachricht senden</button>
 
         <div id="formStatus" class="form-status" style="display: none;"></div>
@@ -59,6 +65,16 @@ import Layout from '../layouts/Layout.astro';
         const form = document.getElementById('contactForm') as HTMLFormElement;
         const statusDiv = document.getElementById('formStatus');
         const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+        // Initialize Dynamic Math CAPTCHA
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
+        const captchaLabel = document.getElementById('captcha_label');
+        const captchaExpected = document.getElementById('captcha_expected') as HTMLInputElement;
+        if(captchaLabel && captchaExpected) {
+            captchaLabel.textContent = `Sicherheitsfrage: Was ergibt ${num1} + ${num2}? *`;
+            captchaExpected.value = (num1 + num2).toString();
+        }
 
         if (form && statusDiv && submitBtn) {
             form.addEventListener('submit', async (e) => {

@@ -31,6 +31,8 @@ class ContactForm(BaseModel):
     subject: str = "allgemein"
     message: str
     website_url: Optional[str] = ""  # Honeypot
+    captcha_answer: str
+    captcha_expected: str
 
 class MembershipForm(BaseModel):
     vorname: str
@@ -59,6 +61,13 @@ async def handle_contact(form: ContactForm):
     if form.website_url.strip() != "":
         # Silently reject bot but return success
         return JSONResponse({"success": True, "message": "Ihre Nachricht wurde erfolgreich gesendet!"})
+        
+    # Security: Math CAPTCHA
+    try:
+        if int(form.captcha_answer.strip()) != int(form.captcha_expected.strip()):
+            return JSONResponse({"success": False, "error": "Die Sicherheitsfrage wurde falsch beantwortet. Bitte prüfen Sie Ihre Eingabe."}, status_code=400)
+    except ValueError:
+        return JSONResponse({"success": False, "error": "Bitte geben Sie eine gültige Zahl als Antwort auf die Sicherheitsfrage ein."}, status_code=400)
     
     # Map subject
     subject_prefix = "Neue Nachricht über die Webseite"

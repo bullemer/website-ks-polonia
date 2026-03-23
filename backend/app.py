@@ -251,47 +251,52 @@ async def admin_dashboard_get(request: Request, team_id: Optional[str] = None):
         if not is_authenticated:
             try:
                 from fastapi.responses import HTMLResponse
-                return HTMLResponse(content="<h1>HELLO ADMIN</h1>")
+                template = templates.get_template("admin.html")
+                html_content = template.render({"request": request, "authenticated": False})
+                return HTMLResponse(content=html_content)
             except Exception as e:
                 import traceback
                 from fastapi.responses import PlainTextResponse
                 return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
             
         teams = []
-    players = []
-    
-    try:
-        conn = await asyncpg.connect(DATABASE_URL)
-        teams_records = await conn.fetch("SELECT id, mannschaftsart, mannschaftsname, spielklasse FROM teams ORDER BY mannschaftsart, mannschaftsname")
-        teams = [dict(record) for record in teams_records]
-
-        if team_id:
-            try:
-                # Security: Validate integer to prevent injection
-                t_id = int(team_id)
-                players_query = """
-                    SELECT p.vorname, p.name, p.geburtsdatum, p.passnr, p.spielrecht_ab
-                    FROM players p
-                    JOIN team_player tp ON p.id = tp.player_id
-                    WHERE tp.team_id = $1
-                    ORDER BY p.name, p.vorname
-                """
-                players_records = await conn.fetch(players_query, t_id)
-                players = [dict(record) for record in players_records]
-            except ValueError:
-                pass # Invalid team_id, ignore
-
-        await conn.close()
-    except Exception as e:
-        pass
+        players = []
         
-    try:
-        from fastapi.responses import HTMLResponse
-        return HTMLResponse(content="<h1>HELLO ADMIN DASHBOARD</h1>")
-    except Exception as e:
-        import traceback
-        from fastapi.responses import PlainTextResponse
-        return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
+        try:
+            conn = await asyncpg.connect(DATABASE_URL)
+            teams_records = await conn.fetch("SELECT id, mannschaftsart, mannschaftsname, spielklasse FROM teams ORDER BY mannschaftsart, mannschaftsname")
+            teams = [dict(record) for record in teams_records]
+
+            if team_id:
+                try:
+                    # Security: Validate integer to prevent injection
+                    t_id = int(team_id)
+                    players_query = """
+                        SELECT p.vorname, p.name, p.geburtsdatum, p.passnr, p.spielrecht_ab
+                        FROM players p
+                        JOIN team_player tp ON p.id = tp.player_id
+                        WHERE tp.team_id = $1
+                        ORDER BY p.name, p.vorname
+                    """
+                    players_records = await conn.fetch(players_query, t_id)
+                    players = [dict(record) for record in players_records]
+                except ValueError:
+                    pass # Invalid team_id, ignore
+
+            await conn.close()
+        except Exception as e:
+            pass
+            
+        try:
+            from fastapi.responses import HTMLResponse
+            template = templates.get_template("admin.html")
+            html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or "", "authenticated": is_authenticated})
+            response = HTMLResponse(content=html_content, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache"})
+            return response
+        except Exception as e:
+            import traceback
+            from fastapi.responses import PlainTextResponse
+            return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
     
     except Exception as e:
         import traceback
@@ -304,71 +309,71 @@ async def admin_dashboard_post(request: Request, team_id: Optional[str] = Form(N
         is_authenticated = request.cookies.get("admin_session") == "authorized"
         
         # Handle Login Submission
-    if username and password:
-        if secrets.compare_digest(username, "admin") and secrets.compare_digest(password, "polonia2026"):
-            is_authenticated = True
-        else:
+        if username and password:
+            if secrets.compare_digest(username, "admin") and secrets.compare_digest(password, "polonia2026"):
+                is_authenticated = True
+            else:
+                try:
+                    from fastapi.responses import HTMLResponse
+                    template = templates.get_template("admin.html")
+                    html_content = template.render({"request": request, "error": "Falscher Benutzername oder Passwort", "authenticated": False})
+                    return HTMLResponse(content=html_content)
+                except Exception as e:
+                    import traceback
+                    from fastapi.responses import PlainTextResponse
+                    return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
+                
+        if not is_authenticated:
             try:
                 from fastapi.responses import HTMLResponse
                 template = templates.get_template("admin.html")
-                html_content = template.render({"request": request, "error": "Falscher Benutzername oder Passwort", "authenticated": False})
+                html_content = template.render({"request": request, "authenticated": False})
                 return HTMLResponse(content=html_content)
             except Exception as e:
                 import traceback
                 from fastapi.responses import PlainTextResponse
                 return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
+        
+        teams = []
+        players = []
+        
+        try:
+            conn = await asyncpg.connect(DATABASE_URL)
+            teams_records = await conn.fetch("SELECT id, mannschaftsart, mannschaftsname, spielklasse FROM teams ORDER BY mannschaftsart, mannschaftsname")
+            teams = [dict(record) for record in teams_records]
+
+            if team_id:
+                try:
+                    # Security: Validate integer to prevent injection
+                    t_id = int(team_id)
+                    players_query = """
+                        SELECT p.vorname, p.name, p.geburtsdatum, p.passnr, p.spielrecht_ab
+                        FROM players p
+                        JOIN team_player tp ON p.id = tp.player_id
+                        WHERE tp.team_id = $1
+                        ORDER BY p.name, p.vorname
+                    """
+                    players_records = await conn.fetch(players_query, t_id)
+                    players = [dict(record) for record in players_records]
+                except ValueError:
+                    pass # Invalid team_id, ignore
+
+            await conn.close()
+        except Exception as e:
+            pass
             
-    if not is_authenticated:
         try:
             from fastapi.responses import HTMLResponse
             template = templates.get_template("admin.html")
-            html_content = template.render({"request": request, "authenticated": False})
-            return HTMLResponse(content=html_content)
+            html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or "", "authenticated": is_authenticated})
+            response = HTMLResponse(content=html_content, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache"})
+            if is_authenticated:
+                response.set_cookie(key="admin_session", value="authorized", max_age=86400, httponly=True, secure=True)
+            return response
         except Exception as e:
             import traceback
             from fastapi.responses import PlainTextResponse
             return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
-        
-    teams = []
-    players = []
-    
-    try:
-        conn = await asyncpg.connect(DATABASE_URL)
-        teams_records = await conn.fetch("SELECT id, mannschaftsart, mannschaftsname, spielklasse FROM teams ORDER BY mannschaftsart, mannschaftsname")
-        teams = [dict(record) for record in teams_records]
-
-        if team_id:
-            try:
-                # Security: Validate integer to prevent injection
-                t_id = int(team_id)
-                players_query = """
-                    SELECT p.vorname, p.name, p.geburtsdatum, p.passnr, p.spielrecht_ab
-                    FROM players p
-                    JOIN team_player tp ON p.id = tp.player_id
-                    WHERE tp.team_id = $1
-                    ORDER BY p.name, p.vorname
-                """
-                players_records = await conn.fetch(players_query, t_id)
-                players = [dict(record) for record in players_records]
-            except ValueError:
-                pass # Invalid team_id, ignore
-
-        await conn.close()
-    except Exception as e:
-        pass
-        
-    try:
-        from fastapi.responses import HTMLResponse
-        template = templates.get_template("admin.html")
-        html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or "", "authenticated": is_authenticated})
-        response = HTMLResponse(content=html_content, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache"})
-        if is_authenticated:
-            response.set_cookie(key="admin_session", value="authorized", max_age=86400, httponly=True, secure=True)
-        return response
-    except Exception as e:
-        import traceback
-        from fastapi.responses import PlainTextResponse
-        return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
         
     except Exception as e:
         import traceback

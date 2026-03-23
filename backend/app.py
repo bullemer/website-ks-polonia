@@ -231,19 +231,8 @@ async def health_check():
     from fastapi.responses import JSONResponse
     return JSONResponse(status)
 
-# --- Global Exception Handler ---
-import traceback
-from fastapi.responses import PlainTextResponse
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    tb = traceback.format_exc()
-    with open("/tmp/global_fastapi_trace.txt", "w") as f:
-        f.write(tb)
-    return PlainTextResponse(f"Global FastCGI Traceback Triggered:\n{tb}", status_code=500)
-
 # --- Admin Interface (Teams & Players) ---
-from fastapi import Request, Depends, HTTPException, status
+from fastapi import Request, Depends, HTTPException, status, Form
 from fastapi.templating import Jinja2Templates
 import os
 import base64
@@ -252,25 +241,25 @@ import secrets
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-from fastapi import Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 @app.get("/admin")
 async def admin_dashboard_get(request: Request, team_id: Optional[str] = None):
-    is_authenticated = request.cookies.get("admin_session") == "authorized"
-    
-    if not is_authenticated:
-        try:
-            from fastapi.responses import HTMLResponse
-            template = templates.get_template("admin.html")
-            html_content = template.render({"request": request, "authenticated": False})
-            return HTMLResponse(content=html_content)
-        except Exception as e:
-            import traceback
-            from fastapi.responses import PlainTextResponse
-            return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
+    try:
+        is_authenticated = request.cookies.get("admin_session") == "authorized"
         
-    teams = []
+        if not is_authenticated:
+            try:
+                from fastapi.responses import HTMLResponse
+                template = templates.get_template("admin.html")
+                html_content = template.render({"request": request, "authenticated": False})
+                return HTMLResponse(content=html_content)
+            except Exception as e:
+                import traceback
+                from fastapi.responses import PlainTextResponse
+                return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
+            
+        teams = []
     players = []
     
     try:
@@ -308,12 +297,18 @@ async def admin_dashboard_get(request: Request, team_id: Optional[str] = None):
         import traceback
         from fastapi.responses import PlainTextResponse
         return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
+    
+    except Exception as e:
+        import traceback
+        from fastapi.responses import PlainTextResponse
+        return PlainTextResponse("Outer GET Error:\n" + traceback.format_exc(), status_code=500)
 
 @app.post("/admin")
 async def admin_dashboard_post(request: Request, team_id: Optional[str] = Form(None), username: Optional[str] = Form(None), password: Optional[str] = Form(None)):
-    is_authenticated = request.cookies.get("admin_session") == "authorized"
-    
-    # Handle Login Submission
+    try:
+        is_authenticated = request.cookies.get("admin_session") == "authorized"
+        
+        # Handle Login Submission
     if username and password:
         if secrets.compare_digest(username, "admin") and secrets.compare_digest(password, "polonia2026"):
             is_authenticated = True
@@ -379,3 +374,8 @@ async def admin_dashboard_post(request: Request, team_id: Optional[str] = Form(N
         import traceback
         from fastapi.responses import PlainTextResponse
         return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
+        
+    except Exception as e:
+        import traceback
+        from fastapi.responses import PlainTextResponse
+        return PlainTextResponse("Outer POST Error:\n" + traceback.format_exc(), status_code=500)

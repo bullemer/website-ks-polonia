@@ -238,9 +238,11 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Depends, status, HTTPException
 import secrets
 from fastapi.templating import Jinja2Templates
+import os
 
 security = HTTPBasic()
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     correct_username = secrets.compare_digest(credentials.username, "admin")

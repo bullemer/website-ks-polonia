@@ -242,7 +242,7 @@ import os
 
 security = HTTPBasic()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+# templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     correct_username = secrets.compare_digest(credentials.username, "admin")

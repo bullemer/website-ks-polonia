@@ -1,0 +1,422 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Mitglied werden">
+    <h1>Mitgliedsantrag online</h1>
+    <p class="form-intro">
+        Werden Sie Mitglied beim K.S. Polonia Hamburg e.V. 1988! Füllen Sie das bequeme Online-Formular aus, um Teil unseres Vereins zu werden.
+    </p>
+
+    <form
+        class="membership-form"
+        action="/api/mitgliedsantrag.php"
+        method="POST"
+        id="membershipForm"
+    >
+        <div class="form-section">
+            <h2>1. Antragsteller*in / Mitgliedsdaten</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="vorname">Vorname *</label>
+                    <input type="text" id="vorname" name="vorname" required placeholder="Max" />
+                </div>
+                <div class="form-group">
+                    <label for="nachname">Nachname *</label>
+                    <input type="text" id="nachname" name="nachname" required placeholder="Mustermann" />
+                </div>
+                <div class="form-group full-width">
+                    <label for="strasse">Straße und Hausnummer *</label>
+                    <input type="text" id="strasse" name="strasse" required placeholder="Musterstraße 1" />
+                </div>
+                <div class="form-group">
+                    <label for="plz">PLZ *</label>
+                    <input type="text" id="plz" name="plz" required placeholder="20000" />
+                </div>
+                <div class="form-group">
+                    <label for="ort">Ort *</label>
+                    <input type="text" id="ort" name="ort" required placeholder="Hamburg" />
+                </div>
+                <div class="form-group">
+                    <label for="land">Land *</label>
+                    <select id="land" name="land" class="form-select" required>
+                        <option value="Deutschland">Deutschland</option>
+                        <option value="Andere">Andere</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="geburtsdatum">Geburtsdatum *</label>
+                    <input type="date" id="geburtsdatum" name="geburtsdatum" required />
+                </div>
+                <div class="form-group">
+                    <label for="geschlecht">Geschlecht *</label>
+                    <select id="geschlecht" name="geschlecht" class="form-select" required>
+                        <option value="">- bitte auswählen -</option>
+                        <option value="männlich">männlich</option>
+                        <option value="weiblich">weiblich</option>
+                        <option value="divers">divers</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>2. Kontaktdaten</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="telefon">Telefon</label>
+                    <input type="tel" id="telefon" name="telefon" placeholder="0123 456789" />
+                </div>
+                <div class="form-group">
+                    <label for="email">E-Mail-Adresse *</label>
+                    <input type="email" id="email" name="email" required placeholder="max@example.de" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>3. Vereinseintritt & Abteilungen</h2>
+            <div class="form-group">
+                <label for="eintrittsdatum">Gewünschtes Vereinseintrittsdatum *</label>
+                <input type="date" id="eintrittsdatum" name="eintrittsdatum" required />
+            </div>
+            <div class="form-group full-width">
+                <label>Abteilungen (Mehrfachauswahl möglich)</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="abteilungen[]" value="Badminton" /> Badminton
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="abteilungen[]" value="Basketball" /> Basketball
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="abteilungen[]" value="Fußball Herren" /> Fußball Herren
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="abteilungen[]" value="Fußball Jugend" /> Fußball Jugend
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section payment-section">
+            <h2>4. Zahlungsart</h2>
+            <div class="form-group full-width">
+                <label class="radio-label">
+                    <input type="radio" name="zahlungsart" value="Überweisung" checked readOnly /> <strong>Überweisung</strong>
+                </label>
+                <div class="payment-info">
+                    <p>Bitte überweisen Sie die fälligen Beiträge auf folgendes Konto:</p>
+                    <table>
+                        <tr><td><strong>Empfänger</strong></td><td>K.S. Polonia e.V.</td></tr>
+                        <tr><td><strong>Institut</strong></td><td>HYPO VEREINSBANK</td></tr>
+                        <tr><td><strong>IBAN</strong></td><td>DE36 20030000 0005008263</td></tr>
+                        <tr><td><strong>BIC / SWIFT</strong></td><td>HYVEDEMM300</td></tr>
+                        <tr><td><strong>Verwendung</strong></td><td>Zur leichteren Zuordnung bitte Name und Geburtsjahr angeben</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>5. Zusatzdaten (Optional)</h2>
+            <div class="form-group full-width">
+                <label for="bemerkungen">Zusätzliche Angaben / Bemerkungen</label>
+                <textarea id="bemerkungen" name="bemerkungen" rows="3" placeholder="Ihre Anmerkungen..."></textarea>
+            </div>
+        </div>
+
+        <!-- Honeypot Field for Spam Protection -->
+        <div class="website-url-group" style="display: none; visibility: hidden; position: absolute; left: -9999px;">
+            <label for="website_url">Bitte dieses Feld nicht ausfüllen</label>
+            <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="form-section consent-section">
+            <h2>6. Zustimmungen</h2>
+            <label class="checkbox-label consent-label">
+                <input type="checkbox" name="datenschutz" required /> Mit der Speicherung, Übermittlung und Verarbeitung personenbezogener Daten für Vereinszwecke, gemäß den Bestimmungen der Datenschutzgrundverordnung (DSGVO) und des Bundesdatenschutzgesetzes (BDSG), bin ich einverstanden. *
+            </label>
+            <label class="checkbox-label consent-label">
+                <input type="checkbox" name="verbindlich" required /> Zustimmung des Antragstellers: Ich habe zur Kenntnis genommen, dass mit der erfolgreichen Datenübermittlung ein rechtsverbindlicher Vereinsaufnahmeantrag gestellt wird für die aufgeführte Person. *
+            </label>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Antrag absenden</button>
+
+        <div id="formStatus" class="form-status" style="display: none;"></div>
+
+        <p class="form-note">
+            * Pflichtfelder. Ihre Daten werden vertraulich behandelt und verschlüsselt übertragen. Mehr Informationen finden Sie in unserer <a href="/seiten/datenschutz">Datenschutzerklärung</a>.
+        </p>
+    </form>
+
+    <script>
+        const form = document.getElementById('membershipForm') as HTMLFormElement;
+        const statusDiv = document.getElementById('formStatus');
+        const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+        if (form && statusDiv && submitBtn) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Wird gesendet...';
+                statusDiv.style.display = 'none';
+                
+                try {
+                    const formData = new FormData(form);
+                    
+                    // Handle multi-select checkboxes for departments
+                    const abteilungen = [];
+                    formData.getAll('abteilungen[]').forEach(val => abteilungen.push(val));
+                    formData.delete('abteilungen[]');
+                    
+                    const data = Object.fromEntries(formData.entries());
+                    data.abteilungen = abteilungen.join(', ');
+
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    statusDiv.style.display = 'block';
+                    if (response.ok && result.success) {
+                        statusDiv.className = 'form-status success';
+                        statusDiv.textContent = result.message || 'Ihr Antrag wurde erfolgreich übermittelt!';
+                        form.reset();
+                    } else {
+                        statusDiv.className = 'form-status error';
+                        statusDiv.textContent = result.error || 'Es gab ein Problem beim Senden Ihres Antrags.';
+                    }
+                } catch (error) {
+                    statusDiv.style.display = 'block';
+                    statusDiv.className = 'form-status error';
+                    statusDiv.textContent = 'Verbindungsfehler. Bitte versuchen Sie es später noch einmal.';
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Antrag absenden';
+                }
+            });
+        }
+    </script>
+</Layout>
+
+<style>
+    h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+        color: var(--color-primary);
+    }
+    .form-intro {
+        color: var(--color-text-muted, #6b7280);
+        margin-bottom: 2rem;
+        max-width: 800px;
+        line-height: 1.6;
+    }
+    .membership-form {
+        max-width: 800px;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid var(--color-border);
+    }
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+    .form-section:last-of-type {
+        border-bottom: none;
+        padding-bottom: 1rem;
+    }
+    .form-section h2 {
+        font-size: 1.3rem;
+        color: var(--color-primary);
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--color-primary);
+        padding-left: 0.8rem;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+    @media (max-width: 650px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    .full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+        color: var(--color-text, #1a1a2e);
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"],
+    .form-group input[type="date"],
+    .form-group textarea,
+    .form-select {
+        width: 100%;
+        padding: 0.8rem;
+        font-family: inherit;
+        font-size: 0.95rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: #fdfdfd;
+        color: var(--color-text);
+        transition: all 0.2s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        background: #fff;
+    }
+    
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    .checkbox-label, .radio-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        color: var(--color-text);
+        cursor: pointer;
+    }
+    
+    .checkbox-label input[type="checkbox"],
+    .radio-label input[type="radio"] {
+        margin-top: 0.25rem;
+        width: 16px;
+        height: 16px;
+        accent-color: var(--color-primary);
+    }
+
+    .consent-section {
+        background-color: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 2rem;
+    }
+    
+    .consent-label {
+        font-size: 0.85rem;
+        color: #4b5563;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .payment-info {
+        background: #fffafa;
+        border-left: 4px solid var(--color-primary);
+        padding: 1rem 1.5rem;
+        margin-top: 1rem;
+        border-radius: 0 6px 6px 0;
+    }
+    .payment-info p {
+        margin-bottom: 0.8rem;
+        font-weight: 500;
+    }
+    .payment-info table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    .payment-info td {
+        padding: 0.4rem 0;
+        vertical-align: top;
+    }
+    .payment-info td:first-child {
+        width: 130px;
+        color: #4b5563;
+    }
+    
+    .submit-btn {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        background: var(--color-primary);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        text-align: center;
+    }
+    .submit-btn:hover {
+        background: var(--color-primary-dark);
+    }
+    .submit-btn:disabled {
+        background: #e5e7eb;
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+    
+    .form-note {
+        margin-top: 1.5rem;
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        text-align: center;
+    }
+    .form-note a {
+        color: var(--color-primary);
+        text-decoration: underline;
+    }
+    
+    .form-status {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        text-align: center;
+    }
+    .form-status.success {
+        background: #ecfdf5;
+        color: #065f46;
+        border: 1px solid #10b981;
+    }
+    .form-status.error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #ef4444;
+    }
+</style>

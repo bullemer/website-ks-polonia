@@ -141,8 +141,23 @@ import Layout from '../layouts/Layout.astro';
             <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off" />
         </div>
 
+        <div class="form-section">
+            <h2>6. Ausweisdokumente</h2>
+            <p class="section-desc" style="margin-bottom: 1rem; color: #4b5563; font-size: 0.9rem;">Bitte laden Sie die Vor- und Rückseite Ihres Personalausweises hoch. (Pflichtfeld)</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="id_front">Vorderseite *</label>
+                    <input type="file" id="id_front" name="id_front" accept="image/*,application/pdf" required style="background: none; border: none; padding-left: 0;"/>
+                </div>
+                <div class="form-group">
+                    <label for="id_back">Rückseite *</label>
+                    <input type="file" id="id_back" name="id_back" accept="image/*,application/pdf" required style="background: none; border: none; padding-left: 0;"/>
+                </div>
+            </div>
+        </div>
+
         <div class="form-section consent-section">
-            <h2>6. Zustimmungen</h2>
+            <h2>7. Zustimmungen</h2>
             <label class="checkbox-label consent-label">
                 <input type="checkbox" name="datenschutz" required /> Mit der Speicherung, Übermittlung und Verarbeitung personenbezogener Daten für Vereinszwecke, gemäß den Bestimmungen der Datenschutzgrundverordnung (DSGVO) und des Bundesdatenschutzgesetzes (BDSG), bin ich einverstanden. *
             </label>

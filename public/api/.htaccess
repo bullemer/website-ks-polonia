@@ -1,13 +1,20 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /api/
-
-  <If "%{REQUEST_URI} =~ m#^/api/admin#">
-      AuthType Basic
-      AuthName "KS Polonia Admin"
-      AuthUserFile /usr/home/trusteei/public_html/ks-polonia/api/.htpasswd
+  
+  SetEnvIf Request_URI "^/api/admin" require_auth=true
+  
+  AuthType Basic
+  AuthName "KS Polonia Admin"
+  AuthUserFile /usr/home/trusteei/public_html/ks-polonia/api/.htpasswd
+  
+  <RequireAny>
+      <RequireAll>
+          Require all granted
+          Require not env require_auth
+      </RequireAll>
       Require valid-user
-  </If>
+  </RequireAny>
 
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^(.*)$ api.fcgi/$1 [QSA,L]

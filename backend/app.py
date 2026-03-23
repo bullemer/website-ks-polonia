@@ -238,35 +238,8 @@ import secrets
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-def get_current_username(request: Request):
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Basic "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": 'Basic realm="KS Polonia Admin"'},
-        )
-    try:
-        decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
-        username, password = decoded.split(":", 1)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": 'Basic realm="KS Polonia Admin"'},
-        )
-    correct_username = secrets.compare_digest(username, "admin")
-    correct_password = secrets.compare_digest(password, "polonia2026")
-    if not (correct_username and correct_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": 'Basic realm="KS Polonia Admin"'},
-        )
-    return username
-
 @app.get("/admin")
-async def admin_dashboard(request: Request, team_id: Optional[str] = None, username: str = Depends(get_current_username)):
+async def admin_dashboard(request: Request, team_id: Optional[str] = None):
     teams = []
     players = []
     

@@ -242,12 +242,57 @@ from fastapi import Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 @app.get("/admin")
+async def admin_dashboard_get(request: Request, team_id: Optional[str] = None):
+    is_authenticated = request.cookies.get("admin_session") == "authorized"
+    
+    if not is_authenticated:
+        return templates.TemplateResponse(request=request, name="admin.html", context={"authenticated": False})
+        
+    teams = []
+    players = []
+    
+    try:
+        conn = await asyncpg.connect(DATABASE_URL)
+        teams_records = await conn.fetch("SELECT id, mannschaftsart, mannschaftsname, spielklasse FROM teams ORDER BY mannschaftsart, mannschaftsname")
+        teams = [dict(record) for record in teams_records]
+
+        if team_id:
+            try:
+                # Security: Validate integer to prevent injection
+                t_id = int(team_id)
+                players_query = """
+                    SELECT p.vorname, p.name, p.geburtsdatum, p.passnr, p.spielrecht_ab
+                    FROM players p
+                    JOIN team_player tp ON p.id = tp.player_id
+                    WHERE tp.team_id = $1
+                    ORDER BY p.name, p.vorname
+                """
+                players_records = await conn.fetch(players_query, t_id)
+                players = [dict(record) for record in players_records]
+            except ValueError:
+                pass # Invalid team_id, ignore
+
+        await conn.close()
+    except Exception as e:
+        print(f"Database error in admin dashboard GET: {e}") # Changed to print for consistency with original error handling
+        
+    try:
+        from fastapi.responses import HTMLResponse
+        template = templates.get_template("admin.html")
+        html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or "", "authenticated": is_authenticated})
+        response = HTMLResponse(content=html_content, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache"})
+        return response
+    except Exception as e:
+        import traceback
+        from fastapi.responses import PlainTextResponse
+        return PlainTextResponse("Template Error:\n" + traceback.format_exc(), status_code=500)
+
 @app.post("/admin")
-async def admin_dashboard(request: Request, team_id: Optional[str] = Form(None), username: Optional[str] = Form(None), password: Optional[str] = Form(None)):
+async def admin_dashboard_post(request: Request, team_id: Optional[str] = Form(None), username: Optional[str] = Form(None), password: Optional[str] = Form(None)):
     is_authenticated = request.cookies.get("admin_session") == "authorized"
     
     # Handle Login Submission
-    if request.method == "POST" and username and password:
+    if username and password:
         if secrets.compare_digest(username, "admin") and secrets.compare_digest(password, "polonia2026"):
             is_authenticated = True
         else:
@@ -255,41 +300,41 @@ async def admin_dashboard(request: Request, team_id: Optional[str] = Form(None),
             
     if not is_authenticated:
         return templates.TemplateResponse(request=request, name="admin.html", context={"authenticated": False})
+        
     teams = []
     players = []
     
     try:
         conn = await asyncpg.connect(DATABASE_URL)
-        # Fetch all teams for the dropdown
         teams_records = await conn.fetch("SELECT id, mannschaftsart, mannschaftsname, spielklasse FROM teams ORDER BY mannschaftsart, mannschaftsname")
         teams = [dict(record) for record in teams_records]
-        
-        # If a team is selected, fetch its players
+
         if team_id:
             try:
                 # Security: Validate integer to prevent injection
                 t_id = int(team_id)
-                players_records = await conn.fetch("""
-                    SELECT p.name, p.vorname, p.geburtsdatum, p.passnr, p.spielrecht_ab 
-                    FROM players p 
-                    JOIN team_player tp ON p.id = tp.player_id 
-                    WHERE tp.team_id = $1 
+                players_query = """
+                    SELECT p.vorname, p.name, p.geburtsdatum, p.passnr, p.spielrecht_ab
+                    FROM players p
+                    JOIN team_player tp ON p.id = tp.player_id
+                    WHERE tp.team_id = $1
                     ORDER BY p.name, p.vorname
-                """, t_id)
+                """
+                players_records = await conn.fetch(players_query, t_id)
                 players = [dict(record) for record in players_records]
             except ValueError:
                 pass # Invalid team_id, ignore
-                
+
         await conn.close()
     except Exception as e:
-        print(f"Database error in admin dashboard: {e}")
+        print(f"Database error in admin dashboard POST: {e}") # Changed to print for consistency with original error handling
         
     try:
         from fastapi.responses import HTMLResponse
         template = templates.get_template("admin.html")
         html_content = template.render({"request": request, "teams": teams, "players": players, "selected_team_id": team_id or "", "authenticated": is_authenticated})
         response = HTMLResponse(content=html_content, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache"})
-        if request.method == "POST" and is_authenticated:
+        if is_authenticated:
             response.set_cookie(key="admin_session", value="authorized", max_age=86400, httponly=True, secure=True)
         return response
     except Exception as e:

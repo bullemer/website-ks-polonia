@@ -227,6 +227,20 @@ async def health_check():
     except Exception as e:
         status["database"] = "error"
         status["database_error"] = str(e)
+        
+    from fastapi.responses import JSONResponse
+    return JSONResponse(status)
+
+# --- Global Exception Handler ---
+import traceback
+from fastapi.responses import PlainTextResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    tb = traceback.format_exc()
+    with open("/tmp/global_fastapi_trace.txt", "w") as f:
+        f.write(tb)
+    return PlainTextResponse(f"Global FastCGI Traceback Triggered:\n{tb}", status_code=500)
 
 # --- Admin Interface (Teams & Players) ---
 from fastapi import Request, Depends, HTTPException, status
@@ -282,7 +296,8 @@ async def admin_dashboard_get(request: Request, team_id: Optional[str] = None):
 
         await conn.close()
     except Exception as e:
-        print(f"Database error in admin dashboard GET: {e}") # Changed to print for consistency with original error handling
+        import sys
+        print(f"Database error in admin dashboard: {e}", file=sys.stderr)
         
     try:
         from fastapi.responses import HTMLResponse
@@ -351,7 +366,8 @@ async def admin_dashboard_post(request: Request, team_id: Optional[str] = Form(N
 
         await conn.close()
     except Exception as e:
-        print(f"Database error in admin dashboard POST: {e}") # Changed to print for consistency with original error handling
+        import sys
+        print(f"Database error in admin dashboard: {e}", file=sys.stderr)
         
     try:
         from fastapi.responses import HTMLResponse

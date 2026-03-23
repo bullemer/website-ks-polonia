@@ -231,32 +231,16 @@ async def health_check():
         status["database"] = "error"
         status["database_error"] = str(e)
 
-    return JSONResponse(status)
-
 # --- Admin Interface (Teams & Players) ---
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from fastapi import Depends, status, HTTPException
-import secrets
+from fastapi import Request
 from fastapi.templating import Jinja2Templates
 import os
 
-security = HTTPBasic()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
-    correct_username = secrets.compare_digest(credentials.username, "admin")
-    correct_password = secrets.compare_digest(credentials.password, "polonia2026")
-    if not (correct_username and correct_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return credentials.username
-
 @app.get("/admin")
-async def admin_dashboard(request: Request, team_id: Optional[str] = None, username: str = Depends(get_current_username)):
+async def admin_dashboard(request: Request, team_id: Optional[str] = None):
     teams = []
     players = []
     

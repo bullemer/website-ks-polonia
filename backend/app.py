@@ -151,13 +151,15 @@ async def handle_membership(form: MembershipForm):
 
 # --- Endpoint: DB Health Check ---
 import asyncpg
+import pydantic
 
+API_VERSION = "1.0.1"
 DATABASE_URL = "postgresql://trusteei_0:k6%25KkhF%3B%29FY4@kwnz.your-database.de:5432/kspolonia"
 
 @app.get("/api/health")
 async def health_check():
     """ Verify the application and database connectivity """
-    status = {"api": "ok", "database": "unknown"}
+    status = {"api": "ok", "version": API_VERSION, "database": "unknown"}
     try:
         conn = await asyncpg.connect(DATABASE_URL)
         val = await conn.fetchval('SELECT 1;')
@@ -167,6 +169,6 @@ async def health_check():
     except Exception as e:
         status["database"] = "unreachable"
         status["error"] = str(e)
-    
+        
     return JSONResponse(status)
 

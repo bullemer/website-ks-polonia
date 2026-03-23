@@ -172,10 +172,20 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
 
     <footer class="site-footer">
         <div class="container footer-inner">
-            <p>&copy; {new Date().getFullYear()} KS Polonia Hamburg e.V. 1988</p>
+            <div class="footer-left">
+                <p>&copy; {new Date().getFullYear()} KS Polonia Hamburg e.V. 1988</p>
+                <div class="system-status" id="system-status">
+                    <span class="status-indicator"></span>
+                    <a href="/status" class="status-link">
+                        <span id="sys-version-web">Web: v1.0.0</span> | 
+                        <span id="sys-version-api">API: prüfen...</span>
+                    </a>
+                </div>
+            </div>
             <div class="footer-links">
                 <a href="/seiten/impressum-2">Impressum</a>
                 <a href="/seiten/datenschutz">Datenschutz</a>
+                <a href="/status">System-Status</a>
             </div>
         </div>
     </footer>
@@ -187,6 +197,36 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
         nav?.classList.toggle('open');
         toggle.classList.toggle('active');
       });
+
+      // System Health Check for Footer
+      async function checkSystemHealth() {
+          const apiSpan = document.getElementById('sys-version-api');
+          const indicator = document.querySelector('.status-indicator');
+          if (!apiSpan) return;
+
+          try {
+              const res = await fetch('/api/health');
+              if (res.ok) {
+                  const data = await res.json();
+                  apiSpan.textContent = `API: v${data.version || 'unknown'}`;
+                  
+                  if (data.api === 'ok' && data.database === 'ok') {
+                      indicator.classList.add('ok');
+                  } else {
+                      indicator.classList.add('warning');
+                  }
+              } else {
+                  apiSpan.textContent = 'API: offline';
+                  indicator.classList.add('error');
+              }
+          } catch (e) {
+              apiSpan.textContent = 'API: offline';
+              indicator.classList.add('error');
+          }
+      }
+      
+      // Run once after load
+      setTimeout(checkSystemHealth, 500);
     </script>
 </body>
 </html>
@@ -392,6 +432,15 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     .prose table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
     .prose th, .prose td { padding: 0.6rem 0.8rem; border: 1px solid var(--color-border); text-align: left; }
     .prose th { background: var(--color-bg); font-weight: 600; }
+
+    .footer-left { display: flex; flex-direction: column; gap: 0.2rem; }
+    .system-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #777; margin-top: 0.2rem; }
+    .status-link { color: #777; text-decoration: none; transition: color 0.2s; }
+    .status-link:hover { color: #fff; }
+    .status-indicator { width: 8px; height: 8px; border-radius: 50%; background-color: #9ca3af; display: inline-block; }
+    .status-indicator.ok { background-color: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+    .status-indicator.warning { background-color: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+    .status-indicator.error { background-color: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.4); }
 
     @media (max-width: 600px) {
         .footer-inner { flex-direction: column; gap: 0.5rem; text-align: center; }

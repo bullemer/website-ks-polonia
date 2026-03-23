@@ -1,0 +1,234 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="System Status">
+    <div class="status-container">
+        <h1>System Status</h1>
+        <p class="intro">Aktueller Betriebsstatus der Website, API und Datenbank.</p>
+
+        <div class="status-grid" id="statusGrid">
+            <!-- Web Frontend -->
+            <div class="status-card ok">
+                <div class="card-header">
+                    <h3>Web Frontend</h3>
+                    <span class="badge">Online</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Version:</strong> 1.0.0</p>
+                    <p><strong>Status:</strong> Läuft einwandfrei</p>
+                </div>
+            </div>
+
+            <!-- API Backend -->
+            <div class="status-card" id="apiCard">
+                <div class="card-header">
+                    <h3>API Backend</h3>
+                    <span class="badge" id="apiBadge">Prüfen...</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Version:</strong> <span id="apiVersion">...</span></p>
+                    <p><strong>Status:</strong> <span id="apiText">Wird geladen...</span></p>
+                </div>
+            </div>
+
+            <!-- Database -->
+            <div class="status-card" id="dbCard">
+                <div class="card-header">
+                    <h3>PostgreSQL Datenbank</h3>
+                    <span class="badge" id="dbBadge">Prüfen...</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Verbindung:</strong> <span id="dbConn">...</span></p>
+                    <p><strong>Status:</strong> <span id="dbText">Wird geladen...</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="refresh-wrap">
+            <button id="refreshBtn" class="refresh-btn">Status aktualisieren</button>
+            <span id="lastUpdated" class="last-updated"></span>
+        </div>
+    </div>
+
+    <script>
+        async function fetchHealth() {
+            const apiCard = document.getElementById('apiCard');
+            const apiBadge = document.getElementById('apiBadge');
+            const apiVersion = document.getElementById('apiVersion');
+            const apiText = document.getElementById('apiText');
+
+            const dbCard = document.getElementById('dbCard');
+            const dbBadge = document.getElementById('dbBadge');
+            const dbConn = document.getElementById('dbConn');
+            const dbText = document.getElementById('dbText');
+            const lastUpdated = document.getElementById('lastUpdated');
+
+            const updateTime = () => {
+                const now = new Date();
+                lastUpdated.textContent = 'Zuletzt aktualisiert: ' + now.toLocaleTimeString();
+            };
+
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update API
+                    apiCard.className = 'status-card ok';
+                    apiBadge.textContent = 'Online';
+                    apiVersion.textContent = data.version || 'Unbekannt';
+                    apiText.textContent = 'Läuft einwandfrei';
+
+                    // Update DB
+                    if (data.database === 'ok') {
+                        dbCard.className = 'status-card ok';
+                        dbBadge.textContent = 'Verbunden';
+                        dbConn.textContent = 'Aktiv';
+                        dbText.textContent = 'Datenbank reagiert korrekt';
+                    } else {
+                        dbCard.className = 'status-card error';
+                        dbBadge.textContent = 'Fehler';
+                        dbConn.textContent = 'Verbindungsabbruch';
+                        dbText.textContent = data.error || 'Datenbank nicht erreichbar';
+                    }
+                } else {
+                    throw new Error('API gab Fehler zurück');
+                }
+            } catch (err) {
+                // Update API
+                apiCard.className = 'status-card error';
+                apiBadge.textContent = 'Offline';
+                apiVersion.textContent = '-';
+                apiText.textContent = 'API ist nicht erreichbar';
+
+                // Update DB
+                dbCard.className = 'status-card unknown';
+                dbBadge.textContent = 'Unbekannt';
+                dbConn.textContent = '-';
+                dbText.textContent = 'Kann nicht geprüft werden, da API offline ist';
+            }
+            updateTime();
+        }
+
+        document.getElementById('refreshBtn').addEventListener('click', fetchHealth);
+        
+        // Initial fetch
+        fetchHealth();
+    </script>
+</Layout>
+
+<style>
+    .status-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+    .status-container h1 {
+        font-size: 2.5rem;
+        color: var(--color-primary);
+        margin-bottom: 0.5rem;
+    }
+    .intro {
+        color: #6b7280;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .status-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border-top: 4px solid #9ca3af; /* Default grey */
+        transition: transform 0.2s;
+    }
+    .status-card:hover {
+        transform: translateY(-3px);
+    }
+    .status-card.ok {
+        border-top-color: #10b981; /* Green */
+    }
+    .status-card.error {
+        border-top-color: #ef4444; /* Red */
+    }
+    .status-card.unknown {
+        border-top-color: #f59e0b; /* Yellow */
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        padding-bottom: 0.8rem;
+    }
+    .card-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #111827;
+    }
+    .badge {
+        padding: 0.25rem 0.6rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .status-card.ok .badge {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+    .status-card.error .badge {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+    .status-card.unknown .badge, .status-card:not(.ok):not(.error) .badge {
+        background: #fffbeb;
+        color: #92400e;
+    }
+    
+    .card-body p {
+        margin: 0.5rem 0;
+        font-size: 0.95rem;
+        color: #4b5563;
+    }
+    .card-body strong {
+        color: #111827;
+        margin-right: 0.5rem;
+        display: inline-block;
+        min-width: 80px;
+    }
+    
+    .refresh-wrap {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    .refresh-btn {
+        background: var(--color-primary);
+        color: #fff;
+        border: none;
+        padding: 0.7rem 1.4rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .refresh-btn:hover {
+        background: var(--color-primary-dark);
+    }
+    .last-updated {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+</style>

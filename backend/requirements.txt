@@ -6,3 +6,4 @@ flup-1.0.3-py3==1.0.5  # Python 3 compatible flup
 email-validator==2.1.1
 asyncpg==0.29.0
 python-multipart==0.0.9
+jinja2==0.0.9

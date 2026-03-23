@@ -228,8 +228,65 @@ async def health_check():
         if val == 1:
             status["database"] = "ok"
     except Exception as e:
-        status["database"] = "unreachable"
-        status["error"] = str(e)
-        
+        status["database"] = "error"
+        status["database_error"] = str(e)
+
     return JSONResponse(status)
 
+# --- Admin Interface (Teams & Players) ---
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import Depends, status, HTTPException
+import secrets
+from fastapi.templating import Jinja2Templates
+
+security = HTTPBasic()
+templates = Jinja2Templates(directory="templates")
+
+def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = secrets.compare_digest(credentials.username, "admin")
+    correct_password = secrets.compare_digest(credentials.password, "polonia2026")
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+@app.get("/admin")
+async def admin_dashboard(request: Request, team_id: Optional[str] = None, username: str = Depends(get_current_username)):
+    teams = []
+    players = []
+    
+    try:
+        conn = await asyncpg.connect(DATABASE_URL)
+        # Fetch all teams for the dropdown
+        teams_records = await conn.fetch("SELECT id, mannschaftsart, mannschaftsname, spielklasse FROM teams ORDER BY mannschaftsart, mannschaftsname")
+        teams = [dict(record) for record in teams_records]
+        
+        # If a team is selected, fetch its players
+        if team_id:
+            try:
+                # Security: Validate integer to prevent injection
+                t_id = int(team_id)
+                players_records = await conn.fetch("""
+                    SELECT p.name, p.vorname, p.geburtsdatum, p.passnr, p.spielrecht_ab 
+                    FROM players p 
+                    JOIN team_player tp ON p.id = tp.player_id 
+                    WHERE tp.team_id = $1 
+                    ORDER BY p.name, p.vorname
+                """, t_id)
+                players = [dict(record) for record in players_records]
+            except ValueError:
+                pass # Invalid team_id, ignore
+                
+        await conn.close()
+    except Exception as e:
+        print(f"Database error in admin dashboard: {e}")
+        
+    return templates.TemplateResponse("admin.html", {
+        "request": request, 
+        "teams": teams, 
+        "players": players, 
+        "selected_team_id": team_id or ""
+    })

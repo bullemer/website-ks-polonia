@@ -149,3 +149,24 @@ async def handle_membership(form: MembershipForm):
     else:
         return JSONResponse({"success": False, "error": "Der Antrag konnte leider nicht gesendet werden. Error: " + error_msg}, status_code=500)
 
+# --- Endpoint: DB Health Check ---
+import asyncpg
+
+DATABASE_URL = "postgresql://trusteei_0:k6%25KkhF%3B%29FY4@kwnz.your-database.de:5432/kspolonia"
+
+@app.get("/api/health")
+async def health_check():
+    """ Verify the application and database connectivity """
+    status = {"api": "ok", "database": "unknown"}
+    try:
+        conn = await asyncpg.connect(DATABASE_URL)
+        val = await conn.fetchval('SELECT 1;')
+        await conn.close()
+        if val == 1:
+            status["database"] = "ok"
+    except Exception as e:
+        status["database"] = "unreachable"
+        status["error"] = str(e)
+    
+    return JSONResponse(status)
+

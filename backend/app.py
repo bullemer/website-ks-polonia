@@ -121,8 +121,11 @@ async def handle_membership(request: Request):
     id_front = form.get("id_front")
     id_back = form.get("id_back")
     
-    if not isinstance(id_front, UploadFile) or not isinstance(id_back, UploadFile):
-        return JSONResponse({"success": False, "error": "Bitte laden Sie die Vorder- und Rückseite Ihres Ausweises hoch."}, status_code=400)
+    if not id_front or not hasattr(id_front, 'filename') or not id_front.filename:
+        return JSONResponse({"success": False, "error": f"Bitte laden Sie die Vorderseite Ihres Ausweises hoch."})
+        
+    if not id_back or not hasattr(id_back, 'filename') or not id_back.filename:
+        return JSONResponse({"success": False, "error": f"Bitte laden Sie die Rückseite Ihres Ausweises hoch."})
     
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     front_filename = f"{nachname}_{vorname}_Front_{timestamp}.jpg"

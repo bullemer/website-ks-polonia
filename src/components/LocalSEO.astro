@@ -1,0 +1,118 @@
+---
+/**
+ * LocalSEO.astro – JSON-LD structured data component for local SEO
+ * Generates SportsClub schema with sport-specific and location data
+ * for improved Google rich snippets and local search visibility.
+ */
+
+interface Props {
+    sport: string;
+    teamName?: string;
+    teamDescription?: string;
+    trainingDay?: string;
+    trainingTime?: string;
+    trainingLocation?: string;
+    trainingAddress?: string;
+    pageUrl?: string;
+}
+
+const {
+    sport,
+    teamName,
+    teamDescription,
+    trainingDay,
+    trainingTime,
+    trainingLocation,
+    trainingAddress,
+    pageUrl = Astro.url.href,
+} = Astro.props;
+
+const sportsClubData: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "SportsClub",
+    "name": "KS Polonia Hamburg e.V. 1988",
+    "alternateName": "KS Polonia Hamburg",
+    "url": "https://www.ks-polonia.de",
+    "logo": "https://www.ks-polonia.de/logo.png",
+    "image": "https://www.ks-polonia.de/logo.png",
+    "sport": sport,
+    "foundingDate": "1988",
+    "description": teamDescription || `${sport} beim KS Polonia Hamburg e.V. 1988 in Hamburg-Uhlenhorst – Training, Probetraining und Spielbetrieb.`,
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Finkenau 36",
+        "addressLocality": "Hamburg",
+        "addressRegion": "Hamburg",
+        "postalCode": "22081",
+        "addressCountry": "DE"
+    },
+    "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 53.5695,
+        "longitude": 10.0265
+    },
+    "areaServed": [
+        {
+            "@type": "City",
+            "name": "Hamburg"
+        },
+        {
+            "@type": "AdministrativeArea",
+            "name": "Hamburg-Uhlenhorst"
+        },
+        {
+            "@type": "AdministrativeArea",
+            "name": "Hamburg-Barmbek"
+        }
+    ],
+    "email": sport.toLowerCase().includes("basketball") 
+        ? "basketball@ks-polonia.de" 
+        : "info@ks-polonia.de",
+    "sameAs": [
+        "https://www.fussball.de"
+    ]
+};
+
+// Add SportsTeam details if team info is provided
+if (teamName) {
+    sportsClubData["member"] = {
+        "@type": "SportsTeam",
+        "name": teamName,
+        "sport": sport,
+        "description": teamDescription,
+        "url": pageUrl
+    };
+}
+
+// Add training event if schedule info is provided
+if (trainingDay && trainingTime && trainingLocation) {
+    sportsClubData["event"] = {
+        "@type": "SportsEvent",
+        "name": `${sport} Training – ${teamName || 'KS Polonia Hamburg'}`,
+        "description": `Regelmäßiges ${sport}-Training ${trainingDay} ${trainingTime}`,
+        "location": {
+            "@type": "Place",
+            "name": trainingLocation,
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": trainingAddress || "Finkenau 36",
+                "addressLocality": "Hamburg",
+                "postalCode": "22081",
+                "addressCountry": "DE"
+            }
+        },
+        "eventSchedule": {
+            "@type": "Schedule",
+            "byDay": `https://schema.org/${trainingDay === 'Dienstag' ? 'Tuesday' : trainingDay === 'Montag' ? 'Monday' : trainingDay === 'Donnerstag' ? 'Thursday' : trainingDay}`,
+            "startTime": trainingTime.split('–')[0]?.trim(),
+            "endTime": trainingTime.split('–')[1]?.trim()
+        },
+        "organizer": {
+            "@type": "SportsOrganization",
+            "name": "KS Polonia Hamburg e.V. 1988"
+        }
+    };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(sportsClubData)} />

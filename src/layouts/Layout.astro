@@ -9,11 +9,15 @@ interface Props {
     type?: string;
 }
 
+const siteBase = Astro.site?.origin || 'https://ks-polonia.de';
+const pathname = Astro.url.pathname.replace(/\/+$/, '') || '';
+const defaultCanonical = `${siteBase}${pathname}`;
+
 const { 
     title, 
     description = 'KS Polonia Hamburg e.V. 1988 – Polnischer Sportverein an der Finkenau mit Fußball, Basketball und Badminton',
     image = '/logo.png',
-    canonicalUrl = new URL(Astro.url.pathname, 'https://www.ks-polonia.de').toString(),
+    canonicalUrl = defaultCanonical,
     type = 'website'
 } = Astro.props;
 
@@ -74,7 +78,7 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={`${title} | KS Polonia Hamburg`} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(image, 'https://www.ks-polonia.de')} />
+    <meta property="og:image" content={`${siteBase}${image}`} />
     <meta property="og:locale" content="de_DE" />
     <meta property="og:site_name" content="KS Polonia Hamburg e.V. 1988" />
     
@@ -83,7 +87,7 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <meta property="twitter:url" content={canonicalUrl} />
     <meta property="twitter:title" content={`${title} | KS Polonia Hamburg`} />
     <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={new URL(image, 'https://www.ks-polonia.de')} />
+    <meta property="twitter:image" content={`${siteBase}${image}`} />
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify({

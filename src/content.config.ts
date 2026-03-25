@@ -24,7 +24,14 @@ const teams = defineCollection({
         logoUrl: z.string().optional(),
         ageGroup: z.string().optional(),
         coach: z.string().optional(),
+        widgetId: z.string().optional(),
         trainingTimes: z.string().optional(),
+        gallery: z.array(
+            z.object({
+                src: z.string(),
+                caption: z.string().optional(),
+            })
+        ).optional(),
         roster: z.array(
             z.object({
                 name: z.string(),
@@ -39,6 +46,7 @@ const pages = defineCollection({
     loader: glob({ pattern: '**/*.{md,mdoc}', base: './src/content/pages' }),
     schema: z.object({
         title: z.string(),
+        description: z.string().optional(),
     }),
 });
 

@@ -42,16 +42,80 @@ const { Content } = await render(team);
                 <Content />
             </section>
             
-            <section class="results-placeholder mt-8">
-                <h2>Aktuelle Ergebnisse / Recent Results</h2>
+            <section class="results-section mt-8">
+                <h2>Aktuelle Ergebnisse & Spielplan</h2>
                 
-                <div class="results-box">
-                    <p class="text-placeholder">Spieldaten werden hier bald geladen... / Match data will be injected here later.</p>
-                </div>
+                {team.data.widgetId ? (
+                    <div class="widget-container">
+                        <div 
+                            class="fussballde_widget"
+                            data-id={team.data.widgetId}
+                            data-type="team-matches"
+                            style="width: 100%"
+                        ></div>
+                    </div>
+                ) : (
+                    <div class="results-box">
+                        <p class="text-placeholder">Spieldaten werden hier bald geladen...</p>
+                    </div>
+                )}
             </section>
+
+            {team.data.gallery && team.data.gallery.length > 0 && (
+                <section class="team-gallery-section mt-8">
+                    <h2>📸 Fotos</h2>
+                    <div class="team-gallery-grid">
+                        {team.data.gallery.map((img: { src: string; caption?: string }, i: number) => (
+                            <figure class="team-gallery-item" data-gallery-index={i}>
+                                <div class="team-gallery-img-wrapper">
+                                    <img 
+                                        src={img.src} 
+                                        alt={img.caption || `Teamfoto ${i + 1}`}
+                                        class="team-gallery-img"
+                                        loading={i < 2 ? 'eager' : 'lazy'}
+                                    />
+                                    <div class="team-gallery-overlay">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="team-zoom-icon">
+                                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                            <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                {img.caption && <figcaption>{img.caption}</figcaption>}
+                            </figure>
+                        ))}
+                    </div>
+                </section>
+            )}
         </div>
 
         <aside class="sidebar">
+            {(team.data.trainingTimes || team.data.ageGroup || team.data.coach) && (
+                <div class="widget team-info-card">
+                    <h3>⚽ Steckbrief</h3>
+                    <ul class="info-list">
+                        {team.data.ageGroup && (
+                            <li>
+                                <span class="info-label">Altersklasse</span>
+                                <span class="info-value">{team.data.ageGroup}</span>
+                            </li>
+                        )}
+                        {team.data.trainingTimes && (
+                            <li>
+                                <span class="info-label">Training</span>
+                                <span class="info-value">{team.data.trainingTimes}</span>
+                            </li>
+                        )}
+                        {team.data.coach && (
+                            <li>
+                                <span class="info-label">Trainer</span>
+                                <span class="info-value">{team.data.coach}</span>
+                            </li>
+                        )}
+                    </ul>
+                </div>
+            )}
+
             <div class="widget">
                 <h3>Offizielle Team-Seite</h3>
                 <p>Besuchen Sie unsere offizielle Seite auf Fussball.de für aktuelle Spielberichte, Tabellen und den vollen Kader.</p>
@@ -149,11 +213,19 @@ const { Content } = await render(team);
 
     .mt-8 { margin-top: 3rem; }
 
-    .results-placeholder h2 {
+    .results-section h2 {
         font-size: 1.5rem;
         font-weight: 700;
         margin-bottom: 1rem;
         color: var(--color-text);
+    }
+
+    .widget-container {
+        background: #fff;
+        border: 1px solid var(--color-border, #e5e7eb);
+        border-radius: 8px;
+        padding: 1rem;
+        min-height: 200px;
     }
 
     .results-box {
@@ -192,6 +264,44 @@ const { Content } = await render(team);
         margin-bottom: 1.5rem;
     }
 
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+    .info-list li {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--color-border, #e5e7eb);
+    }
+    .info-list li:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .info-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text-muted, #6b7280);
+    }
+    .info-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--color-text, #1a1a2e);
+    }
+
     .btn-primary-large {
         display: flex;
         align-items: center;
@@ -220,4 +330,244 @@ const { Content } = await render(team);
         width: 18px;
         height: 18px;
     }
+
+    /* ═══════════════════════════════════════
+       TEAM GALLERY
+       ═══════════════════════════════════════ */
+    .team-gallery-section h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--color-text);
+    }
+
+    .team-gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    .team-gallery-item {
+        margin: 0;
+        border-radius: var(--radius, 8px);
+        overflow: hidden;
+        background: var(--color-surface, #fff);
+        box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.05));
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        cursor: pointer;
+    }
+    .team-gallery-item:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.12));
+    }
+
+    .team-gallery-img-wrapper {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 4 / 3;
+        background: #f0f0f0;
+    }
+
+    .team-gallery-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+    .team-gallery-item:hover .team-gallery-img {
+        transform: scale(1.05);
+    }
+
+    .team-gallery-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(220, 20, 60, 0.0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s ease;
+    }
+    .team-gallery-item:hover .team-gallery-overlay {
+        background: rgba(220, 20, 60, 0.15);
+    }
+
+    .team-zoom-icon {
+        width: 36px;
+        height: 36px;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .team-gallery-item:hover .team-zoom-icon {
+        opacity: 1;
+    }
+
+    .team-gallery-item figcaption {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--color-text-muted, #6b7280);
+        text-align: center;
+        line-height: 1.4;
+    }
+
+    /* ═══════════════════════════════════════
+       TEAM LIGHTBOX
+       ═══════════════════════════════════════ */
+    .team-lightbox {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.92);
+        backdrop-filter: blur(8px);
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    .team-lightbox.active { display: flex; }
+
+    .team-lightbox-content {
+        max-width: 90vw;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .team-lightbox-content img {
+        max-width: 90vw;
+        max-height: 78vh;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    }
+    .team-lightbox-caption {
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-top: 1rem;
+        text-align: center;
+        opacity: 0.85;
+    }
+    .team-lightbox-close {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.5rem;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 2.5rem;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s, transform 0.2s;
+        z-index: 10;
+        line-height: 1;
+    }
+    .team-lightbox-close:hover { opacity: 1; transform: scale(1.15); }
+
+    .team-lightbox-prev,
+    .team-lightbox-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-size: 1.8rem;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, transform 0.2s;
+        z-index: 10;
+    }
+    .team-lightbox-prev { left: 1.5rem; }
+    .team-lightbox-next { right: 1.5rem; }
+    .team-lightbox-prev:hover,
+    .team-lightbox-next:hover {
+        background: rgba(220, 20, 60, 0.5);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    @media (max-width: 600px) {
+        .team-gallery-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .team-gallery-item figcaption {
+            font-size: 0.72rem;
+            padding: 0.4rem 0.5rem;
+        }
+        .team-lightbox-prev,
+        .team-lightbox-next {
+            width: 40px;
+            height: 40px;
+            font-size: 1.4rem;
+        }
+        .team-lightbox-prev { left: 0.75rem; }
+        .team-lightbox-next { right: 0.75rem; }
+    }
 </style>
+
+<!-- Team Gallery Lightbox -->
+<div class="team-lightbox" id="teamLightbox">
+    <button class="team-lightbox-close" id="teamLightboxClose" aria-label="Schließen">&times;</button>
+    <button class="team-lightbox-prev" id="teamLightboxPrev" aria-label="Vorheriges Bild">&#10094;</button>
+    <button class="team-lightbox-next" id="teamLightboxNext" aria-label="Nächstes Bild">&#10095;</button>
+    <div class="team-lightbox-content">
+        <img id="teamLightboxImg" src="" alt="" />
+        <p class="team-lightbox-caption" id="teamLightboxCaption"></p>
+    </div>
+</div>
+
+{team.data.widgetId && (
+    <script type="text/javascript" src="https://www.fussball.de/widgets.js"></script>
+)}
+
+<script>
+    const tLightbox = document.getElementById('teamLightbox');
+    const tImg = document.getElementById('teamLightboxImg') as HTMLImageElement;
+    const tCaption = document.getElementById('teamLightboxCaption');
+    const tItems = document.querySelectorAll('.team-gallery-item');
+
+    if (tItems.length > 0 && tLightbox && tImg && tCaption) {
+        let tIdx = 0;
+        const tImages = Array.from(tItems).map(item => ({
+            src: (item.querySelector('.team-gallery-img') as HTMLImageElement)?.src || '',
+            caption: item.querySelector('figcaption')?.textContent || '',
+        }));
+
+        function openTeamLB(i: number) {
+            tIdx = i;
+            tImg.src = tImages[i].src;
+            tImg.alt = tImages[i].caption;
+            tCaption!.textContent = tImages[i].caption;
+            tLightbox!.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeTeamLB() {
+            tLightbox!.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        function navTeamLB(dir: number) {
+            tIdx = (tIdx + dir + tImages.length) % tImages.length;
+            openTeamLB(tIdx);
+        }
+
+        tItems.forEach((item, i) => item.addEventListener('click', () => openTeamLB(i)));
+        document.getElementById('teamLightboxClose')?.addEventListener('click', closeTeamLB);
+        document.getElementById('teamLightboxPrev')?.addEventListener('click', () => navTeamLB(-1));
+        document.getElementById('teamLightboxNext')?.addEventListener('click', () => navTeamLB(1));
+        tLightbox.addEventListener('click', (e) => { if (e.target === tLightbox) closeTeamLB(); });
+        document.addEventListener('keydown', (e) => {
+            if (!tLightbox!.classList.contains('active')) return;
+            if (e.key === 'Escape') closeTeamLB();
+            if (e.key === 'ArrowLeft') navTeamLB(-1);
+            if (e.key === 'ArrowRight') navTeamLB(1);
+        });
+    }
+</script>

@@ -5,7 +5,7 @@ import { getCollection, render } from 'astro:content';
 export async function getStaticPaths() {
     const pages = await getCollection('pages');
     return pages
-        .filter(entry => entry.id !== 'aktuelles' && entry.id !== 'probetraining')
+        .filter(entry => entry.id !== 'aktuelles' && entry.id !== 'probetraining' && entry.id !== 'badminton' && entry.id !== 'sportplatz')
         .map(entry => ({
             params: { slug: entry.id },
             props: { entry },
@@ -18,7 +18,7 @@ const { Content } = await render(entry);
 
 <Layout 
     title={entry.data.title}
-    description={`Informationsseite über ${entry.data.title} beim polnischen Sportverein KS Polonia Hamburg.`}
+    description={entry.data.description || `Informationsseite über ${entry.data.title} beim polnischen Sportverein KS Polonia Hamburg.`}
 >
     <article class="prose">
         <a href="/seiten" class="back-link">← Zurück zu Seiten</a>

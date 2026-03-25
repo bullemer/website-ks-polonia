@@ -1,0 +1,95 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getEntry, render } from 'astro:content';
+
+const entry = await getEntry('pages', 'sportplatz');
+let Content = null;
+if (entry) {
+    const rendered = await render(entry);
+    Content = rendered.Content;
+}
+---
+
+<Layout 
+    title={entry ? entry.data.title : "Sportplatz"}
+    description={entry?.data.description || "Sportplatz an der Finkenau in Hamburg-Uhlenhorst – Heimat des KS Polonia Hamburg e.V. 1988."}
+>
+    <article class="prose sportplatz-page">
+        <a href="/seiten" class="back-link">← Zurück zu Seiten</a>
+        
+        {entry && <h1>{entry.data.title}</h1>}
+        
+        {Content && (
+            <div class="article-content">
+                <Content />
+            </div>
+        )}
+
+        <section class="map-section">
+            <h2>📍 Google Maps</h2>
+            <div class="map-container">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2369.5!2d10.0265!3d53.5695!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47b18f3a8c5e5a3d%3A0x4a4b8f1e2c3d4e5f!2sFinkenau+36%2C+22081+Hamburg!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde"
+                    width="100%" 
+                    height="450" 
+                    style="border:0;" 
+                    allowfullscreen 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="Sportplatz Finkenau 36, Hamburg-Uhlenhorst"
+                ></iframe>
+            </div>
+        </section>
+    </article>
+</Layout>
+
+<style>
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-text-muted);
+    }
+    .back-link:hover { color: var(--color-primary); }
+
+    .sportplatz-page {
+        max-width: 860px;
+    }
+
+    .article-content {
+        line-height: 1.8;
+    }
+
+    .map-section {
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .map-section h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--color-text);
+    }
+
+    .map-container {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--color-border);
+    }
+
+    .map-container iframe {
+        display: block;
+        width: 100%;
+        min-height: 400px;
+    }
+
+    @media (max-width: 600px) {
+        .map-container iframe {
+            min-height: 300px;
+        }
+    }
+</style>

@@ -110,7 +110,13 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
                             <a href="#" class="nav-link">Sportarten <svg class="caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" fill="none" stroke-width="1.5"/></svg></a>
                             <ul class="sub-menu">
                                 <li><a href="/seiten/badminton">Badminton</a></li>
-                                <li><a href="/seiten/basketball-fuer-kinder-in-hamburg-uhlenhorst">Basketball</a></li>
+                                <li class="has-sub">
+                                    <a href="#">Basketball <svg class="caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" fill="none" stroke-width="1.5"/></svg></a>
+                                    <ul class="sub-menu sub-right">
+                                        <li><a href="/seiten/basketball-jugend-u10">Basketball-Jugend U10</a></li>
+                                        <li><a href="/seiten/basketball-herren-ue35">Basketball-Herren Ü35</a></li>
+                                    </ul>
+                                </li>
                                 <li class="has-sub">
                                     <a href="#">Fußball - Herren <svg class="caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" fill="none" stroke-width="1.5"/></svg></a>
                                     <ul class="sub-menu sub-right" style="max-height: 450px; overflow-y: auto;">

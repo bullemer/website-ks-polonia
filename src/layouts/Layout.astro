@@ -65,6 +65,9 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <title>{title} | KS Polonia Hamburg</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#DC143C" />
+    <meta name="author" content="KS Polonia Hamburg e.V. 1988" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content={type} />
@@ -72,6 +75,8 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <meta property="og:title" content={`${title} | KS Polonia Hamburg`} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(image, 'https://www.ks-polonia.de')} />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:site_name" content="KS Polonia Hamburg e.V. 1988" />
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
@@ -79,6 +84,26 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <meta property="twitter:title" content={`${title} | KS Polonia Hamburg`} />
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={new URL(image, 'https://www.ks-polonia.de')} />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SportsOrganization",
+        "name": "KS Polonia Hamburg e.V. 1988",
+        "url": "https://www.ks-polonia.de",
+        "logo": "https://www.ks-polonia.de/logo.png",
+        "description": description,
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Finkenau 36",
+            "addressLocality": "Hamburg",
+            "addressRegion": "Hamburg",
+            "postalCode": "22081",
+            "addressCountry": "DE"
+        },
+        "sport": ["Fußball", "Basketball", "Badminton"],
+        "foundingDate": "1988"
+    })} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -55,8 +55,21 @@ const { Content } = await render(team);
                         ></div>
                     </div>
                 ) : (
-                    <div class="results-box">
-                        <p class="text-placeholder">Spieldaten werden hier bald geladen...</p>
+                    <div class="widget-fallback">
+                        {team.data.externalUrl && (
+                            <a href={team.data.externalUrl} target="_blank" rel="noopener noreferrer" class="fussballde-link-btn">
+                                ⚽ Spielplan & Ergebnisse auf Fussball.de ansehen
+                            </a>
+                        )}
+                        <div class="widget-container" style="margin-top: 1rem;">
+                            <p class="widget-label">Alle Spiele des KS Polonia Hamburg:</p>
+                            <div 
+                                class="fussballde_widget"
+                                data-id="576e80b1-c9b0-4ea0-a1ca-b7bcf6a4b9b7"
+                                data-type="club-matches"
+                                style="width: 100%"
+                            ></div>
+                        </div>
                     </div>
                 )}
             </section>
@@ -228,12 +241,28 @@ const { Content } = await render(team);
         min-height: 200px;
     }
 
-    .results-box {
-        background: #fff;
-        border: 1px dashed #ccc;
+    .fussballde-link-btn {
+        display: inline-block;
+        padding: 0.85rem 1.75rem;
+        background: #00843d;
+        color: #fff !important;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
         border-radius: 8px;
-        padding: 3rem 1.5rem;
-        text-align: center;
+        transition: background 0.2s, transform 0.15s;
+        box-shadow: 0 3px 10px rgba(0, 132, 61, 0.3);
+    }
+    .fussballde-link-btn:hover {
+        background: #006830;
+        transform: translateY(-2px);
+    }
+
+    .widget-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        margin-bottom: 0.5rem;
     }
 
     .text-placeholder {

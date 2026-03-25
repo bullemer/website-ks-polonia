@@ -17,7 +17,7 @@ const { Content } = await render(team);
 
 <Layout 
     title={`${team.data.title || team.data.teamName} | K.S. Polonia Hamburg`}
-    description={`Informationen, Kader und Spielklasse für die Mannschaft ${team.data.title || team.data.teamName} von KS Polonia Hamburg.`}
+    description={`${team.data.title || team.data.teamName} – Fußball ${team.data.spielklasse || ''} beim polnischen Sportverein KS Polonia Hamburg in Uhlenhorst. Spielplan, Ergebnisse und Kader.`}
     type="profile"
 >
     <div class="team-page-header">

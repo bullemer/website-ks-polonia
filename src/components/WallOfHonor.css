@@ -1,0 +1,788 @@
+/* ═══════════════════════════════════════
+   WALL OF HONOR — Premium Styling
+   ═══════════════════════════════════════ */
+
+/* ── Reset & Container ── */
+.woh-container {
+    background: linear-gradient(175deg, #0a0a12 0%, #111125 40%, #0d0d1a 100%);
+    color: #e8e8f0;
+    min-height: 100vh;
+    margin: -2.5rem -1.5rem;
+    padding: 2.5rem 1.5rem;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle radial glow behind wall */
+.woh-container::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(226, 0, 26, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.woh-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Language Toggle ── */
+.woh-lang-toggle {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.woh-lang-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    padding: 0.4rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+}
+
+.woh-lang-btn:first-child { border-radius: 6px 0 0 6px; }
+.woh-lang-btn:last-child { border-radius: 0 6px 6px 0; }
+
+.woh-lang-btn.active {
+    background: rgba(226, 0, 26, 0.2);
+    border-color: rgba(226, 0, 26, 0.4);
+    color: #fff;
+}
+
+.woh-lang-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* ── Hero Section ── */
+.woh-hero {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.woh-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(212, 175, 55, 0.04));
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 999px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #D4AF37;
+    margin-bottom: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.woh-hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #ffffff 0%, #D4AF37 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.75rem;
+    line-height: 1.15;
+}
+
+.woh-hero p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* ── Progress Bar ── */
+.woh-progress-section {
+    margin-bottom: 2.5rem;
+}
+
+.woh-progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.6rem;
+    font-size: 0.82rem;
+}
+
+.woh-progress-title {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+}
+
+.woh-progress-stat {
+    font-weight: 600;
+    color: #D4AF37;
+}
+
+.woh-progress-track {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 99px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.woh-progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #D4AF37, #E2001A);
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+}
+
+/* ── Tier Section ── */
+.woh-tier {
+    margin-bottom: 2.5rem;
+}
+
+.woh-tier-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.woh-tier-icon {
+    font-size: 1.3rem;
+}
+
+.woh-tier-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.woh-tier-subtitle {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.35);
+    margin-left: auto;
+}
+
+/* ── Spot Grids ── */
+.woh-grid-platin {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.woh-grid-gold {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.woh-grid-traeger {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.woh-grid-silber {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+}
+
+.woh-grid-kibice {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0.5rem;
+}
+
+/* ── Base Spot ── */
+.woh-spot {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+}
+
+.woh-spot::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.woh-spot:hover {
+    transform: translateY(-4px) scale(1.03);
+    z-index: 10;
+}
+
+.woh-spot:hover::before {
+    opacity: 1;
+}
+
+.woh-spot-name {
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+    line-height: 1.3;
+}
+
+.woh-spot-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    position: relative;
+    z-index: 1;
+    margin-top: 0.15rem;
+}
+
+.woh-spot-available {
+    opacity: 0.5;
+    font-style: italic;
+}
+
+/* ── Platin Spots ── */
+.woh-spot-platin {
+    width: 280px;
+    height: 155px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #2a2520 0%, #1a1815 50%, #2a2520 100%);
+    border: 2px solid;
+    border-image: linear-gradient(145deg, #D4AF37, #F5E6A3, #D4AF37) 1;
+    box-shadow:
+        0 4px 20px rgba(212, 175, 55, 0.15),
+        inset 0 1px 0 rgba(212, 175, 55, 0.1);
+}
+
+.woh-spot-platin::before {
+    background: radial-gradient(ellipse at 30% 20%, rgba(212, 175, 55, 0.15), transparent 60%);
+}
+
+.woh-spot-platin:hover {
+    box-shadow:
+        0 8px 32px rgba(212, 175, 55, 0.3),
+        0 0 60px rgba(212, 175, 55, 0.1);
+}
+
+.woh-spot-platin .woh-spot-name {
+    font-size: 1.15rem;
+    color: #D4AF37;
+}
+
+/* ── Gold Spots ── */
+.woh-spot-gold {
+    width: 220px;
+    height: 130px;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #252218 0%, #1a1712 50%, #252218 100%);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.1);
+}
+
+.woh-spot-gold::before {
+    background: radial-gradient(ellipse at 30% 20%, rgba(212, 175, 55, 0.1), transparent 60%);
+}
+
+.woh-spot-gold:hover {
+    box-shadow:
+        0 8px 28px rgba(212, 175, 55, 0.25),
+        0 0 40px rgba(212, 175, 55, 0.08);
+    border-color: rgba(212, 175, 55, 0.5);
+}
+
+.woh-spot-gold .woh-spot-name {
+    font-size: 1rem;
+    color: #D4AF37;
+}
+
+/* ── Träger Spots (circular) ── */
+.woh-spot-traeger {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #201c18 0%, #161310 50%, #201c18 100%);
+    border: 2px solid rgba(205, 127, 50, 0.3);
+    box-shadow: 0 3px 12px rgba(205, 127, 50, 0.1);
+}
+
+.woh-spot-traeger::before {
+    background: radial-gradient(circle at 35% 25%, rgba(205, 127, 50, 0.12), transparent 55%);
+    border-radius: 50%;
+}
+
+.woh-spot-traeger:hover {
+    box-shadow:
+        0 6px 24px rgba(205, 127, 50, 0.25),
+        0 0 30px rgba(205, 127, 50, 0.08);
+    border-color: rgba(205, 127, 50, 0.5);
+}
+
+.woh-spot-traeger .woh-spot-name {
+    font-size: 0.72rem;
+    color: #CD7F32;
+}
+
+/* ── Silber Spots ── */
+.woh-spot-silber {
+    height: 78px;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #1e1e24 0%, #151518 50%, #1e1e24 100%);
+    border: 1px solid rgba(192, 192, 192, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.woh-spot-silber::before {
+    background: radial-gradient(ellipse at 30% 20%, rgba(192, 192, 192, 0.06), transparent 55%);
+}
+
+.woh-spot-silber:hover {
+    box-shadow:
+        0 6px 20px rgba(192, 192, 192, 0.15),
+        0 0 20px rgba(192, 192, 192, 0.05);
+    border-color: rgba(192, 192, 192, 0.3);
+}
+
+.woh-spot-silber .woh-spot-name {
+    font-size: 0.78rem;
+    color: #C0C0C0;
+}
+
+/* ── Kibice Spots (stone tiles) ── */
+.woh-spot-kibice {
+    height: 56px;
+    border-radius: 4px;
+    background: linear-gradient(145deg, #1a1a1e 0%, #121215 50%, #1a1a1e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.woh-spot-kibice::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 50%);
+}
+
+.woh-spot-kibice:hover {
+    box-shadow:
+        0 4px 14px rgba(226, 0, 26, 0.15),
+        0 0 12px rgba(226, 0, 26, 0.05);
+    border-color: rgba(226, 0, 26, 0.3);
+}
+
+.woh-spot-kibice .woh-spot-name {
+    font-size: 0.62rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Taken state */
+.woh-spot.taken {
+    opacity: 1;
+}
+
+.woh-spot.taken .woh-spot-name {
+    opacity: 1;
+}
+
+/* ── Modal ── */
+.woh-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: wohFadeIn 0.2s ease;
+}
+
+@keyframes wohFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.woh-modal {
+    background: linear-gradient(145deg, #1a1a24, #12121c);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 440px;
+    padding: 2rem;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    animation: wohSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+@keyframes wohSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.woh-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+}
+
+.woh-modal-close:hover {
+    background: rgba(226, 0, 26, 0.2);
+    border-color: rgba(226, 0, 26, 0.3);
+    color: #fff;
+}
+
+.woh-modal-tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+}
+
+.woh-modal-tier-badge.platin {
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    color: #D4AF37;
+}
+.woh-modal-tier-badge.gold {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    color: #D4AF37;
+}
+.woh-modal-tier-badge.traeger {
+    background: rgba(205, 127, 50, 0.1);
+    border: 1px solid rgba(205, 127, 50, 0.2);
+    color: #CD7F32;
+}
+.woh-modal-tier-badge.silber {
+    background: rgba(192, 192, 192, 0.08);
+    border: 1px solid rgba(192, 192, 192, 0.15);
+    color: #C0C0C0;
+}
+.woh-modal-tier-badge.kibice {
+    background: rgba(226, 0, 26, 0.08);
+    border: 1px solid rgba(226, 0, 26, 0.15);
+    color: #E2001A;
+}
+
+.woh-modal h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.woh-modal-status {
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+}
+
+.woh-modal-status.available {
+    color: #22c55e;
+}
+
+.woh-modal-status.taken, .woh-modal-status.reserved {
+    color: #f59e0b;
+}
+
+/* Benefits list */
+.woh-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.woh-benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.woh-benefit-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: #D4AF37;
+}
+
+.woh-modal-price {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.woh-modal-price span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Reserve Form */
+.woh-reserve-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.woh-input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.88rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.woh-input:focus {
+    outline: none;
+    border-color: rgba(226, 0, 26, 0.4);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.woh-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.woh-cta-btn {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, #E2001A, #c00016);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 12px rgba(226, 0, 26, 0.3);
+}
+
+.woh-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(226, 0, 26, 0.4);
+    background: linear-gradient(135deg, #ff0d2b, #d00018);
+}
+
+.woh-cta-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Success message */
+.woh-success-msg {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.woh-success-msg .check-icon {
+    width: 48px;
+    height: 48px;
+    color: #22c55e;
+    margin-bottom: 0.75rem;
+}
+
+.woh-success-msg h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.4rem;
+}
+
+.woh-success-msg p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.woh-modal-donor-msg {
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border-left: 3px solid rgba(212, 175, 55, 0.3);
+}
+
+/* ── Loading ── */
+.woh-loading {
+    text-align: center;
+    padding: 4rem 0;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+}
+
+.woh-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #D4AF37;
+    border-radius: 50%;
+    animation: wohSpin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes wohSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Error ── */
+.woh-error {
+    text-align: center;
+    padding: 3rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.woh-error-icon {
+    color: #E2001A;
+    margin-bottom: 0.75rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .woh-container {
+        padding: 1.5rem 1rem;
+        margin: -2.5rem -1.5rem;
+    }
+
+    .woh-hero h1 {
+        font-size: 2rem;
+    }
+
+    .woh-spot-platin {
+        width: 100%;
+        max-width: 280px;
+        height: 120px;
+    }
+
+    .woh-spot-gold {
+        width: 100%;
+        max-width: 200px;
+        height: 100px;
+    }
+
+    .woh-spot-traeger {
+        width: 80px;
+        height: 80px;
+    }
+
+    .woh-grid-silber {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+
+    .woh-grid-kibice {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.4rem;
+    }
+
+    .woh-spot-silber {
+        height: 65px;
+    }
+
+    .woh-spot-kibice {
+        height: 48px;
+    }
+
+    .woh-spot-silber .woh-spot-name {
+        font-size: 0.65rem;
+    }
+
+    .woh-spot-kibice .woh-spot-name {
+        font-size: 0.55rem;
+    }
+
+    .woh-modal {
+        padding: 1.5rem;
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .woh-grid-silber {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .woh-grid-kibice {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .woh-spot-platin {
+        max-width: 100%;
+        height: 110px;
+    }
+
+    .woh-spot-gold {
+        max-width: 100%;
+        height: 90px;
+    }
+
+    .woh-grid-platin,
+    .woh-grid-gold {
+        flex-direction: column;
+        align-items: center;
+    }
+}

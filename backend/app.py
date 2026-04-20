@@ -70,6 +70,117 @@ class MembershipForm(BaseModel):
     verbindlich: Optional[str] = ""
     website_url: Optional[str] = ""  # Honeypot
 
+class ReserveSpotRequest(BaseModel):
+    spot_id: int
+    donor_name: str
+    donor_message: Optional[str] = ""
+    email: EmailStr
+
+
+# ═══════════════════════════════════════
+#  WALL OF HONOR — Donor Spots API
+# ═══════════════════════════════════════
+
+@app.get("/wall/spots")
+async def wall_get_spots():
+    """Return all donor spots with their current status."""
+    try:
+        conn = await asyncpg.connect(DATABASE_URL)
+        rows = await conn.fetch(
+            "SELECT id, category, position, donor_name, donor_message, status "
+            "FROM donor_spots ORDER BY position"
+        )
+        await conn.close()
+        spots = [dict(r) for r in rows]
+        return JSONResponse({"spots": spots})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/wall/stats")
+async def wall_get_stats():
+    """Return aggregate stats for the progress bar."""
+    try:
+        conn = await asyncpg.connect(DATABASE_URL)
+        rows = await conn.fetch(
+            "SELECT category, status, COUNT(*) as cnt "
+            "FROM donor_spots GROUP BY category, status ORDER BY category"
+        )
+        await conn.close()
+
+        stats = {}
+        total = 0
+        taken = 0
+        for r in rows:
+            cat = r["category"]
+            if cat not in stats:
+                stats[cat] = {"total": 0, "taken": 0, "reserved": 0, "available": 0}
+            stats[cat]["total"] += r["cnt"]
+            stats[cat][r["status"]] += r["cnt"]
+            total += r["cnt"]
+            if r["status"] in ("taken", "reserved"):
+                taken += r["cnt"]
+
+        return JSONResponse({
+            "total": total,
+            "taken": taken,
+            "available": total - taken,
+            "percent": round((taken / total * 100) if total > 0 else 0, 1),
+            "by_category": stats,
+        })
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.post("/wall/reserve")
+async def wall_reserve_spot(req: ReserveSpotRequest):
+    """Reserve a donor spot. Mocks payment flow — returns a transaction ID."""
+    try:
+        conn = await asyncpg.connect(DATABASE_URL)
+
+        # Check availability
+        spot = await conn.fetchrow(
+            "SELECT id, status, category FROM donor_spots WHERE id = $1", req.spot_id
+        )
+        if not spot:
+            await conn.close()
+            return JSONResponse({"error": "Spot nicht gefunden."}, status_code=404)
+        if spot["status"] != "available":
+            await conn.close()
+            return JSONResponse({"error": "Dieser Platz ist leider nicht mehr verfügbar."}, status_code=409)
+
+        # Generate transaction ID (mock payment)
+        txn_id = f"WOH-{secrets.token_hex(6).upper()}"
+
+        await conn.execute(
+            "UPDATE donor_spots SET donor_name=$1, donor_message=$2, status='reserved', "
+            "transaction_id=$3, reserved_at=NOW() WHERE id=$4",
+            req.donor_name, req.donor_message or "", txn_id, req.spot_id,
+        )
+        await conn.close()
+
+        # Send notification email
+        email_subject = f"Wall of Honor — Neue Reservierung ({spot['category'].title()})"
+        body = (
+            f"Neue Reservierung auf der Wall of Honor!\n\n"
+            f"Kategorie: {spot['category'].title()}\n"
+            f"Spot-ID: {req.spot_id}\n"
+            f"Name: {req.donor_name}\n"
+            f"E-Mail: {req.email}\n"
+            f"Nachricht: {req.donor_message or '—'}\n"
+            f"Transaction-ID: {txn_id}\n"
+        )
+        send_email(subject=email_subject, text_body=body,
+                   reply_to_email=req.email, reply_to_name=req.donor_name)
+
+        return JSONResponse({
+            "success": True,
+            "transaction_id": txn_id,
+            "message": "Platz erfolgreich reserviert! Wir melden uns in Kürze.",
+            "payment_url": f"/wall-of-honor?txn={txn_id}",  # Mock — replace with real payment URL
+        })
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 # --- Endpoint: Contact ---
 @app.post("/contact")

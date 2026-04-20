@@ -1,0 +1,921 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+/**
+ * Trainingsplan data extracted from the printed schedule.
+ * Each entry maps to a team's content slug for linking.
+ */
+const teamLinks: Record<string, string | null> = {
+  '1-E': '/football/e-junioren---polonia-1-e--j1-',
+  '2-C': '/football/c-junioren---polonia-2-c--j1-',
+  '1-D': '/football/d-junioren---polonia-1-d--a1-',
+  '1-C': '/football/c-junioren---polonia-1-c--a1-',
+  'Polonia 1': '/football/herren---polonia-1-',
+  'Polonia 2': '/football/herren---polonia-2-',
+  'Polonia 3': '/football/herren---polonia-3-',
+  'Polonia 4': '/football/herren---polonia-4-',
+  'Senioren Ü40': '/football/herren--40---polonia-1--40',
+  'Senioren Ü50': '/football/herren--50---polonia-1--50',
+};
+
+const teamFullNames: Record<string, string> = {
+  '1-E': 'E-Junioren – Polonia 1.E (J1)',
+  '2-C': 'C-Junioren – Polonia 2.C (J1)',
+  '1-D': 'D-Junioren – Polonia 1.D (A1)',
+  '1-C': 'C-Junioren – Polonia 1.C (A1)',
+  'Polonia 1': 'Herren – Polonia 1.',
+  'Polonia 2': 'Herren – Polonia 2.',
+  'Polonia 3': 'Herren – Polonia 3.',
+  'Polonia 4': 'Herren – Polonia 4.',
+  'Senioren Ü40': 'Herren Ü40 – Polonia 1.Ü40',
+  'Senioren Ü50': 'Herren Ü50 – Polonia 1.Ü50',
+};
+
+const teamColors: Record<string, string> = {
+  '1-E':          'var(--team-e)',
+  '2-C':          'var(--team-2c)',
+  '1-D':          'var(--team-d)',
+  '1-C':          'var(--team-1c)',
+  'Polonia 1':    'var(--team-p1)',
+  'Polonia 2':    'var(--team-p2)',
+  'Polonia 3':    'var(--team-p3)',
+  'Polonia 4':    'var(--team-p4)',
+  'Senioren Ü40': 'var(--team-u40)',
+  'Senioren Ü50': 'var(--team-u50)',
+};
+
+// Build schedule data structure
+interface TrainingSlot {
+  team: string;
+  time?: string;     // Override display time if different from row default
+  note?: string;     // e.g. "nach Absprache"
+}
+
+interface ScheduleRow {
+  timeSlot: string;
+  days: (TrainingSlot | TrainingSlot[] | null)[];
+}
+
+const schedule: ScheduleRow[] = [
+  {
+    timeSlot: '16:30 – 18:00',
+    days: [
+      { team: '1-E' },
+      { team: '2-C' },
+      { team: '2-C', time: '17:00 – 18:30' },
+      { team: '1-E' },
+      null,
+    ],
+  },
+  {
+    timeSlot: '18:00 – 19:30',
+    days: [
+      { team: '1-D' },
+      { team: '1-C' },
+      { team: 'Polonia 3', time: '18:30 – 20:00' },
+      [{ team: '2-C', time: '17:00 – 19:00' }, { team: '1-D' }],
+      { team: '1-C' },
+    ],
+  },
+  {
+    timeSlot: '19:30 – 21:00',
+    days: [
+      { team: 'Polonia 2' },
+      { team: 'Polonia 1' },
+      { team: 'Senioren Ü40', time: '20:00 – 22:00' },
+      { team: 'Polonia 1' },
+      { team: 'Polonia 2', note: 'nach Absprache' },
+    ],
+  },
+  {
+    timeSlot: '21:00 – 22:00',
+    days: [
+      { team: 'Polonia 4' },
+      { team: 'Polonia 3' },
+      { team: 'Senioren Ü50', time: '20:00 – 22:00' },
+      { team: 'Polonia 4' },
+      null,
+    ],
+  },
+];
+
+const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+const dayIcons = ['🏃', '🏃', '🏃', '🏃', '⚽'];
+---
+
+<Layout 
+    title="Trainingszeiten"
+    description="Trainingsplan aller Mannschaften des KS Polonia Hamburg e.V. 1988 – Fußball-Training von E-Junioren bis Senioren Ü50 auf dem Sportplatz Finkenau."
+>
+    <div class="schedule-page">
+        <!-- Hero Section -->
+        <div class="schedule-hero">
+            <div class="hero-badge">
+                <span class="hero-icon">⚽</span>
+                <span>Saison 2025/26</span>
+            </div>
+            <h1>Trainingsplan</h1>
+            <p class="hero-subtitle">
+                Alle Trainingszeiten unserer Mannschaften auf einen Blick.<br> 
+                Sportplatz Finkenau 36, Hamburg-Uhlenhorst
+            </p>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend-bar">
+            <div class="legend-section">
+                <span class="legend-title">Jugend</span>
+                <div class="legend-items">
+                    {['1-E', '2-C', '1-D', '1-C'].map(team => (
+                        <a href={teamLinks[team] || '#'} class="legend-chip" style={`--chip-color: ${teamColors[team]}`}>
+                            <span class="chip-dot"></span>
+                            {team}
+                        </a>
+                    ))}
+                </div>
+            </div>
+            <div class="legend-section">
+                <span class="legend-title">Herren</span>
+                <div class="legend-items">
+                    {['Polonia 1', 'Polonia 2', 'Polonia 3', 'Polonia 4'].map(team => (
+                        <a href={teamLinks[team] || '#'} class="legend-chip" style={`--chip-color: ${teamColors[team]}`}>
+                            <span class="chip-dot"></span>
+                            {team}
+                        </a>
+                    ))}
+                </div>
+            </div>
+            <div class="legend-section">
+                <span class="legend-title">Senioren</span>
+                <div class="legend-items">
+                    {['Senioren Ü40', 'Senioren Ü50'].map(team => (
+                        <a href={teamLinks[team] || '#'} class="legend-chip" style={`--chip-color: ${teamColors[team]}`}>
+                            <span class="chip-dot"></span>
+                            {team}
+                        </a>
+                    ))}
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Schedule Grid -->
+        <div class="schedule-grid-wrapper" id="scheduleDesktop">
+            <div class="schedule-grid">
+                <!-- Header Row -->
+                <div class="grid-header grid-time-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="clock-icon">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Uhrzeit
+                </div>
+                {days.map((day, i) => (
+                    <div class="grid-header grid-day-header">
+                        <span class="day-icon">{dayIcons[i]}</span>
+                        <span class="day-name">{day}</span>
+                    </div>
+                ))}
+
+                <!-- Data Rows -->
+                {schedule.map((row, rowIdx) => (
+                    <>
+                        <div class={`grid-time ${rowIdx % 2 === 0 ? 'row-even' : 'row-odd'}`}>
+                            {row.timeSlot}
+                        </div>
+                        {row.days.map((cell) => {
+                            if (!cell) {
+                                return (
+                                    <div class={`grid-cell empty-cell ${rowIdx % 2 === 0 ? 'row-even' : 'row-odd'}`}>
+                                        {rowIdx === 0 ? (
+                                            <span class="empty-dash">—</span>
+                                        ) : (
+                                            <span class="friday-match">⚽ Freitagsspiele</span>
+                                        )}
+                                    </div>
+                                );
+                            }
+                            if (Array.isArray(cell)) {
+                                return (
+                                    <div class={`grid-cell multi-cell ${rowIdx % 2 === 0 ? 'row-even' : 'row-odd'}`}>
+                                        {cell.map((slot) => (
+                                            <a 
+                                                href={teamLinks[slot.team] || '#'}
+                                                class="team-block team-block-mini"
+                                                style={`--team-bg: ${teamColors[slot.team]}`}
+                                                data-team={slot.team}
+                                                data-fullname={teamFullNames[slot.team]}
+                                                data-time={slot.time || ''}
+                                            >
+                                                <span class="team-name">{slot.team}</span>
+                                                {slot.time && <span class="team-time-override">{slot.time}</span>}
+                                            </a>
+                                        ))}
+                                    </div>
+                                );
+                            }
+                            return (
+                                <div class={`grid-cell ${rowIdx % 2 === 0 ? 'row-even' : 'row-odd'}`}>
+                                    <a 
+                                        href={teamLinks[cell.team] || '#'}
+                                        class="team-block"
+                                        style={`--team-bg: ${teamColors[cell.team]}`}
+                                        data-team={cell.team}
+                                        data-fullname={teamFullNames[cell.team]}
+                                        data-time={cell.time || ''}
+                                    >
+                                        <span class="team-name">{cell.team}</span>
+                                        {cell.time && <span class="team-time-override">{cell.time}</span>}
+                                        {cell.note && <span class="team-note">{cell.note}</span>}
+                                    </a>
+                                </div>
+                            );
+                        })}
+                    </>
+                ))}
+            </div>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="schedule-mobile" id="scheduleMobile">
+            {days.map((day, dayIdx) => (
+                <div class="mobile-day-card">
+                    <div class="mobile-day-header">
+                        <span class="day-icon">{dayIcons[dayIdx]}</span>
+                        <h3>{day}</h3>
+                    </div>
+                    <div class="mobile-day-slots">
+                        {schedule.map((row) => {
+                            const cell = row.days[dayIdx];
+                            if (!cell) return null;
+                            if (Array.isArray(cell)) {
+                                return cell.map(slot => (
+                                    <a href={teamLinks[slot.team] || '#'} class="mobile-slot" style={`--team-bg: ${teamColors[slot.team]}`}>
+                                        <span class="mobile-slot-time">{slot.time || row.timeSlot}</span>
+                                        <span class="mobile-slot-team">{slot.team}</span>
+                                        <span class="mobile-slot-fullname">{teamFullNames[slot.team]}</span>
+                                    </a>
+                                ));
+                            }
+                            return (
+                                <a href={teamLinks[cell.team] || '#'} class="mobile-slot" style={`--team-bg: ${teamColors[cell.team]}`}>
+                                    <span class="mobile-slot-time">{cell.time || row.timeSlot}</span>
+                                    <span class="mobile-slot-team">{cell.team}</span>
+                                    <span class="mobile-slot-fullname">{teamFullNames[cell.team]}</span>
+                                    {cell.note && <span class="mobile-slot-note">{cell.note}</span>}
+                                </a>
+                            );
+                        })}
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        <!-- Info Footer -->
+        <div class="schedule-info">
+            <div class="info-card">
+                <div class="info-icon">📍</div>
+                <div>
+                    <strong>Trainingsort</strong>
+                    <p>Sportplatz Finkenau 36, 22081 Hamburg-Uhlenhorst</p>
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">📧</div>
+                <div>
+                    <strong>Kontakt</strong>
+                    <p><a href="mailto:info@ks-polonia.de">info@ks-polonia.de</a></p>
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">🏃</div>
+                <div>
+                    <strong>Probetraining</strong>
+                    <p><a href="/seiten/probetraining">Jetzt anmelden →</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    /* ═══════════════════════════════════════
+       TEAM COLOR TOKENS
+       ═══════════════════════════════════════ */
+    :root {
+        --team-e:   #e69500;
+        --team-2c:  #eab308;
+        --team-d:   #22c55e;
+        --team-1c:  #ec4899;
+        --team-p1:  #f97316;
+        --team-p2:  #3b82f6;
+        --team-p3:  #ef4444;
+        --team-p4:  #dc2626;
+        --team-u40: #16a34a;
+        --team-u50: #f87171;
+    }
+
+    /* ═══════════════════════════════════════
+       PAGE LAYOUT
+       ═══════════════════════════════════════ */
+    .schedule-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════ */
+    .schedule-hero {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding: 2rem 0 1.5rem;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, rgba(220,20,60,0.08), rgba(220,20,60,0.02));
+        border: 1px solid rgba(220,20,60,0.15);
+        border-radius: 999px;
+        padding: 0.4rem 1.2rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        margin-bottom: 1rem;
+    }
+
+    .hero-icon {
+        font-size: 1.1rem;
+    }
+
+    .schedule-hero h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, var(--color-text) 0%, var(--color-primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.75rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.05rem;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════
+       LEGEND BAR
+       ═══════════════════════════════════════ */
+    .legend-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+        padding: 1.25rem 1.5rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .legend-section {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .legend-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-text-muted);
+        margin-right: 0.25rem;
+    }
+
+    .legend-items {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+    }
+
+    .legend-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--color-text);
+        background: rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.06);
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .legend-chip:hover {
+        background: var(--chip-color);
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    .chip-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--chip-color);
+        flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════
+       SCHEDULE GRID — DESKTOP
+       ═══════════════════════════════════════ */
+    .schedule-grid-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+    }
+
+    .schedule-grid {
+        display: grid;
+        grid-template-columns: 120px repeat(5, 1fr);
+        min-width: 750px;
+    }
+
+    /* Header cells */
+    .grid-header {
+        padding: 1rem 0.75rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        background: linear-gradient(135deg, #1a1a2e, #2d2d44);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .grid-time-header {
+        border-radius: 15px 0 0 0;
+    }
+
+    .grid-header:last-of-type {
+        border-radius: 0 15px 0 0;
+    }
+
+    .clock-icon {
+        width: 16px;
+        height: 16px;
+        opacity: 0.7;
+    }
+
+    .day-icon {
+        font-size: 1rem;
+    }
+
+    .day-name {
+        font-size: 0.82rem;
+    }
+
+    /* Time cells */
+    .grid-time {
+        padding: 1rem 0.75rem;
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: var(--color-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-right: 1px solid var(--color-border);
+        line-height: 1.3;
+    }
+
+    .row-even { background: #fcfcfd; }
+    .row-odd  { background: #f8f9fb; }
+
+    /* Data cells */
+    .grid-cell {
+        padding: 0.5rem;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        border-right: 1px solid rgba(0,0,0,0.04);
+        border-top: 1px solid rgba(0,0,0,0.04);
+        min-height: 80px;
+    }
+
+    .grid-cell:last-child {
+        border-right: none;
+    }
+
+    .multi-cell {
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .empty-cell {
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-dash {
+        color: var(--color-border);
+        font-size: 1.2rem;
+    }
+
+    .friday-match {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        text-align: center;
+        padding: 0.5rem;
+        background: repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 4px,
+            rgba(0,0,0,0.02) 4px,
+            rgba(0,0,0,0.02) 8px
+        );
+        border-radius: 8px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ═══════════════════════════════════════
+       TEAM BLOCKS
+       ═══════════════════════════════════════ */
+    .team-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+        width: 100%;
+        padding: 0.75rem 0.5rem;
+        border-radius: 10px;
+        background: var(--team-bg);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 700;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        cursor: pointer;
+    }
+
+    .team-block::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent 60%);
+        border-radius: inherit;
+        pointer-events: none;
+    }
+
+    .team-block:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        filter: brightness(1.1);
+        color: #fff;
+    }
+
+    .team-block-mini {
+        padding: 0.45rem 0.4rem;
+    }
+
+    .team-name {
+        font-size: 0.95rem;
+        font-weight: 800;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+        letter-spacing: 0.02em;
+    }
+
+    .team-block-mini .team-name {
+        font-size: 0.82rem;
+    }
+
+    .team-time-override {
+        font-size: 0.68rem;
+        font-weight: 500;
+        opacity: 0.9;
+        background: rgba(0,0,0,0.15);
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+    }
+
+    .team-note {
+        font-size: 0.65rem;
+        font-weight: 500;
+        font-style: italic;
+        opacity: 0.85;
+    }
+
+    /* ═══════════════════════════════════════
+       TOOLTIP (populated by JS)
+       ═══════════════════════════════════════ */
+    .schedule-tooltip {
+        position: fixed;
+        z-index: 9999;
+        background: #1a1a2e;
+        color: #fff;
+        padding: 0.65rem 1rem;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        pointer-events: none;
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        max-width: 260px;
+        line-height: 1.5;
+    }
+
+    .schedule-tooltip.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .schedule-tooltip .tt-team {
+        font-weight: 700;
+        font-size: 0.88rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .schedule-tooltip .tt-time {
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+
+    .schedule-tooltip .tt-link {
+        font-size: 0.72rem;
+        color: var(--color-primary);
+        margin-top: 0.3rem;
+        opacity: 0.9;
+    }
+
+    /* ═══════════════════════════════════════
+       MOBILE CARD VIEW
+       ═══════════════════════════════════════ */
+    .schedule-mobile {
+        display: none;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .mobile-day-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-day-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1rem;
+        background: linear-gradient(135deg, #1a1a2e, #2d2d44);
+        color: #fff;
+    }
+
+    .mobile-day-header h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .mobile-day-slots {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-slot {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+        grid-template-rows: auto auto;
+        gap: 0 0.75rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--color-border);
+        text-decoration: none;
+        color: var(--color-text);
+        transition: background 0.15s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mobile-slot::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--team-bg);
+    }
+
+    .mobile-slot:last-child {
+        border-bottom: none;
+    }
+
+    .mobile-slot:hover {
+        background: rgba(0,0,0,0.02);
+    }
+
+    .mobile-slot-time {
+        grid-row: 1 / 3;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--color-text-muted);
+        display: flex;
+        align-items: center;
+        padding-left: 0.5rem;
+    }
+
+    .mobile-slot-team {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--color-text);
+    }
+
+    .mobile-slot-fullname {
+        font-size: 0.78rem;
+        color: var(--color-text-muted);
+    }
+
+    .mobile-slot-note {
+        grid-column: 2;
+        font-size: 0.72rem;
+        font-style: italic;
+        color: var(--color-text-muted);
+    }
+
+    /* ═══════════════════════════════════════
+       INFO FOOTER
+       ═══════════════════════════════════════ */
+    .schedule-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .info-card {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.25rem 1.5rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .info-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .info-card strong {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 0.2rem;
+    }
+
+    .info-card p {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════════════
+       HIGHLIGHT ACTIVE DAY
+       ═══════════════════════════════════════ */
+    .grid-day-header.today {
+        background: linear-gradient(135deg, var(--color-primary), #a5102e) !important;
+        position: relative;
+    }
+
+    .grid-day-header.today::after {
+        content: 'HEUTE';
+        position: absolute;
+        bottom: 4px;
+        font-size: 0.55rem;
+        letter-spacing: 0.12em;
+        font-weight: 800;
+        opacity: 0.7;
+    }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════ */
+    @media (max-width: 800px) {
+        .schedule-grid-wrapper { display: none; }
+        .schedule-mobile { display: flex; }
+
+        .schedule-hero h1 { font-size: 2rem; }
+        .hero-subtitle { font-size: 0.92rem; }
+
+        .legend-bar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+    }
+
+    /* ═══════════════════════════════════════
+       ENTRANCE ANIMATIONS
+       ═══════════════════════════════════════ */
+    .team-block {
+        animation: fadeSlideUp 0.4s ease both;
+    }
+
+    @keyframes fadeSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .schedule-grid .team-block:nth-child(1)  { animation-delay: 0.05s; }
+    .schedule-grid .team-block:nth-child(2)  { animation-delay: 0.1s; }
+    .schedule-grid .team-block:nth-child(3)  { animation-delay: 0.15s; }
+    .schedule-grid .team-block:nth-child(4)  { animation-delay: 0.2s; }
+    .schedule-grid .team-block:nth-child(5)  { animation-delay: 0.25s; }
+</style>
+
+<script>
+    // ── Tooltip for desktop ──
+    const tooltip = document.createElement('div');
+    tooltip.className = 'schedule-tooltip';
+    document.body.appendChild(tooltip);
+
+    document.querySelectorAll('.team-block').forEach(block => {
+        const el = block as HTMLElement;
+
+        el.addEventListener('mouseenter', () => {
+            const fullname = el.dataset.fullname || '';
+            const time = el.dataset.time || '';
+            tooltip.innerHTML = `
+                <div class="tt-team">${fullname}</div>
+                ${time ? `<div class="tt-time">⏰ ${time}</div>` : ''}
+                <div class="tt-link">→ Zur Mannschaftsseite</div>
+            `;
+            tooltip.classList.add('visible');
+        });
+
+        el.addEventListener('mousemove', (e: MouseEvent) => {
+            tooltip.style.left = `${e.clientX + 12}px`;
+            tooltip.style.top = `${e.clientY - 10}px`;
+        });
+
+        el.addEventListener('mouseleave', () => {
+            tooltip.classList.remove('visible');
+        });
+    });
+
+    // ── Highlight today ──
+    const dayIndex = new Date().getDay(); // 0=Sun, 1=Mon...5=Fri
+    if (dayIndex >= 1 && dayIndex <= 5) {
+        const headers = document.querySelectorAll('.grid-day-header');
+        const todayHeader = headers[dayIndex - 1];
+        if (todayHeader) {
+            todayHeader.classList.add('today');
+        }
+    }
+
+    // ── Stagger animation for grid cells ──
+    document.querySelectorAll('.schedule-grid .team-block').forEach((el, i) => {
+        (el as HTMLElement).style.animationDelay = `${i * 0.04}s`;
+    });
+</script>

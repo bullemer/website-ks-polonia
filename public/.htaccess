@@ -2,6 +2,12 @@
   RewriteEngine On
 
   # ============================================
+  # Force WWW (and HTTPS)
+  # ============================================
+  RewriteCond %{HTTP_HOST} ^ks-polonia\.de$ [NC]
+  RewriteRule ^(.*)$ https://www.ks-polonia.de/$1 [L,R=301]
+
+  # ============================================
   # 301 Redirects: Old WordPress URLs → New Astro URLs
   # ============================================
 

@@ -29,6 +29,31 @@
   RewriteRule ^b-jugend/?$ /seiten/b-jugend [R=301,L]
   RewriteRule ^ansprechpartner-erwachsense/?$ /seiten/vorstand [R=301,L]
   RewriteRule ^f-jugend-2016-2017/?$ /seiten/aktuelles [R=301,L]
+  
+  # New additions from GSC analysis
+  RewriteRule ^impressum-2/?$ /seiten/impressum-2 [R=301,L]
+  RewriteRule ^galerie/?$ /seiten/galerie [R=301,L]
+  RewriteRule ^kontaktformular/?$ /kontakt [R=301,L]
+  RewriteRule ^home/?$ / [R=301,L]
+  RewriteRule ^probetraining/?$ /seiten/probetraining [R=301,L]
+  RewriteRule ^spendenkonto/?$ /seiten/spendenkonto [R=301,L]
+  RewriteRule ^sponsorwerden/?$ /seiten/sponsorwerden [R=301,L]
+  RewriteRule ^trainingsformen-g-f-und-e-jugend/?$ /seiten/trainingsformen-g-f-und-e-jugend [R=301,L]
+  RewriteRule ^datenschutz/?$ /seiten/datenschutz [R=301,L]
+  RewriteRule ^satzung-2/?$ /seiten/satzung [R=301,L]
+  RewriteRule ^trainingszeiten-jugend/?$ /seiten/trainingszeiten-jugend [R=301,L]
+  RewriteRule ^c-jugend/?$ /seiten/c-jugend [R=301,L]
+  RewriteRule ^ue50-1-mannschaft/?$ /seiten/ue50-1-mannschaft [R=301,L]
+  RewriteRule ^erste-herren/?$ /seiten/erste-herren [R=301,L]
+  RewriteRule ^e-jugend/?$ /seiten/e-jugend [R=301,L]
+  RewriteRule ^ue40-1-mannschaft/?$ /seiten/ue40-1-mannschaft [R=301,L]
+  RewriteRule ^d2-jugend/?$ /seiten/d2-jugend [R=301,L]
+  RewriteRule ^mannschaften-jugend/?$ /seiten/mannschaften-jugend [R=301,L]
+  RewriteRule ^d-jugend-1/?$ /seiten/d-jugend-1 [R=301,L]
+  RewriteRule ^jugendkonzept/?$ /seiten/jugendkonzept [R=301,L]
+
+  # Redirect old WP uploads to homepage to avoid 404s for indexed PDFs
+  RewriteRule ^wp-content/uploads/.*$ / [R=301,L]
 
   # Catch-all: old /YYYY/MM/DD/slug/ patterns → /news/slug
   RewriteRule ^[0-9]{4}/[0-9]{2}/[0-9]{2}/(.+?)/?$ /news/$1 [R=301,L]

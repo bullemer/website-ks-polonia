@@ -9,7 +9,7 @@ interface Props {
     type?: string;
 }
 
-const siteBase = Astro.site?.origin || 'https://ks-polonia.de';
+const siteBase = Astro.site?.origin || 'https://www.ks-polonia.de';
 const pathname = Astro.url.pathname.replace(/\/+$/, '') || '';
 const defaultCanonical = `${siteBase}${pathname}`;
 
@@ -237,6 +237,12 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
                         <span id="sys-version-api">API: prüfen...</span>
                     </a>
                 </div>
+            </div>
+            <div class="footer-sports">
+                <a href="/seiten/basketball-jugend-u10">Basketball Kinder</a>
+                <a href="/seiten/basketball-herren-ue35">Basketball Ü35</a>
+                <a href="/seiten/badminton">Badminton</a>
+                <a href="/seiten/probetraining">Probetraining</a>
             </div>
             <div class="footer-links">
                 <a href="/seiten/impressum-2">Impressum</a>
@@ -487,6 +493,9 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     .footer-links { display: flex; gap: 1.25rem; }
     .footer-links a { color: #aaa; }
     .footer-links a:hover { color: #fff; }
+    .footer-sports { display: flex; gap: 1rem; }
+    .footer-sports a { color: #888; font-size: 0.78rem; }
+    .footer-sports a:hover { color: #fff; }
 
     /* ═══════════════════════════════════════
        PROSE
@@ -514,5 +523,6 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
 
     @media (max-width: 600px) {
         .footer-inner { flex-direction: column; gap: 0.5rem; text-align: center; }
+        .footer-sports { flex-wrap: wrap; justify-content: center; }
     }
 </style>

@@ -73,6 +73,39 @@ const latestNews = sortedNews.slice(0, 6);
         </div>
     </section>
 
+    <!-- Unsere Sportarten – SEO: Internal Links to key sport pages -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Unsere Sportarten in Uhlenhorst &amp; Barmbek</h2>
+        </div>
+        <div class="sports-grid">
+            <a href="/seiten/basketball-jugend-u10" class="sport-card sport-card--basketball">
+                <span class="sport-icon">🏀</span>
+                <h3>Basketball Kinder U10</h3>
+                <p>Kinder-Basketball in Hamburg Uhlenhorst & Barmbek – Dienstags 17:00 Uhr. Probetraining jederzeit!</p>
+                <span class="sport-cta">Mehr erfahren →</span>
+            </a>
+            <a href="/seiten/basketball-herren-ue35" class="sport-card sport-card--basketball">
+                <span class="sport-icon">🏀</span>
+                <h3>Basketball Herren Ü35</h3>
+                <p>Freizeit-Basketball in Hamburg für Erwachsene – Dienstags 18:30 Uhr in Uhlenhorst/Barmbek.</p>
+                <span class="sport-cta">Mehr erfahren →</span>
+            </a>
+            <a href="/seiten/aktuelles" class="sport-card sport-card--fussball">
+                <span class="sport-icon">⚽</span>
+                <h3>Fußball</h3>
+                <p>Herren, Jugend &amp; Kinder – Spielbetrieb in der Kreisliga und im Pokal. Trainingsplatz an der Finkenau.</p>
+                <span class="sport-cta">Mehr erfahren →</span>
+            </a>
+            <a href="/seiten/badminton" class="sport-card sport-card--badminton">
+                <span class="sport-icon">🏸</span>
+                <h3>Badminton</h3>
+                <p>Badminton für Erwachsene in Hamburg – Regelmäßiges Training und Turniere.</p>
+                <span class="sport-cta">Mehr erfahren →</span>
+            </a>
+        </div>
+    </section>
+
     <!-- Pages Overview -->
     <section class="section">
         <div class="section-header">
@@ -195,9 +228,51 @@ const latestNews = sortedNews.slice(0, 6);
         color: var(--color-primary);
     }
 
+    /* Sports Section */
+    .sports-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.25rem;
+    }
+    .sport-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        transition: box-shadow 0.25s, transform 0.2s, border-color 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .sport-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .sport-card--basketball::before { background: linear-gradient(90deg, #f97316, #ea580c); }
+    .sport-card--fussball::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .sport-card--badminton::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .sport-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-3px);
+        border-color: var(--color-primary);
+        color: inherit;
+    }
+    .sport-icon { font-size: 2rem; line-height: 1; }
+    .sport-card h3 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+    .sport-card p { font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; flex: 1; }
+    .sport-cta { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); margin-top: 0.5rem; }
+
     @media (max-width: 600px) {
         .hero { padding: 3rem 1.5rem; }
         .hero h1 { font-size: 2rem; }
         .news-grid { grid-template-columns: 1fr; }
+        .sports-grid { grid-template-columns: 1fr; }
     }
 </style>

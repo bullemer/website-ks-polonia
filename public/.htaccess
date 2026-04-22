@@ -1,0 +1,36 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # ============================================
+  # 301 Redirects: Old WordPress URLs → New Astro URLs
+  # ============================================
+
+  # Basketball pages
+  RewriteRule ^basketball-fuer-kinder-in-hamburg-uhlenhorst/?$ /seiten/basketball-jugend-u10 [R=301,L]
+  RewriteRule ^basketball-hamburg-herren-ue35/?$ /seiten/basketball-herren-ue35 [R=301,L]
+
+  # News articles (old WordPress /YYYY/MM/DD/slug/ format → new /news/slug)
+  RewriteRule ^2023/07/06/trauer-um-manfred-itzen/?$ /news/trauer-um-manfred-itzen [R=301,L]
+  RewriteRule ^2023/07/02/polonia-stellt-den-ehrenamtler-des-monats/?$ /news/polonia-stellt-den-ehrenamtler-des-monats [R=301,L]
+  RewriteRule ^2023/11/21/trainerwechsel-1-herren/?$ /news/trainerwechsel-1-herren [R=301,L]
+  RewriteRule ^2024/11/16/ks-polonia-in-der-ard-mediathek-ein-besonderer-film-ueber-unsere-d-jugend-zur-berlinale-2024-in-der-ard/?$ /news/ks-polonia-in-der-ard-mediathek-ein-besonderer-film-ueber-unsere-d-jugend-zur-berlinale-2024-in-der-ard [R=301,L]
+  RewriteRule ^2024/12/06/dfb-ehrenamtspreis-2025-fuer-polonia-praesidenten-manfred-wolny/?$ /news/dfb-ehrenamtspreis-2025-fuer-polonia-praesidenten-manfred-wolny [R=301,L]
+  RewriteRule ^2025/01/10/der-ks-polonia-geht-als-dfb-goldklub-ins-neue-jahr/?$ /news/der-ks-polonia-geht-als-dfb-goldklub-ins-neue-jahr [R=301,L]
+  RewriteRule ^2025/04/28/ks-polonia-triumphiert-unter-flutlicht-40-sieg-gegen-hafencity-fc-und-aufstieg-in-die-kreisliga/?$ /news/ks-polonia-triumphiert-unter-flutlicht-40-sieg-gegen-hafencity-fc-und-aufstieg-in-die-kreisliga [R=301,L]
+  RewriteRule ^2025/08/06/david-gegen-goliath-in-der-ersten-pokalrunde/?$ /news/david-gegen-goliath-in-der-ersten-pokalrunde [R=301,L]
+
+  # Old page slugs (WordPress flat structure → new /seiten/ prefix)
+  RewriteRule ^geschichte/?$ /seiten/geschichte [R=301,L]
+  RewriteRule ^sportplatz/?$ /seiten/sportplatz [R=301,L]
+  RewriteRule ^veranstaltungen/?$ /seiten/veranstaltungen [R=301,L]
+  RewriteRule ^vorstand/?$ /seiten/vorstand [R=301,L]
+  RewriteRule ^aktuelles/?$ /seiten/aktuelles [R=301,L]
+  RewriteRule ^1-herren/?$ /seiten/1-herren [R=301,L]
+  RewriteRule ^b-jugend/?$ /seiten/b-jugend [R=301,L]
+  RewriteRule ^ansprechpartner-erwachsense/?$ /seiten/vorstand [R=301,L]
+  RewriteRule ^f-jugend-2016-2017/?$ /seiten/aktuelles [R=301,L]
+
+  # Catch-all: old /YYYY/MM/DD/slug/ patterns → /news/slug
+  RewriteRule ^[0-9]{4}/[0-9]{2}/[0-9]{2}/(.+?)/?$ /news/$1 [R=301,L]
+
+</IfModule>

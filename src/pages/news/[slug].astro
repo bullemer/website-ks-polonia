@@ -12,9 +12,15 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+// Resolve cover image for Open Graph (Facebook, WhatsApp, Twitter, etc.)
+let ogImage: string | undefined;
+if (entry.data.coverImage && typeof entry.data.coverImage === 'object' && entry.data.coverImage.src) {
+    ogImage = entry.data.coverImage.src;
+}
 ---
 
-<Layout title={entry.data.title} description={entry.data.summary} type="article">
+<Layout title={entry.data.title} description={entry.data.summary} image={ogImage} type="article">
     <article class="prose">
         <a href="/news" class="back-link">← Zurück zu Nachrichten</a>
         <h1>{entry.data.title}</h1>

@@ -84,7 +84,9 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={`${title} | KS Polonia Hamburg`} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={`${siteBase}${image}`} />
+    <meta property="og:image" content={image.startsWith('http') ? image : `${siteBase}${image}`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="de_DE" />
     <meta property="og:site_name" content="KS Polonia Hamburg e.V. 1988" />
     
@@ -93,7 +95,7 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <meta property="twitter:url" content={canonicalUrl} />
     <meta property="twitter:title" content={`${title} | KS Polonia Hamburg`} />
     <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={`${siteBase}${image}`} />
+    <meta property="twitter:image" content={image.startsWith('http') ? image : `${siteBase}${image}`} />
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify({

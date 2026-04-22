@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
+import WeatherWidget from '../components/WeatherWidget.astro';
 import startpageData from '../content/startpage/index.json';
 
 const allNews = await getCollection('news');
@@ -74,20 +75,33 @@ const latestNews = sortedNews.slice(0, 6);
         </div>
     </section>
 
-    <!-- Next Matches Widget -->
+    <!-- Gameday Dashboard (Matches + Weather) -->
     <section class="section">
-        <div class="section-header">
-            <h2>Nächste Spiele</h2>
-            <a href="/spieltermine" class="view-all">Alle Termine →</a>
-        </div>
-        <div class="matches-widget-container" style="background: var(--color-surface); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);">
-            <script is:inline type="text/javascript" src="https://www.fussball.de/widgets.js"></script>
-            <div 
-              class="fussballde_widget"
-              data-id="576e80b1-c9b0-4ea0-a1ca-b7bcf6a4b9b7"
-              data-type="club-matches"
-              style="width: 100%"
-            ></div>
+        <div class="dashboard-grid">
+            <!-- Next Matches Widget -->
+            <div class="dashboard-card">
+                <div class="section-header" style="margin-bottom: 1rem;">
+                    <h2>Nächste Spiele</h2>
+                    <a href="/spieltermine" class="view-all">Alle Termine →</a>
+                </div>
+                <div class="matches-widget-container" style="background: var(--color-surface); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); height: 100%;">
+                    <script is:inline type="text/javascript" src="https://www.fussball.de/widgets.js"></script>
+                    <div 
+                      class="fussballde_widget"
+                      data-id="576e80b1-c9b0-4ea0-a1ca-b7bcf6a4b9b7"
+                      data-type="club-matches"
+                      style="width: 100%"
+                    ></div>
+                </div>
+            </div>
+
+            <!-- Weather & Status Widget -->
+            <div class="dashboard-card">
+                <div class="section-header" style="margin-bottom: 1rem;">
+                    <h2>Wetter & Platzstatus</h2>
+                </div>
+                <WeatherWidget />
+            </div>
         </div>
     </section>
 
@@ -180,6 +194,21 @@ const latestNews = sortedNews.slice(0, 6);
     .view-all {
         font-size: 0.9rem;
         font-weight: 500;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    @media (min-width: 900px) {
+        .dashboard-grid {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+    .dashboard-card {
+        display: flex;
+        flex-direction: column;
     }
 
     .news-grid {

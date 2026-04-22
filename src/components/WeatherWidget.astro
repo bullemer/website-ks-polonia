@@ -1,0 +1,197 @@
+---
+// src/components/WeatherWidget.astro
+---
+
+<div class="weather-widget">
+    <div class="weather-header">
+        <h3>📍 Finkenau 38, Hamburg</h3>
+        <span class="status-badge status-open">🟢 Platz geöffnet</span>
+    </div>
+    
+    <div class="weather-body" id="weatherBody">
+        <div class="weather-loading">
+            <div class="spinner"></div>
+            <span>Wetterdaten werden geladen...</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .weather-widget {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: #f8fafc;
+        border-radius: var(--radius, 12px);
+        padding: 1.5rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .weather-widget::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at top right, rgba(220,20,60,0.15) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .weather-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .weather-header h3 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 0;
+        color: #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(4px);
+    }
+
+    .status-open {
+        color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.3);
+    }
+
+    .weather-loading {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: #94a3b8;
+        font-size: 0.9rem;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,0.1);
+        border-top-color: var(--color-primary, #DC143C);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Dynamically injected content styles */
+    .weather-current {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .weather-icon-large {
+        font-size: 3.5rem;
+        line-height: 1;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    }
+
+    .weather-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .weather-temp {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.05em;
+    }
+
+    .weather-desc {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #cbd5e1;
+    }
+
+    .weather-meta {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.75rem;
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+</style>
+
+<script>
+    // Finkenau 38 Coordinates
+    const LAT = 53.568461;
+    const LON = 10.026131;
+    
+    // WMO Weather interpretation codes
+    const weatherCodes: Record<number, { text: string, icon: string }> = {
+        0: { text: 'Sonnig', icon: '☀️' },
+        1: { text: 'Leicht bewölkt', icon: '🌤️' },
+        2: { text: 'Wolkig', icon: '⛅' },
+        3: { text: 'Stark bewölkt', icon: '☁️' },
+        45: { text: 'Nebel', icon: '🌫️' },
+        48: { text: 'Raureifnebel', icon: '🌫️' },
+        51: { text: 'Leichter Nieselregen', icon: '🌧️' },
+        53: { text: 'Mäßiger Nieselregen', icon: '🌧️' },
+        55: { text: 'Starker Nieselregen', icon: '🌧️' },
+        61: { text: 'Leichter Regen', icon: '☔' },
+        63: { text: 'Mäßiger Regen', icon: '☔' },
+        65: { text: 'Starker Regen', icon: '⛈️' },
+        71: { text: 'Leichter Schneefall', icon: '🌨️' },
+        73: { text: 'Mäßiger Schneefall', icon: '🌨️' },
+        75: { text: 'Starker Schneefall', icon: '❄️' },
+        95: { text: 'Gewitter', icon: '🌩️' },
+    };
+
+    async function fetchWeather() {
+        const body = document.getElementById('weatherBody');
+        if (!body) return;
+
+        try {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,wind_speed_10m,weather_code&timezone=Europe%2FBerlin`);
+            const data = await res.json();
+            
+            const current = data.current;
+            const codeInfo = weatherCodes[current.weather_code] || { text: 'Unbekannt', icon: '🌡️' };
+            
+            body.innerHTML = `
+                <div class="weather-current">
+                    <div class="weather-icon-large">${codeInfo.icon}</div>
+                    <div class="weather-details">
+                        <div class="weather-temp">${Math.round(current.temperature_2m)}°C</div>
+                        <div class="weather-desc">${codeInfo.text}</div>
+                        <div class="weather-meta">
+                            <span class="meta-item">💨 Wind: ${Math.round(current.wind_speed_10m)} km/h</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (err) {
+            body.innerHTML = `<div style="color: #ef4444; font-size: 0.9rem;">⚠️ Wetterdaten aktuell nicht verfügbar.</div>`;
+        }
+    }
+
+    // Fetch when component mounts
+    document.addEventListener('DOMContentLoaded', fetchWeather);
+</script>

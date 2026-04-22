@@ -97,24 +97,41 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={image.startsWith('http') ? image : `${siteBase}${image}`} />
 
-    <!-- JSON-LD Structured Data -->
+    <!-- JSON-LD Structured Data (LocalBusiness / SportsClub for Google My Business) -->
     <script type="application/ld+json" set:html={JSON.stringify({
         "@context": "https://schema.org",
-        "@type": "SportsOrganization",
+        "@type": "SportsClub",
         "name": "KS Polonia Hamburg e.V. 1988",
+        "alternateName": "Polski Klub Sportowy Hamburg",
         "url": "https://www.ks-polonia.de",
         "logo": "https://www.ks-polonia.de/logo.png",
-        "description": description,
+        "image": "https://www.ks-polonia.de/logo.png",
+        "description": "Polnischer Sportverein in Hamburg-Uhlenhorst. Wir bieten Fußball, Basketball und Badminton an. Offen für alle Nationen und Familien.",
+        "email": "info@ks-polonia.de",
         "address": {
             "@type": "PostalAddress",
-            "streetAddress": "Finkenau 36",
+            "streetAddress": "Finkenau 36-38",
             "addressLocality": "Hamburg",
             "addressRegion": "Hamburg",
             "postalCode": "22081",
             "addressCountry": "DE"
         },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 53.568461,
+            "longitude": 10.026131
+        },
+        "hasMap": "https://maps.app.goo.gl/kXhWYZg1aWdPQf5h9",
         "sport": ["Fußball", "Basketball", "Badminton"],
-        "foundingDate": "1988"
+        "foundingDate": "1988-06-25",
+        "areaServed": {
+             "@type": "City",
+             "name": "Hamburg"
+        },
+        "sameAs": [
+            "https://www.fussball.de/verein/ks-polonia-hamburg-hamburg/-/id/00ES8GN7V8000030VV0AG08LVUPGND5I",
+            "https://www.facebook.com/kspoloniahamburg/"
+        ]
     })} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />

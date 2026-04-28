@@ -1,3 +1,28 @@
+# ============================================
+# Explicitly allow Facebook/WhatsApp/Twitter crawlers
+# (bypasses any server-level WAF/ModSecurity blocking)
+# ============================================
+<IfModule mod_setenvif.c>
+  SetEnvIfNoCase User-Agent "facebookexternalhit" SOCIAL_BOT
+  SetEnvIfNoCase User-Agent "Facebot" SOCIAL_BOT
+  SetEnvIfNoCase User-Agent "WhatsApp" SOCIAL_BOT
+  SetEnvIfNoCase User-Agent "Twitterbot" SOCIAL_BOT
+  SetEnvIfNoCase User-Agent "LinkedInBot" SOCIAL_BOT
+  SetEnvIfNoCase User-Agent "Slackbot" SOCIAL_BOT
+  SetEnvIfNoCase User-Agent "TelegramBot" SOCIAL_BOT
+</IfModule>
+
+<IfModule mod_authz_core.c>
+  <If "env('SOCIAL_BOT') == '1'">
+    Require all granted
+  </If>
+</IfModule>
+
+# Disable ModSecurity for social media crawlers if active
+<IfModule mod_security2.c>
+  SecRule REQUEST_HEADERS:User-Agent "facebookexternalhit|Facebot|WhatsApp|Twitterbot|LinkedInBot" "id:99999,phase:1,allow,nolog"
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
 

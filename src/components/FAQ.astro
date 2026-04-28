@@ -1,0 +1,156 @@
+---
+export interface FAQItem {
+    question: string;
+    answer: string;
+}
+
+export interface Props {
+    items: FAQItem[];
+    title?: string;
+}
+
+const { items, title = "Häufig gestellte Fragen (FAQ)" } = Astro.props;
+
+// Generate FAQPage JSON-LD schema for Google Rich Snippets
+const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": items.map(item => ({
+        "@type": "Question",
+        "name": item.question,
+        "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+        }
+    }))
+};
+---
+
+<div class="faq-wrapper">
+    <div class="section-header">
+        <h2>{title}</h2>
+    </div>
+    <div class="faq-container">
+        {items.map((item) => (
+            <details class="faq-item" name="faq-accordion">
+                <summary class="faq-question">
+                    <span class="q-text">{item.question}</span>
+                    <span class="q-icon">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </span>
+                </summary>
+                <div class="faq-answer">
+                    <p>{item.answer}</p>
+                </div>
+            </details>
+        ))}
+    </div>
+</div>
+
+<!-- Inject dynamic FAQ JSON-LD directly into the HTML -->
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+<style>
+    .faq-wrapper {
+        margin: 2rem 0;
+    }
+    
+    .faq-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .faq-item {
+        background: var(--color-surface, #ffffff);
+        border: 1px solid var(--color-border, #e5e7eb);
+        border-radius: var(--radius, 8px);
+        overflow: hidden;
+        transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .faq-item:hover {
+        border-color: var(--color-primary, #DC143C);
+    }
+    
+    .faq-item[open] {
+        border-color: var(--color-primary, #DC143C);
+        box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.05));
+    }
+
+    .faq-question {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--color-text, #1a1a2e);
+        list-style: none; /* Hide default triangle */
+        user-select: none;
+    }
+    
+    /* Hide the default marker in WebKit */
+    .faq-question::-webkit-details-marker {
+        display: none;
+    }
+
+    .q-text {
+        padding-right: 1rem;
+    }
+
+    .q-icon {
+        flex-shrink: 0;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--color-primary, #DC143C);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(220, 20, 60, 0.08); /* Primary color light bg */
+    }
+
+    .faq-item[open] .q-icon {
+        transform: rotate(180deg);
+        background: var(--color-primary, #DC143C);
+        color: white;
+    }
+
+    .faq-answer {
+        padding: 0 1.5rem 1.25rem 1.5rem;
+        color: var(--color-text-muted, #6b7280);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        animation: fadeInDown 0.3s ease-in-out;
+    }
+
+    .faq-answer p {
+        margin: 0;
+    }
+
+    @keyframes fadeInDown {
+        0% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @media (max-width: 600px) {
+        .faq-question {
+            padding: 1rem;
+            font-size: 1rem;
+        }
+        .faq-answer {
+            padding: 0 1rem 1rem 1rem;
+        }
+    }
+</style>

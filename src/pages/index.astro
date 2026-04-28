@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import WeatherWidget from '../components/WeatherWidget.astro';
+import FAQ from '../components/FAQ.astro';
 import startpageData from '../content/startpage/index.json';
 
 const allNews = await getCollection('news');
@@ -136,6 +137,28 @@ const latestNews = sortedNews.slice(0, 6);
                 <span class="sport-cta">Mehr erfahren →</span>
             </a>
         </div>
+    </section>
+
+    <!-- Häufig gestellte Fragen (FAQ) -->
+    <section class="section">
+        <FAQ items={[
+            {
+                question: "Muss man Polnisch sprechen, um bei KS Polonia zu spielen?",
+                answer: "Nein, absolut nicht! Obwohl wir 1988 als polnischer Sportverein gegründet wurden, sind bei uns alle Nationalitäten und Sprachen herzlich willkommen. Heute spielen bei uns Sportler aus Deutschland, Polen, der Ukraine, der Türkei und vielen weiteren Nationen. Unser Motto: Integration durch Sport."
+            },
+            {
+                question: "Welche Sportarten bietet der Verein in Hamburg an?",
+                answer: "Wir bieten ein breites Sportangebot mit Fokus auf Hamburg-Uhlenhorst und Barmbek: Fußball (für alle Altersklassen von Jugend bis Senioren Ü40/Ü50), Basketball (Jugend U10 und Herren Ü35) sowie Badminton."
+            },
+            {
+                question: "Wo findet das Training statt?",
+                answer: "Unser Herzstück und zentraler Austragungsort ist der Sportplatz an der Finkenau 38 (U-Bahn Mundsburg). Dort befindet sich auch unser Vereinsheim."
+            },
+            {
+                question: "Wie und wo kann man sich für ein Probetraining anmelden?",
+                answer: "Ein kostenloses Probetraining ist bei allen unseren Mannschaften jederzeit möglich! Füllt dazu einfach das Formular unter 'Verein > Probetraining anfragen' aus, gebt an, ob ihr oder eure Kinder Fußball, Basketball oder Badminton spielen möchtet, und wir melden uns mit dem perfekten Zeitfenster."
+            }
+        ]} />
     </section>
 
     <!-- Pages Overview -->

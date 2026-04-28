@@ -37,9 +37,12 @@
   RewriteRule ^f-jugend-2016-2017/?$ /seiten/aktuelles [R=301,L]
   
   # New additions from GSC analysis
-  RewriteRule ^impressum-2/?$ /seiten/impressum-2 [R=301,L]
-  RewriteRule ^galerie/?$ /seiten/galerie [R=301,L]
+  RewriteRule ^impressum/?$ /seiten/impressum-2 [R=301,L]
+  RewriteRule ^seiten/impressum/?$ /seiten/impressum-2 [R=301,L]
+  RewriteRule ^seiten/galerie/?$ /galerie [R=301,L]
+  RewriteRule ^seiten/kontaktformular/?$ /kontakt [R=301,L]
   RewriteRule ^kontaktformular/?$ /kontakt [R=301,L]
+  RewriteRule ^seiten/home/?$ / [R=301,L]
   RewriteRule ^home/?$ / [R=301,L]
   RewriteRule ^probetraining/?$ /seiten/probetraining [R=301,L]
   RewriteRule ^spendenkonto/?$ /seiten/spendenkonto [R=301,L]
@@ -58,10 +61,28 @@
   RewriteRule ^d-jugend-1/?$ /seiten/d-jugend-1 [R=301,L]
   RewriteRule ^jugendkonzept/?$ /seiten/jugendkonzept [R=301,L]
 
+  # Football Team URL Cleanup
+  RewriteRule ^football/herren---polonia-1-/?$ /football/1-herren [R=301,L]
+  RewriteRule ^football/herren---polonia-2-/?$ /football/2-herren [R=301,L]
+  RewriteRule ^football/herren---polonia-3-/?$ /football/3-herren [R=301,L]
+  RewriteRule ^football/herren---polonia-4-/?$ /football/4-herren [R=301,L]
+  RewriteRule ^football/herren--40---polonia-1--40/?$ /football/ue40-herren [R=301,L]
+  RewriteRule ^football/herren--50---polonia-1--50/?$ /football/ue50-herren [R=301,L]
+  RewriteRule ^football/c-junioren---polonia-1-c--a1-/?$ /football/c-junioren-1 [R=301,L]
+  RewriteRule ^football/c-junioren---polonia-2-c--j1-/?$ /football/c-junioren-2 [R=301,L]
+  RewriteRule ^football/d-junioren---polonia-1-d--a1-/?$ /football/d-junioren [R=301,L]
+  RewriteRule ^football/e-junioren---polonia-1-e--j1-/?$ /football/e-junioren [R=301,L]
+
+  # Additional Missing Redirects
+  RewriteRule ^downloads/?$ /downloads [R=301,L]
+  RewriteRule ^mitglied-werden/?$ /mitgliedsantrag [R=301,L]
+  RewriteRule ^ueber-uns/?$ /seiten/ueber-uns [R=301,L]
+
   # Redirect old WP uploads to homepage to avoid 404s for indexed PDFs
   RewriteRule ^wp-content/uploads/.*$ / [R=301,L]
 
-  # Catch-all: old /YYYY/MM/DD/slug/ patterns → /news/slug
+  # Catch-all: old /YYYY/MM/DD/slug/ and /YYYY/MM/slug/ patterns → /news/slug
   RewriteRule ^[0-9]{4}/[0-9]{2}/[0-9]{2}/(.+?)/?$ /news/$1 [R=301,L]
+  RewriteRule ^[0-9]{4}/[0-9]{2}/(.+?)/?$ /news/$1 [R=301,L]
 
 </IfModule>

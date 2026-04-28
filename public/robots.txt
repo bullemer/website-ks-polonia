@@ -1,4 +1,21 @@
 User-agent: *
 Allow: /
 
+# Block junk WordPress migration remnants
+Disallow: /api/
+Disallow: /status/
+Disallow: /seiten/elementor-*
+Disallow: /seiten/kasse/
+Disallow: /seiten/warenkorb/
+Disallow: /seiten/mein-konto/
+Disallow: /seiten/shop/
+Disallow: /seiten/rueckerstattung-rueckgaben/
+Disallow: /seiten/online-antrag-2/
+Disallow: /seiten/home/
+Disallow: /seiten/sachspende/
+Disallow: /seiten/beitraege/
+Disallow: /news/elementor-*
+Disallow: /news/untitled/
+Disallow: /news/847/
+
 Sitemap: https://www.ks-polonia.de/sitemap-index.xml

@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
 
 export async function getStaticPaths() {
     const news = await getCollection('news');
@@ -13,10 +14,17 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-// Resolve cover image for Open Graph (Facebook, WhatsApp, Twitter, etc.)
+// Resolve and optimize cover image for Open Graph (WhatsApp strictly needs <300KB JPGs)
 let ogImage: string | undefined;
-if (entry.data.coverImage && typeof entry.data.coverImage === 'object' && entry.data.coverImage.src) {
-    ogImage = entry.data.coverImage.src;
+if (entry.data.coverImage && typeof entry.data.coverImage === 'object') {
+    const optimizedOg = await getImage({
+        src: entry.data.coverImage,
+        width: 1200,
+        height: 630,
+        format: 'jpg',
+        quality: 80
+    });
+    ogImage = optimizedOg.src;
 }
 // Construct JSON-LD Article Schema
 const jsonLd = {

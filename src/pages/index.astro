@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import WeatherWidget from '../components/WeatherWidget.astro';
 import FAQ from '../components/FAQ.astro';
+import YouTube from '../components/YouTube.astro';
 import startpageData from '../content/startpage/index.json';
 
 const allNews = await getCollection('news');
@@ -73,6 +74,23 @@ const latestNews = sortedNews.slice(0, 6);
                     </a>
                 );
             })}
+        </div>
+    </section>
+
+    <!-- Active City Day 2026 Video -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Active City Day 2026 – KS Polonia macht mit! 🎬</h2>
+        </div>
+        <div class="video-highlight">
+            <div class="video-highlight-embed">
+                <YouTube id="6ghnqv66nOs" title="Active City Day 2026 – KS Polonia Hamburg" />
+            </div>
+            <div class="video-highlight-text">
+                <h3>Fußball, Basketball & polnische Spezialitäten an der Finkenau</h3>
+                <p>Am Active City Day 2026 war der KS Polonia mit einem bunten Programm dabei: Basketball für Kids und Ü35, Mini-Fußball für die Jugend und polnische Spezialitäten – direkt an der Finkenau in Hamburg Uhlenhorst.</p>
+                <a href="/news/active-city-day-2026-ks-polonia-macht-mit" class="video-highlight-cta">Zum Artikel →</a>
+            </div>
         </div>
     </section>
 
@@ -378,10 +396,70 @@ const latestNews = sortedNews.slice(0, 6);
     .sport-card p { font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; flex: 1; }
     .sport-cta { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); margin-top: 0.5rem; }
 
+    /* Video Highlight Section */
+    .video-highlight {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 2rem;
+        align-items: center;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+    .video-highlight-embed {
+        width: 280px;
+        aspect-ratio: 9/16;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        flex-shrink: 0;
+    }
+    .video-highlight-embed :global(.youtube-embed) {
+        padding-bottom: 177.78%; /* 9:16 for Shorts */
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .video-highlight-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .video-highlight-text h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+    .video-highlight-text p {
+        font-size: 0.95rem;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+    }
+    .video-highlight-cta {
+        display: inline-block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        margin-top: 0.25rem;
+    }
+    .video-highlight-cta:hover {
+        text-decoration: underline;
+    }
+
     @media (max-width: 600px) {
         .hero { padding: 3rem 1.5rem; }
         .hero h1 { font-size: 2rem; }
         .news-grid { grid-template-columns: 1fr; }
         .sports-grid { grid-template-columns: 1fr; }
+        .video-highlight {
+            grid-template-columns: 1fr;
+        }
+        .video-highlight-embed {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
     }
 </style>

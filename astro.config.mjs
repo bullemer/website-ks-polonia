@@ -49,6 +49,7 @@ const SITEMAP_EXCLUDE_PATTERNS = [
 // https://astro.build/config
 export default defineConfig({
     site: 'https://www.ks-polonia.de',
+    trailingSlash: 'never',
     integrations: [
         react(),
         markdoc(),

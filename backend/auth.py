@@ -4,26 +4,32 @@ JWT token creation/verification and password hashing with bcrypt.
 """
 import datetime
 import secrets
+import logging
 from typing import Optional
 
 from fastapi import Request, HTTPException
 from jose import jwt, JWTError
-from passlib.context import CryptContext
+import bcrypt
 
 from config import JWT_SECRET, JWT_ALGORITHM, JWT_EXPIRE_HOURS
 
-# --- Password hashing ---
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+logger = logging.getLogger(__name__)
+
+# --- Password hashing (direct bcrypt, no passlib) ---
 
 
 def hash_password(plain: str) -> str:
     """Hash a plaintext password with bcrypt."""
-    return pwd_context.hash(plain)
+    return bcrypt.hashpw(plain.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Verify a plaintext password against a bcrypt hash."""
-    return pwd_context.verify(plain, hashed)
+    try:
+        return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+    except Exception:
+        logger.exception("Password verification error")
+        return False
 
 
 # --- JWT tokens ---

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitgliederportal – KS Polonia Hamburg</title>
+    <style>
+        :root { --primary: #DC143C; --primary-dark: #b91c1c; --bg: #f9fafb; --surface: #fff; --border: #e5e7eb; --text: #111827; --text-muted: #6b7280; --success: #22c55e; --danger: #ef4444; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-container { width: 100%; max-width: 420px; padding: 2rem; }
+        .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+        .logo { text-align: center; margin-bottom: 2rem; }
+        .logo-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+        .logo h1 { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+        .logo p { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+        .field { margin-bottom: 1.25rem; }
+        .field label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
+        .field input { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; }
+        .field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,20,60,0.1); }
+        .submit-btn { width: 100%; padding: 0.85rem; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+        .submit-btn:hover { background: var(--primary-dark); }
+        .submit-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+        .forgot-link { display: block; text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted); text-decoration: none; }
+        .forgot-link:hover { color: var(--primary); }
+        .alert { padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; margin-bottom: 1.25rem; display: none; }
+        .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <div class="logo-icon">⚽</div>
+                <h1>KS Polonia Hamburg</h1>
+                <p>Mitgliederportal</p>
+            </div>
+            <div id="alert" class="alert"></div>
+            <form id="loginForm">
+                <div class="field">
+                    <label for="email">E-Mail-Adresse</label>
+                    <input type="email" id="email" name="email" required placeholder="max@example.de" autocomplete="email">
+                </div>
+                <div class="field">
+                    <label for="password">Passwort</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">Anmelden</button>
+            </form>
+            <a href="#" class="forgot-link" id="forgotLink">Passwort vergessen?</a>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('loginForm');
+        const alert = document.getElementById('alert');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Check for verified param
+        if (new URLSearchParams(window.location.search).get('verified') === '1') {
+            showAlert('E-Mail bestätigt! Sie können sich jetzt anmelden.', 'success');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Anmelden...';
+            alert.style.display = 'none';
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value,
+                    }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    window.location.href = data.is_admin ? '/api/admin/dashboard' : '/api/portal';
+                } else {
+                    showAlert(data.detail || 'Anmeldung fehlgeschlagen', 'error');
+                }
+            } catch (err) {
+                showAlert('Verbindungsfehler', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Anmelden';
+            }
+        });
+
+        document.getElementById('forgotLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            if (!email) { showAlert('Bitte geben Sie Ihre E-Mail-Adresse ein.', 'error'); return; }
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email}),
+                });
+                const data = await res.json();
+                showAlert(data.message, 'success');
+            } catch (err) {
+                showAlert('Fehler beim Senden', 'error');
+            }
+        });
+
+        function showAlert(msg, type) {
+            alert.textContent = msg;
+            alert.className = 'alert alert-' + type;
+            alert.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

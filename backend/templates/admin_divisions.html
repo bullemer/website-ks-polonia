@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abteilungen – KS Polonia Admin</title>
+    <style>
+        :root { --primary: #DC143C; --bg: #0f1117; --surface: #1a1d27; --surface-hover: #22252f; --border: #2a2d3a; --text: #e4e4e7; --text-muted: #9ca3af; --success: #22c55e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem 0; position: fixed; top: 0; bottom: 0; }
+        .sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+        .sidebar-logo h2 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo span { font-size: 0.72rem; color: var(--text-muted); }
+        .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; border-left: 3px solid transparent; }
+        .nav-link:hover, .nav-link.active { background: var(--surface-hover); color: #fff; border-left-color: var(--primary); }
+        .nav-link .icon { font-size: 1.1rem; width: 24px; text-align: center; }
+        .main { margin-left: 260px; flex: 1; padding: 2rem; }
+        .page-header { margin-bottom: 1.5rem; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; }
+        .div-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+        .div-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: transform 0.15s, border-color 0.2s; }
+        .div-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .div-card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .div-card-icon { font-size: 2.5rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(220,20,60,0.08); border-radius: 14px; }
+        .div-card-info h3 { font-size: 1.15rem; font-weight: 700; }
+        .div-card-info p { font-size: 0.82rem; color: var(--text-muted); }
+        .div-stats { display: flex; gap: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .div-stat { text-align: center; }
+        .div-stat .num { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+        .div-stat .lbl { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+        .badge-status { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; margin-left: 0.5rem; }
+        .badge-active { background: rgba(34,197,94,0.15); color: var(--success); }
+        .badge-inactive { background: rgba(239,68,68,0.15); color: #ef4444; }
+        @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .div-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="sidebar-logo"><h2>KS Polonia Admin</h2><span>Vereinsverwaltung</span></div>
+            <a href="/api/admin/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
+            <a href="/api/admin/members" class="nav-link"><span class="icon">👥</span> Mitglieder</a>
+            <a href="/api/admin/applications" class="nav-link"><span class="icon">📋</span> Anträge</a>
+            <a href="/api/admin/divisions" class="nav-link active"><span class="icon">🏆</span> Abteilungen</a>
+            <a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
+        </nav>
+        <main class="main">
+            <div class="page-header">
+                <h1>Abteilungen & Mannschaften</h1>
+            </div>
+            <div class="div-grid">
+                {% for d in divisions %}
+                <div class="div-card">
+                    <div class="div-card-header">
+                        <div class="div-card-icon">{{ d.icon }}</div>
+                        <div class="div-card-info">
+                            <h3>{{ d.name }}
+                                <span class="badge-status {% if d.is_active %}badge-active{% else %}badge-inactive{% endif %}">{{ 'Aktiv' if d.is_active else 'Inaktiv' }}</span>
+                            </h3>
+                            <p>{{ d.description or d.sport }}</p>
+                        </div>
+                    </div>
+                    <div class="div-stats">
+                        <div class="div-stat">
+                            <div class="num">{{ d.member_count }}</div>
+                            <div class="lbl">Mitglieder</div>
+                        </div>
+                        <div class="div-stat">
+                            <div class="num">{{ d.team_count }}</div>
+                            <div class="lbl">Mannschaften</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

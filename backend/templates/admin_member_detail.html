@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitglied {{ member.vorname }} {{ member.nachname }} – KS Polonia Admin</title>
+    <style>
+        :root { --primary: #DC143C; --bg: #0f1117; --surface: #1a1d27; --surface-hover: #22252f; --border: #2a2d3a; --text: #e4e4e7; --text-muted: #9ca3af; --success: #22c55e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem 0; position: fixed; top: 0; bottom: 0; }
+        .sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+        .sidebar-logo h2 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo span { font-size: 0.72rem; color: var(--text-muted); }
+        .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; border-left: 3px solid transparent; }
+        .nav-link:hover, .nav-link.active { background: var(--surface-hover); color: #fff; border-left-color: var(--primary); }
+        .nav-link .icon { font-size: 1.1rem; width: 24px; text-align: center; }
+        .main { margin-left: 260px; flex: 1; padding: 2rem; max-width: 900px; }
+        .breadcrumb { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--primary); }
+        .member-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; }
+        .avatar { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #8B0000); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .member-header-info h1 { font-size: 1.6rem; font-weight: 700; }
+        .member-header-info p { color: var(--text-muted); font-size: 0.9rem; }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; margin-left: 0.5rem; }
+        .badge-active { background: rgba(34,197,94,0.15); color: var(--success); }
+        .badge-inactive { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .badge-admin { background: rgba(59,130,246,0.15); color: #3b82f6; }
+        .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .section h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .detail-item { }
+        .detail-item .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.2rem; }
+        .detail-item .value { font-size: 0.95rem; }
+        .chip-list { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.8rem; border-radius: 999px; font-size: 0.82rem; font-weight: 500; background: rgba(220,20,60,0.1); color: var(--primary); border: 1px solid rgba(220,20,60,0.2); }
+        @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .detail-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="sidebar-logo"><h2>KS Polonia Admin</h2><span>Vereinsverwaltung</span></div>
+            <a href="/api/admin/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
+            <a href="/api/admin/members" class="nav-link active"><span class="icon">👥</span> Mitglieder</a>
+            <a href="/api/admin/applications" class="nav-link"><span class="icon">📋</span> Anträge</a>
+            <a href="/api/admin/divisions" class="nav-link"><span class="icon">🏆</span> Abteilungen</a>
+            <a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
+        </nav>
+        <main class="main">
+            <div class="breadcrumb">
+                <a href="/api/admin/members">← Mitglieder</a>
+            </div>
+            <div class="member-header">
+                <div class="avatar">{{ member.vorname[:1] }}{{ member.nachname[:1] }}</div>
+                <div class="member-header-info">
+                    <h1>{{ member.vorname }} {{ member.nachname }}
+                        <span class="badge {% if member.is_active %}badge-active{% else %}badge-inactive{% endif %}">{{ 'Aktiv' if member.is_active else 'Inaktiv' }}</span>
+                        {% if member.is_admin %}<span class="badge badge-admin">Admin</span>{% endif %}
+                    </h1>
+                    <p>{{ member.mitgliedsnummer or 'Keine Mitgliedsnr.' }} · {{ member.email }}</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Persönliche Daten</h2>
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="label">Vorname</div><div class="value">{{ member.vorname }}</div></div>
+                    <div class="detail-item"><div class="label">Nachname</div><div class="value">{{ member.nachname }}</div></div>
+                    <div class="detail-item"><div class="label">Geburtsdatum</div><div class="value">{{ member.geburtsdatum or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">Geschlecht</div><div class="value">{{ member.geschlecht or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">E-Mail</div><div class="value">{{ member.email }}</div></div>
+                    <div class="detail-item"><div class="label">Telefon</div><div class="value">{{ member.telefon or '—' }}</div></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Adresse</h2>
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="label">Straße</div><div class="value">{{ member.strasse or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">PLZ / Ort</div><div class="value">{{ member.plz or '' }} {{ member.ort or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">Land</div><div class="value">{{ member.land or 'Deutschland' }}</div></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Mitgliedschaft</h2>
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="label">Eintrittsdatum</div><div class="value">{{ member.eintrittsdatum or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">Mitgliedsstufe</div><div class="value">{{ member.membership_level or 'regular' }}</div></div>
+                    <div class="detail-item"><div class="label">Erstellt</div><div class="value">{{ member.created_at or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">Aktualisiert</div><div class="value">{{ member.updated_at or '—' }}</div></div>
+                </div>
+            </div>
+
+            {% if divisions %}
+            <div class="section">
+                <h2>Abteilungen</h2>
+                <div class="chip-list">
+                    {% for d in divisions %}
+                    <span class="chip">{{ d.icon }} {{ d.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if teams %}
+            <div class="section">
+                <h2>Mannschaften</h2>
+                <div class="chip-list">
+                    {% for t in teams %}
+                    <span class="chip">{{ t.mannschaftsname }} ({{ t.position or 'k.A.' }})</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if bank %}
+            <div class="section">
+                <h2>Bankverbindung</h2>
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="label">Kontoinhaber</div><div class="value">{{ bank.kontoinhaber }}</div></div>
+                    <div class="detail-item"><div class="label">IBAN</div><div class="value">{{ bank.iban }}</div></div>
+                    <div class="detail-item"><div class="label">BIC</div><div class="value">{{ bank.bic or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">Bank</div><div class="value">{{ bank.bank_name or '—' }}</div></div>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>

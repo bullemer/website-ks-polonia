@@ -1,3 +1,13 @@
+"""
+KS Polonia Hamburg e.V. – API & Membership System
+==================================================
+FastAPI application serving:
+  - Public endpoints (contact form, membership application, wall of honor)
+  - Member portal (login, profile, bank account, password)
+  - Admin backoffice (members, divisions, teams, applications)
+
+v2.0 – Membership Management System
+"""
 from fastapi import FastAPI, Request, HTTPException, Form
 from fastapi.responses import JSONResponse, HTMLResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,39 +18,62 @@ import datetime
 import secrets
 import traceback
 import asyncpg
-from fastapi import UploadFile
 from fastapi.templating import Jinja2Templates
 
+from config import (
+    DATABASE_URL, API_VERSION, UPLOAD_DIR,
+    ADMIN_USER, ADMIN_PASS, CORS_ORIGINS,
+)
+from database import get_pool, close_pool
 from mailer import send_email
+from services import member_service
 
-app = FastAPI(title="KS Polonia API")
+# --- Import route modules ---
+from routes.auth_routes import router as auth_router
+from routes.member_routes import router as member_router
+from routes.admin_routes import router as admin_router
+from routes.portal_routes import router as portal_router
 
-# --- Configuration ---
+# ═══════════════════════════════════════
+#  APP SETUP
+# ═══════════════════════════════════════
+
+app = FastAPI(title="KS Polonia API", version=API_VERSION)
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
-DATABASE_URL = "postgresql://trusteei_0:k6%25KkhF%3B%29FY4@kwnz.your-database.de:5432/kspolonia"
-API_VERSION = "1.0.1"
-UPLOAD_DIR = "/usr/home/trusteei/kspolonia_uploads"
-ADMIN_USER = "admin"
-ADMIN_PASS = "polonia2026"
 
 # --- CORS ---
-origins = [
-    "https://ks-polonia.de",
-    "https://www.ks-polonia.de",
-    "http://localhost:4321",
-    "http://127.0.0.1:4321",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["OPTIONS", "POST", "GET"],
+    allow_methods=["OPTIONS", "POST", "GET", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
-# --- Pydantic Data Models ---
+# --- Register route modules ---
+app.include_router(auth_router)
+app.include_router(member_router)
+app.include_router(admin_router)
+app.include_router(portal_router)
+
+# --- Lifecycle ---
+@app.on_event("startup")
+async def startup():
+    """Initialize connection pool on startup."""
+    await get_pool()
+
+@app.on_event("shutdown")
+async def shutdown():
+    """Close connection pool on shutdown."""
+    await close_pool()
+
+
+# ═══════════════════════════════════════
+#  LEGACY PYDANTIC MODELS
+# ═══════════════════════════════════════
+
 class ContactForm(BaseModel):
     name: str
     email: EmailStr
@@ -49,26 +82,6 @@ class ContactForm(BaseModel):
     website_url: Optional[str] = ""  # Honeypot
     captcha_answer: str
     captcha_expected: str
-
-class MembershipForm(BaseModel):
-    vorname: str
-    nachname: str
-    strasse: str
-    plz: str
-    ort: str
-    land: str
-    geburtsdatum: str
-    geschlecht: str
-    telefon: Optional[str] = ""
-    email: EmailStr
-    eintrittsdatum: str
-    abteilungen: Optional[str] = "Keine ausgewählt"
-    zahlungsart: Optional[str] = "Überweisung"
-    trainer_referenz: Optional[str] = ""
-    bemerkungen: Optional[str] = ""
-    datenschutz: Optional[str] = ""
-    verbindlich: Optional[str] = ""
-    website_url: Optional[str] = ""  # Honeypot
 
 class ReserveSpotRequest(BaseModel):
     spot_id: int
@@ -85,12 +98,12 @@ class ReserveSpotRequest(BaseModel):
 async def wall_get_spots():
     """Return all donor spots with their current status."""
     try:
-        conn = await asyncpg.connect(DATABASE_URL)
-        rows = await conn.fetch(
-            "SELECT id, category, position, donor_name, donor_message, status "
-            "FROM donor_spots ORDER BY position"
-        )
-        await conn.close()
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, category, position, donor_name, donor_message, status "
+                "FROM donor_spots ORDER BY position"
+            )
         spots = [dict(r) for r in rows]
         return JSONResponse({"spots": spots})
     except Exception as e:
@@ -101,12 +114,12 @@ async def wall_get_spots():
 async def wall_get_stats():
     """Return aggregate stats for the progress bar."""
     try:
-        conn = await asyncpg.connect(DATABASE_URL)
-        rows = await conn.fetch(
-            "SELECT category, status, COUNT(*) as cnt "
-            "FROM donor_spots GROUP BY category, status ORDER BY category"
-        )
-        await conn.close()
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT category, status, COUNT(*) as cnt "
+                "FROM donor_spots GROUP BY category, status ORDER BY category"
+            )
 
         stats = {}
         total = 0
@@ -136,28 +149,25 @@ async def wall_get_stats():
 async def wall_reserve_spot(req: ReserveSpotRequest):
     """Reserve a donor spot. Mocks payment flow — returns a transaction ID."""
     try:
-        conn = await asyncpg.connect(DATABASE_URL)
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            # Check availability
+            spot = await conn.fetchrow(
+                "SELECT id, status, category FROM donor_spots WHERE id = $1", req.spot_id
+            )
+            if not spot:
+                return JSONResponse({"error": "Spot nicht gefunden."}, status_code=404)
+            if spot["status"] != "available":
+                return JSONResponse({"error": "Dieser Platz ist leider nicht mehr verfügbar."}, status_code=409)
 
-        # Check availability
-        spot = await conn.fetchrow(
-            "SELECT id, status, category FROM donor_spots WHERE id = $1", req.spot_id
-        )
-        if not spot:
-            await conn.close()
-            return JSONResponse({"error": "Spot nicht gefunden."}, status_code=404)
-        if spot["status"] != "available":
-            await conn.close()
-            return JSONResponse({"error": "Dieser Platz ist leider nicht mehr verfügbar."}, status_code=409)
+            # Generate transaction ID (mock payment)
+            txn_id = f"WOH-{secrets.token_hex(6).upper()}"
 
-        # Generate transaction ID (mock payment)
-        txn_id = f"WOH-{secrets.token_hex(6).upper()}"
-
-        await conn.execute(
-            "UPDATE donor_spots SET donor_name=$1, donor_message=$2, status='reserved', "
-            "transaction_id=$3, reserved_at=NOW() WHERE id=$4",
-            req.donor_name, req.donor_message or "", txn_id, req.spot_id,
-        )
-        await conn.close()
+            await conn.execute(
+                "UPDATE donor_spots SET donor_name=$1, donor_message=$2, status='reserved', "
+                "transaction_id=$3, reserved_at=NOW() WHERE id=$4",
+                req.donor_name, req.donor_message or "", txn_id, req.spot_id,
+            )
 
         # Send notification email
         email_subject = f"Wall of Honor — Neue Reservierung ({spot['category'].title()})"
@@ -177,12 +187,16 @@ async def wall_reserve_spot(req: ReserveSpotRequest):
             "success": True,
             "transaction_id": txn_id,
             "message": "Platz erfolgreich reserviert! Wir melden uns in Kürze.",
-            "payment_url": f"/wall-of-honor?txn={txn_id}",  # Mock — replace with real payment URL
+            "payment_url": f"/wall-of-honor?txn={txn_id}",
         })
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
-# --- Endpoint: Contact ---
+
+# ═══════════════════════════════════════
+#  CONTACT FORM
+# ═══════════════════════════════════════
+
 @app.post("/contact")
 async def handle_contact(form: ContactForm):
     if form.website_url.strip() != "":
@@ -222,7 +236,11 @@ async def handle_contact(form: ContactForm):
     return JSONResponse({"success": False, "error": "Fehler: " + error_msg}, status_code=500)
 
 
-# --- Endpoint: Mitgliedsantrag ---
+# ═══════════════════════════════════════
+#  MEMBERSHIP APPLICATION
+#  Now inserts into DB + sends email
+# ═══════════════════════════════════════
+
 @app.post("/mitgliedsantrag")
 async def handle_membership(request: Request):
     form = await request.form()
@@ -235,6 +253,7 @@ async def handle_membership(request: Request):
     nachname = form.get("nachname", "")
     email = form.get("email", "")
 
+    # --- File uploads ---
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     id_front = form.get("id_front")
@@ -256,9 +275,37 @@ async def handle_membership(request: Request):
     with open(back_path, "wb") as f:
         f.write(await id_back.read())
 
+    # --- Insert into database ---
+    try:
+        result = await member_service.create_member_from_application(
+            vorname=vorname,
+            nachname=nachname,
+            email=email,
+            telefon=form.get("telefon", ""),
+            strasse=form.get("strasse", ""),
+            plz=form.get("plz", ""),
+            ort=form.get("ort", ""),
+            land=form.get("land", "Deutschland"),
+            geburtsdatum=form.get("geburtsdatum", ""),
+            geschlecht=form.get("geschlecht", ""),
+            eintrittsdatum=form.get("eintrittsdatum", ""),
+            abteilungen=form.get("abteilungen", ""),
+            trainer_referenz=form.get("trainer_referenz", ""),
+            bemerkungen=form.get("bemerkungen", ""),
+            id_front_path=front_path,
+            id_back_path=back_path,
+        )
+        member_nr = result["mitgliedsnummer"]
+    except Exception as e:
+        # If DB insert fails (e.g., duplicate email), still send email
+        member_nr = "DB-FEHLER"
+        traceback.print_exc()
+
+    # --- Send notification email (keep existing behavior) ---
     email_subject = f"Neuer Mitgliedsantrag online: {vorname} {nachname}"
     body = (
         f"Es wurde ein neuer Mitgliedsantrag über das Online-Formular eingereicht:\n\n"
+        f"Mitgliedsnummer: {member_nr}\n\n"
         f"=== 1. ANTRAGSTELLER*IN / MITGLIEDSDATEN ===\n"
         f"Vorname: {vorname}\nNachname: {nachname}\n"
         f"Straße: {form.get('strasse', '')}\n"
@@ -285,12 +332,13 @@ async def handle_membership(request: Request):
         body += "\n"
     body += (
         f"=== 6. AUSWEISDOKUMENTE (SICHERER UPLOAD) ===\n"
-        f"Storage: /usr/home/trusteei/kspolonia_uploads/\n"
+        f"Storage: {UPLOAD_DIR}/\n"
         f"1. Vorderseite: {front_filename}\n"
         f"2. Rückseite: {back_filename}\n\n"
         f"=== 7. ZUSTIMMUNGEN ===\n"
         f"✓ DSGVO und BDSG zugestimmt.\n"
-        f"✓ Rechtsverbindlichkeit des Antrags bestätigt.\n"
+        f"✓ Rechtsverbindlichkeit des Antrags bestätigt.\n\n"
+        f"→ Antrag prüfen im Admin-Portal: /api/admin/applications\n"
     )
 
     success, error_msg = send_email(
@@ -303,14 +351,17 @@ async def handle_membership(request: Request):
     return JSONResponse({"success": False, "error": "Fehler: " + str(error_msg)}, status_code=500)
 
 
-# --- Endpoint: Health Check ---
+# ═══════════════════════════════════════
+#  HEALTH CHECK
+# ═══════════════════════════════════════
+
 @app.get("/health")
 async def health_check():
     status = {"api": "ok", "version": API_VERSION, "database": "unknown"}
     try:
-        conn = await asyncpg.connect(DATABASE_URL)
-        val = await conn.fetchval("SELECT 1;")
-        await conn.close()
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            val = await conn.fetchval("SELECT 1;")
         if val == 1:
             status["database"] = "ok"
     except Exception:
@@ -318,7 +369,10 @@ async def health_check():
     return JSONResponse(status)
 
 
-# --- Admin Helper ---
+# ═══════════════════════════════════════
+#  LEGACY ADMIN (keep for backward compat)
+# ═══════════════════════════════════════
+
 def _render(template_name, context):
     """Render a Jinja2 template to an HTMLResponse. Safe for FastCGI."""
     tpl = templates.get_template(template_name)
@@ -333,49 +387,44 @@ async def _load_teams_and_players(team_id=None):
     """Fetch teams list and optionally players for a given team."""
     teams, players = [], []
     try:
-        conn = await asyncpg.connect(DATABASE_URL)
-        rows = await conn.fetch(
-            "SELECT id, mannschaftsart, mannschaftsname, spielklasse "
-            "FROM teams ORDER BY mannschaftsart, mannschaftsname"
-        )
-        teams = [dict(r) for r in rows]
-        if team_id:
-            t_id = int(team_id)
-            prows = await conn.fetch(
-                "SELECT p.vorname, p.name, p.geburtsdatum, p.passnr, p.spielrecht_ab "
-                "FROM players p JOIN team_player tp ON p.id = tp.player_id "
-                "WHERE tp.team_id = $1 ORDER BY p.name, p.vorname",
-                t_id,
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, mannschaftsart, mannschaftsname, spielklasse "
+                "FROM teams ORDER BY mannschaftsart, mannschaftsname"
             )
-            players = [dict(r) for r in prows]
-        await conn.close()
+            teams = [dict(r) for r in rows]
+            if team_id:
+                t_id = int(team_id)
+                prows = await conn.fetch(
+                    "SELECT p.vorname, p.name, p.geburtsdatum, p.passnr, p.spielrecht_ab "
+                    "FROM players p JOIN team_player tp ON p.id = tp.player_id "
+                    "WHERE tp.team_id = $1 ORDER BY p.name, p.vorname",
+                    t_id,
+                )
+                players = [dict(r) for r in prows]
     except Exception:
         pass  # DB unreachable → show page without data
     return teams, players
 
 
-# --- Admin: GET (show login or dashboard) ---
-@app.get("/admin")
-async def admin_get(request: Request, team_id: Optional[str] = None):
+@app.get("/admin-legacy")
+async def admin_legacy_get(request: Request, team_id: Optional[str] = None):
     try:
         if request.cookies.get("admin_session") != "authorized":
             return _render("admin.html", {"request": request, "authenticated": False})
-
         teams, players = await _load_teams_and_players(team_id)
         return _render("admin.html", {
-            "request": request,
-            "authenticated": True,
-            "teams": teams,
-            "players": players,
+            "request": request, "authenticated": True,
+            "teams": teams, "players": players,
             "selected_team_id": team_id or "",
         })
     except Exception:
         return PlainTextResponse("Error:\n" + traceback.format_exc(), status_code=500)
 
 
-# --- Admin: POST (handle login form) ---
-@app.post("/admin")
-async def admin_post(
+@app.post("/admin-legacy")
+async def admin_legacy_post(
     request: Request,
     username: Optional[str] = Form(None),
     password: Optional[str] = Form(None),
@@ -383,27 +432,20 @@ async def admin_post(
 ):
     try:
         is_authenticated = request.cookies.get("admin_session") == "authorized"
-
-        # Check credentials on login attempt
         if username and password:
             if secrets.compare_digest(username, ADMIN_USER) and secrets.compare_digest(password, ADMIN_PASS):
                 is_authenticated = True
             else:
                 return _render("admin.html", {
-                    "request": request,
-                    "authenticated": False,
+                    "request": request, "authenticated": False,
                     "error": "Falscher Benutzername oder Passwort",
                 })
-
         if not is_authenticated:
             return _render("admin.html", {"request": request, "authenticated": False})
-
         teams, players = await _load_teams_and_players(team_id)
         response = _render("admin.html", {
-            "request": request,
-            "authenticated": True,
-            "teams": teams,
-            "players": players,
+            "request": request, "authenticated": True,
+            "teams": teams, "players": players,
             "selected_team_id": team_id or "",
         })
         response.set_cookie(key="admin_session", value="authorized", max_age=86400, httponly=True, secure=True)

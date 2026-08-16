@@ -22,6 +22,11 @@ extract-menu.mjs
 start-dev.sh
 nohup.out
 
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
 # macOS-specific files
 .DS_Store
 

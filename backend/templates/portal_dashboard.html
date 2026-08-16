@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein Konto – KS Polonia</title>
+    <style>
+        :root { --primary: #DC143C; --primary-dark: #b91c1c; --bg: #f9fafb; --surface: #fff; --border: #e5e7eb; --text: #111827; --text-muted: #6b7280; --success: #22c55e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+        .header { background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%); color: #fff; padding: 1.25rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.15rem; font-weight: 700; }
+        .header-links { display: flex; gap: 1rem; align-items: center; font-size: 0.88rem; }
+        .header-links a { color: rgba(255,255,255,0.85); text-decoration: none; }
+        .header-links a:hover { color: #fff; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; }
+        .welcome { margin-bottom: 2rem; }
+        .welcome h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .welcome p { color: var(--text-muted); }
+        .tabs { display: flex; gap: 0.25rem; margin-bottom: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.3rem; overflow-x: auto; }
+        .tab { padding: 0.65rem 1.2rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s; border: none; background: none; white-space: nowrap; }
+        .tab.active { background: var(--primary); color: #fff; }
+        .tab:hover:not(.active) { background: #f3f4f6; color: var(--text); }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+        .form-group input, .form-group select { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.92rem; transition: border-color 0.2s; }
+        .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,20,60,0.08); }
+        .form-group input[readonly] { background: #f9fafb; color: var(--text-muted); }
+        .btn { padding: 0.7rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.15s; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-primary:disabled { background: var(--border); color: var(--text-muted); }
+        .btn-row { display: flex; justify-content: flex-end; margin-top: 1.25rem; }
+        .chip-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.85rem; font-weight: 500; background: rgba(220,20,60,0.08); color: var(--primary); }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .detail-item .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+        .detail-item .value { font-size: 0.95rem; margin-top: 0.1rem; }
+        .alert { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.88rem; margin-bottom: 1rem; display: none; }
+        .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .detail-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚽ KS Polonia Mitgliederportal</h1>
+        <div class="header-links">
+            <span id="memberName"></span>
+            {% if is_admin %}<a href="/api/admin/dashboard">Admin →</a>{% endif %}
+            <a href="#" onclick="logout()">Abmelden</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="welcome">
+            <h2>Willkommen, {{ member.vorname }}!</h2>
+            <p>Mitglied seit {{ member.eintrittsdatum or '—' }} · {{ member.mitgliedsnummer or '' }}</p>
+        </div>
+
+        <div id="globalAlert" class="alert"></div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('profil')">Profil</button>
+            <button class="tab" onclick="switchTab('adresse')">Adresse</button>
+            <button class="tab" onclick="switchTab('bank')">Bankverbindung</button>
+            <button class="tab" onclick="switchTab('verein')">Verein & Teams</button>
+            <button class="tab" onclick="switchTab('passwort')">Passwort</button>
+        </div>
+
+        <!-- PROFIL TAB -->
+        <div class="panel active" id="panel-profil">
+            <div class="card">
+                <h3>Persönliche Daten</h3>
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="label">Vorname</div><div class="value">{{ member.vorname }}</div></div>
+                    <div class="detail-item"><div class="label">Nachname</div><div class="value">{{ member.nachname }}</div></div>
+                    <div class="detail-item"><div class="label">E-Mail</div><div class="value">{{ member.email }}</div></div>
+                    <div class="detail-item"><div class="label">Telefon</div><div class="value">{{ member.telefon or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">Geburtsdatum</div><div class="value">{{ member.geburtsdatum or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">Geschlecht</div><div class="value">{{ member.geschlecht or '—' }}</div></div>
+                    <div class="detail-item"><div class="label">Mitgliedsstufe</div><div class="value">{{ member.membership_level or 'regular' }}</div></div>
+                    <div class="detail-item"><div class="label">Mitgliedsnummer</div><div class="value">{{ member.mitgliedsnummer or '—' }}</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADRESSE TAB -->
+        <div class="panel" id="panel-adresse">
+            <div class="card">
+                <h3>Adresse ändern</h3>
+                <form id="addressForm">
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Straße und Hausnummer</label><input type="text" name="strasse" value="{{ member.strasse or '' }}"></div>
+                        <div class="form-group"><label>PLZ</label><input type="text" name="plz" value="{{ member.plz or '' }}"></div>
+                        <div class="form-group"><label>Ort</label><input type="text" name="ort" value="{{ member.ort or '' }}"></div>
+                        <div class="form-group"><label>Land</label><input type="text" name="land" value="{{ member.land or 'Deutschland' }}"></div>
+                        <div class="form-group"><label>Telefon</label><input type="tel" name="telefon" value="{{ member.telefon or '' }}"></div>
+                    </div>
+                    <div class="btn-row"><button type="submit" class="btn btn-primary">Speichern</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- BANK TAB -->
+        <div class="panel" id="panel-bank">
+            <div class="card">
+                <h3>Bankverbindung</h3>
+                <form id="bankForm">
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Kontoinhaber</label><input type="text" name="kontoinhaber" value="{{ bank.kontoinhaber if bank else '' }}" required></div>
+                        <div class="form-group full"><label>IBAN</label><input type="text" name="iban" value="{{ bank.iban if bank else '' }}" required placeholder="DE89 3704 0044 0532 0130 00"></div>
+                        <div class="form-group"><label>BIC</label><input type="text" name="bic" value="{{ bank.bic if bank else '' }}"></div>
+                        <div class="form-group"><label>Bank</label><input type="text" name="bank_name" value="{{ bank.bank_name if bank else '' }}"></div>
+                    </div>
+                    <div class="btn-row"><button type="submit" class="btn btn-primary">Bankverbindung speichern</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- VEREIN TAB -->
+        <div class="panel" id="panel-verein">
+            <div class="card">
+                <h3>Meine Abteilungen</h3>
+                {% if divisions %}
+                <div class="chip-list">
+                    {% for d in divisions %}<span class="chip">{{ d.icon }} {{ d.name }}</span>{% endfor %}
+                </div>
+                {% else %}<p style="color: var(--text-muted); font-size: 0.9rem;">Keine Abteilungen zugewiesen.</p>{% endif %}
+            </div>
+            <div class="card">
+                <h3>Meine Mannschaften</h3>
+                {% if teams %}
+                <div class="chip-list">
+                    {% for t in teams %}<span class="chip">{{ t.mannschaftsname }} {% if t.position %}({{ t.position }}){% endif %}</span>{% endfor %}
+                </div>
+                {% else %}<p style="color: var(--text-muted); font-size: 0.9rem;">Keine Mannschaftszuordnung.</p>{% endif %}
+            </div>
+        </div>
+
+        <!-- PASSWORT TAB -->
+        <div class="panel" id="panel-passwort">
+            <div class="card">
+                <h3>Passwort ändern</h3>
+                <form id="passwordForm">
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Aktuelles Passwort</label><input type="password" name="current_password" required></div>
+                        <div class="form-group"><label>Neues Passwort</label><input type="password" name="new_password" required minlength="8"></div>
+                        <div class="form-group"><label>Bestätigung</label><input type="password" name="confirm_password" required minlength="8"></div>
+                    </div>
+                    <div class="btn-row"><button type="submit" class="btn btn-primary">Passwort ändern</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(name) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('panel-' + name).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showGlobal(msg, type) {
+            const a = document.getElementById('globalAlert');
+            a.textContent = msg; a.className = 'alert alert-' + type; a.style.display = 'block';
+            setTimeout(() => a.style.display = 'none', 5000);
+        }
+
+        async function submitJSON(url, data) {
+            const res = await fetch(url, {
+                method: 'PUT', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data),
+            });
+            return await res.json();
+        }
+
+        document.getElementById('addressForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            const result = await submitJSON('/api/member/profile', data);
+            showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
+        });
+
+        document.getElementById('bankForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            const result = await submitJSON('/api/member/bank-account', data);
+            showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd);
+            if (data.new_password !== data.confirm_password) {
+                showGlobal('Passwörter stimmen nicht überein.', 'error'); return;
+            }
+            const result = await submitJSON('/api/member/password', {
+                current_password: data.current_password,
+                new_password: data.new_password,
+            });
+            showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
+            if (result.success) e.target.reset();
+        });
+
+        async function logout() {
+            await fetch('/api/auth/logout', {method: 'POST'});
+            window.location.href = '/api/portal/login';
+        }
+    </script>
+</body>
+</html>

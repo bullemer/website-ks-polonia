@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitglieder – KS Polonia Admin</title>
+    <style>
+        :root { --primary: #DC143C; --bg: #0f1117; --surface: #1a1d27; --surface-hover: #22252f; --border: #2a2d3a; --text: #e4e4e7; --text-muted: #9ca3af; --success: #22c55e; --warning: #f59e0b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem 0; position: fixed; top: 0; bottom: 0; }
+        .sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+        .sidebar-logo h2 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo span { font-size: 0.72rem; color: var(--text-muted); }
+        .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; border-left: 3px solid transparent; }
+        .nav-link:hover, .nav-link.active { background: var(--surface-hover); color: #fff; border-left-color: var(--primary); }
+        .nav-link .icon { font-size: 1.1rem; width: 24px; text-align: center; }
+        .main { margin-left: 260px; flex: 1; padding: 2rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; }
+        .toolbar { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem; background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); }
+        .toolbar input, .toolbar select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.88rem; }
+        .toolbar input { flex: 1; min-width: 200px; }
+        .toolbar input:focus, .toolbar select:focus { outline: none; border-color: var(--primary); }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #b91c1c; }
+        table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        th { text-align: left; padding: 0.85rem 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); }
+        td { padding: 0.85rem 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+        tr:hover { background: var(--surface-hover); }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+        .badge-active { background: rgba(34,197,94,0.15); color: var(--success); }
+        .badge-inactive { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .badge-admin { background: rgba(59,130,246,0.15); color: #3b82f6; }
+        .badge-level { background: rgba(220,20,60,0.1); color: var(--primary); }
+        .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
+        .pagination a { padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+        .pagination a.current { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-style: italic; }
+        a { color: var(--text); text-decoration: none; }
+        a:hover { color: var(--primary); }
+        @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="sidebar-logo"><h2>KS Polonia Admin</h2><span>Vereinsverwaltung</span></div>
+            <a href="/api/admin/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
+            <a href="/api/admin/members" class="nav-link active"><span class="icon">👥</span> Mitglieder</a>
+            <a href="/api/admin/applications" class="nav-link"><span class="icon">📋</span> Anträge</a>
+            <a href="/api/admin/divisions" class="nav-link"><span class="icon">🏆</span> Abteilungen</a>
+            <a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
+        </nav>
+        <main class="main">
+            <div class="page-header">
+                <h1>Mitglieder <span style="font-weight: 400; font-size: 1rem; color: var(--text-muted);">({{ total }})</span></h1>
+            </div>
+            <form class="toolbar" method="GET" action="">
+                <input type="text" name="search" placeholder="🔍 Suche nach Name, E-Mail oder Mitgliedsnr..." value="{{ search }}">
+                <select name="division_id">
+                    <option value="">Alle Abteilungen</option>
+                    {% for d in divisions %}
+                    <option value="{{ d.id }}" {% if division_id == d.id %}selected{% endif %}>{{ d.icon }} {{ d.name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="active">
+                    <option value="" {% if not active_filter %}selected{% endif %}>Alle Status</option>
+                    <option value="true" {% if active_filter == 'true' %}selected{% endif %}>Aktiv</option>
+                    <option value="false" {% if active_filter == 'false' %}selected{% endif %}>Inaktiv</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Filtern</button>
+            </form>
+
+            {% if members %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nr.</th>
+                        <th>Name</th>
+                        <th>E-Mail</th>
+                        <th>Abteilungen</th>
+                        <th>Typ</th>
+                        <th>Status</th>
+                        <th>Eintritt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in members %}
+                    <tr>
+                        <td><a href="/api/admin/members/{{ m.id }}">{{ m.mitgliedsnummer or '—' }}</a></td>
+                        <td><a href="/api/admin/members/{{ m.id }}"><strong>{{ m.vorname }} {{ m.nachname }}</strong></a></td>
+                        <td>{{ m.email }}</td>
+                        <td>{{ m.divisions or '—' }}</td>
+                        <td>
+                            <span class="badge badge-level">{{ m.membership_level or 'regular' }}</span>
+                            {% if m.is_admin %}<span class="badge badge-admin">Admin</span>{% endif %}
+                        </td>
+                        <td><span class="badge {% if m.is_active %}badge-active{% else %}badge-inactive{% endif %}">{{ 'Aktiv' if m.is_active else 'Inaktiv' }}</span></td>
+                        <td>{{ m.eintrittsdatum or '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if total_pages > 1 %}
+            <div class="pagination">
+                {% for p in range(1, total_pages + 1) %}
+                <a href="?search={{ search }}&division_id={{ division_id or '' }}&active={{ active_filter }}&page={{ p }}" class="{% if p == page %}current{% endif %}">{{ p }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="empty">Keine Mitglieder gefunden.</div>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>

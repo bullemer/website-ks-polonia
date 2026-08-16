@@ -27,8 +27,8 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 async def admin_dashboard(request: Request):
     admin = require_admin(request)
     stats = await member_service.get_dashboard_stats()
-    return templates.TemplateResponse("admin_dashboard.html", {
-        "request": request, "stats": stats, "admin": admin,
+    return templates.TemplateResponse(request, "admin_dashboard.html", {
+        "stats": stats, "admin": admin,
     })
 
 
@@ -63,8 +63,8 @@ async def admin_list_members(
         )
         divisions = [dict(r) for r in div_rows]
 
-    return templates.TemplateResponse("admin_members.html", {
-        "request": request, "members": members, "total": total,
+    return templates.TemplateResponse(request, "admin_members.html", {
+        "members": members, "total": total,
         "page": page, "total_pages": max(1, (total + limit - 1) // limit),
         "search": search, "division_id": division_id,
         "active_filter": active or "", "divisions": divisions,
@@ -83,8 +83,8 @@ async def admin_get_member(request: Request, member_id: int):
     for key in ("geburtsdatum", "eintrittsdatum", "created_at", "updated_at"):
         if member.get(key):
             member[key] = str(member[key])
-    return templates.TemplateResponse("admin_member_detail.html", {
-        "request": request, "member": member, "divisions": divisions,
+    return templates.TemplateResponse(request, "admin_member_detail.html", {
+        "member": member, "divisions": divisions,
         "teams": teams, "bank": bank,
     })
 
@@ -136,8 +136,8 @@ async def admin_list_divisions(request: Request):
             LEFT JOIN teams t ON t.division_id = d.id
             GROUP BY d.id ORDER BY d.sort_order
         """)
-    return templates.TemplateResponse("admin_divisions.html", {
-        "request": request, "divisions": [dict(r) for r in rows],
+    return templates.TemplateResponse(request, "admin_divisions.html", {
+        "divisions": [dict(r) for r in rows],
     })
 
 
@@ -248,8 +248,8 @@ async def admin_list_applications(request: Request):
         for k in ("submitted_at", "geburtsdatum"):
             if a.get(k):
                 a[k] = str(a[k])
-    return templates.TemplateResponse("admin_applications.html", {
-        "request": request, "applications": apps, "admin": admin,
+    return templates.TemplateResponse(request, "admin_applications.html", {
+        "applications": apps, "admin": admin,
     })
 
 

@@ -23,7 +23,7 @@ async def portal_login(request: Request):
         get_current_member(request)
         return RedirectResponse(url="/api/portal")
     except Exception:
-        return templates.TemplateResponse("portal_login.html", {"request": request})
+        return templates.TemplateResponse(request, "portal_login.html", {})
 
 
 @router.get("")
@@ -47,8 +47,7 @@ async def portal_dashboard(request: Request):
         if member.get(key):
             member[key] = str(member[key])
 
-    return templates.TemplateResponse("portal_dashboard.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "portal_dashboard.html", {
         "member": member,
         "divisions": divisions,
         "teams": teams,

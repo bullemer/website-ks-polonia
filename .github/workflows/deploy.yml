@@ -108,3 +108,15 @@ jobs:
             python3 migrate.py 2>&1 | tail -30
             echo "Migration step complete"
           ENDSSH
+
+      # ═══════════════════════════════════════
+      #  Restart FCGI to load new code
+      # ═══════════════════════════════════════
+      - name: Restart FCGI Process
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          HOST=$(echo "$SSH_HOST" | xargs)
+          USER=$(echo "$SSH_USER" | xargs)
+          ssh -p 222 "$USER@$HOST" "touch /usr/home/trusteei/public_html/ks-polonia/api/api.fcgi && echo 'FCGI restarted'"

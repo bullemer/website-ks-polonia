@@ -241,6 +241,10 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
                     </ul>
                 </nav>
 
+                <a href="/api/portal/login" class="member-login-btn" title="Mitglieder-Login">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="login-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="login-label">Login</span>
+                </a>
                 <div id="google_translate_element" class="lang-selector"></div>
 
                 <button class="menu-toggle" id="menuToggle" aria-label="Menü öffnen">
@@ -399,7 +403,31 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     .logo { flex-shrink: 0; line-height: 0; }
     .logo img { width: 52px; height: 52px; object-fit: contain; }
 
-    .lang-selector { margin-left: auto; display: flex; align-items: center; min-height: 35px; }
+    /* ── Member Login Button ──────────────── */
+    .member-login-btn {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        border: 1.5px solid var(--color-border);
+        border-radius: 20px;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+    .member-login-btn:hover {
+        color: var(--color-primary);
+        border-color: var(--color-primary);
+        background: rgba(220,20,60,0.04);
+    }
+    .login-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .login-label { }
+
+    .lang-selector { display: flex; align-items: center; min-height: 35px; margin-left: 0.75rem; }
 
     .header-tagline {
         background: var(--color-bg);
@@ -518,6 +546,9 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
         .nav-item.has-sub > .sub-menu { display: none; }
         .nav-item.has-sub:hover > .sub-menu { display: block; }
         .sub-right { left: 0; top: 0; }
+        .login-label { display: none; }
+        .member-login-btn { padding: 0.4rem; border-radius: 50%; }
+        .login-icon { width: 18px; height: 18px; }
     }
 
     /* ═══════════════════════════════════════

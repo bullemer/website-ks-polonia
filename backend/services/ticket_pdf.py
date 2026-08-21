@@ -91,9 +91,6 @@ def generate_ticket_pdf(
     pdf.cell(30, 4, "SAISON")
     pdf.set_xy(45, 60)
     pdf.cell(30, 4, "TICKET-NR.")
-    if seat_info:
-        pdf.set_xy(90, 60)
-        pdf.cell(30, 4, "PLATZ")
 
     pdf.set_font("Helvetica", "B", 9)
     pdf.set_text_color(255, 255, 255)
@@ -102,9 +99,6 @@ def generate_ticket_pdf(
     pdf.cell(30, 5, season)
     pdf.set_xy(45, 64)
     pdf.cell(40, 5, ticket_code)
-    if seat_info:
-        pdf.set_xy(90, 64)
-        pdf.cell(40, 5, seat_info)
 
     # ── Valid for ──
     pdf.set_font("Helvetica", "", 7)

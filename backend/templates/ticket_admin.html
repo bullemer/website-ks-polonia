@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dauerkarten verwalten – KS Polonia Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--p:#DC143C;--pd:#a50e2d;--bg:#f5f5f7;--s:#fff;--b:#e5e7eb;--t:#111827;--tm:#6b7280;--ok:#22c55e;--warn:#f59e0b;--r:14px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--t);-webkit-font-smoothing:antialiased}
+        .hdr{background:linear-gradient(145deg,#DC143C 0%,#8B0000 100%);color:#fff;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center}
+        .hdr h1{font-size:1.1rem;font-weight:700}.hdr a{color:rgba(255,255,255,.8);text-decoration:none;font-size:.85rem}
+        .content{max-width:900px;margin:0 auto;padding:1.5rem}
+        .card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:1.5rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+        .card h2{font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+        .badge{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:99px;font-size:.75rem;font-weight:600;margin-left:.5rem}
+        .badge-warn{background:rgba(245,158,11,.1);color:#92400e}
+        table{width:100%;border-collapse:collapse;font-size:.88rem}
+        th{text-align:left;padding:.6rem .5rem;border-bottom:2px solid var(--b);font-size:.75rem;text-transform:uppercase;color:var(--tm);letter-spacing:.04em}
+        td{padding:.7rem .5rem;border-bottom:1px solid var(--b);vertical-align:middle}
+        .status{padding:.2rem .6rem;border-radius:6px;font-size:.78rem;font-weight:600}
+        .s-pending{background:#fef3c7;color:#92400e}.s-approved{background:#dcfce7;color:#166534}.s-rejected{background:#fef2f2;color:#991b1b}
+        .btn{padding:.45rem .85rem;border-radius:8px;border:none;font-weight:600;font-size:.8rem;font-family:inherit;cursor:pointer;transition:all .15s}
+        .btn-ok{background:var(--ok);color:#fff}.btn-ok:hover{background:#16a34a}
+        .btn-no{background:#ef4444;color:#fff}.btn-no:hover{background:#dc2626}
+        .btn-sm{padding:.3rem .6rem;font-size:.75rem}
+        .actions{display:flex;gap:.35rem}
+        .alert{padding:.7rem 1rem;border-radius:10px;font-size:.85rem;font-weight:500;margin-bottom:1rem;display:none}
+        .alert-success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+        .alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+        .empty{text-align:center;padding:2rem;color:var(--tm);font-size:.9rem}
+        .stats{display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap}
+        .stat{flex:1;min-width:100px;background:var(--bg);border-radius:10px;padding:.75rem;text-align:center}
+        .stat .num{font-size:1.3rem;font-weight:700;color:var(--p)}.stat .lbl{font-size:.7rem;color:var(--tm);text-transform:uppercase;margin-top:.15rem}
+        @media(max-width:640px){table,thead,tbody,th,td,tr{display:block}thead{display:none}td{padding:.3rem .5rem;border:none;position:relative;padding-left:40%}td::before{content:attr(data-label);position:absolute;left:.5rem;font-weight:600;color:var(--tm);font-size:.75rem}tr{border-bottom:1px solid var(--b);padding:.5rem 0;margin-bottom:.5rem}}
+    </style>
+</head>
+<body>
+    <div class="hdr">
+        <h1>🎫 Dauerkarten – Saison {{ season }}</h1>
+        <a href="/api/admin/dashboard">← Dashboard</a>
+    </div>
+    <div class="content">
+        <div id="alert" class="alert"></div>
+
+        <div class="stats">
+            <div class="stat"><div class="num">{{ pending|length }}</div><div class="lbl">Ausstehend</div></div>
+            <div class="stat"><div class="num">{{ all_tickets|selectattr('status','equalto','approved')|list|length }}</div><div class="lbl">Genehmigt</div></div>
+            <div class="stat"><div class="num">{{ all_tickets|length }}</div><div class="lbl">Gesamt</div></div>
+        </div>
+
+        {% if pending %}
+        <div class="card">
+            <h2>⏳ Offene Anträge <span class="badge badge-warn">{{ pending|length }}</span></h2>
+            <table>
+                <thead><tr><th>Name</th><th>E-Mail</th><th>Telefon</th><th>Datum</th><th>Aktion</th></tr></thead>
+                <tbody>
+                {% for p in pending %}
+                <tr id="row-{{ p.id }}">
+                    <td data-label="Name">{{ p.vorname }} {{ p.nachname }}</td>
+                    <td data-label="E-Mail">{{ p.email }}</td>
+                    <td data-label="Telefon">{{ p.telefon or '—' }}</td>
+                    <td data-label="Datum">{{ p.created_at[:10] if p.created_at else '—' }}</td>
+                    <td data-label="Aktion">
+                        <div class="actions">
+                            <button class="btn btn-ok btn-sm" onclick="review({{ p.id }}, 'approved')">✓ Genehmigen</button>
+                            <button class="btn btn-no btn-sm" onclick="review({{ p.id }}, 'rejected')">✗ Ablehnen</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h2>📋 Alle Dauerkarten ({{ season }})</h2>
+            {% if all_tickets %}
+            <table>
+                <thead><tr><th>Name</th><th>E-Mail</th><th>Ticket-Nr.</th><th>Status</th><th>Datum</th></tr></thead>
+                <tbody>
+                {% for t in all_tickets %}
+                <tr>
+                    <td data-label="Name">{{ t.vorname }} {{ t.nachname }}</td>
+                    <td data-label="E-Mail">{{ t.email }}</td>
+                    <td data-label="Ticket-Nr.">{{ t.ticket_code or '—' }}</td>
+                    <td data-label="Status">
+                        <span class="status {% if t.status == 'approved' %}s-approved{% elif t.status == 'pending' %}s-pending{% else %}s-rejected{% endif %}">
+                            {{ t.status }}
+                        </span>
+                    </td>
+                    <td data-label="Datum">{{ t.created_at[:10] if t.created_at else '—' }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty">Keine Dauerkarten für diese Saison.</div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+    async function review(id, status) {
+        const a = document.getElementById('alert');
+        try {
+            const res = await fetch('/api/tickets/' + id, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ status }),
+            });
+            const result = await res.json();
+            a.textContent = result.message || result.detail;
+            a.className = 'alert alert-' + (result.success ? 'success' : 'error');
+            a.style.display = 'block';
+            if (result.success) {
+                const row = document.getElementById('row-' + id);
+                if (row) row.style.opacity = '0.3';
+                setTimeout(() => window.location.reload(), 1500);
+            }
+        } catch(e) { a.textContent = 'Fehler'; a.className = 'alert alert-error'; a.style.display = 'block'; }
+    }
+    </script>
+</body>
+</html>

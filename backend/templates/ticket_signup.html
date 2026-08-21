@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#DC143C">
+    <title>Dauerkarte beantragen – KS Polonia Hamburg</title>
+    <link rel="icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--p:#DC143C;--pd:#a50e2d;--bg:#fafafa;--s:#fff;--b:#e5e7eb;--t:#111827;--tm:#6b7280;--r:14px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--t);min-height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+        .hero{background:linear-gradient(145deg,#DC143C 0%,#8B0000 60%,#6d0020 100%);color:#fff;text-align:center;padding:calc(env(safe-area-inset-top,0px) + 2.5rem) 1.5rem 2.5rem;position:relative;overflow:hidden}
+        .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.08) 0%,transparent 60%)}
+        .hero-logo{width:70px;height:70px;border-radius:50%;border:3px solid rgba(255,255,255,.3);margin:0 auto .75rem;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+        .hero h1{font-size:1.3rem;font-weight:800}
+        .hero p{font-size:.88rem;opacity:.8;margin-top:.3rem}
+        .hero .season-badge{display:inline-block;margin-top:.75rem;padding:.4rem 1rem;background:rgba(255,255,255,.15);border-radius:99px;font-size:.85rem;font-weight:600;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.2)}
+        .main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.5rem}
+        .card{width:100%;max-width:440px;background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:2rem 1.5rem;box-shadow:0 4px 24px rgba(0,0,0,.04);margin-top:-1rem;position:relative;z-index:1}
+        .card h2{font-size:1.1rem;font-weight:700;margin-bottom:.25rem;color:var(--p)}
+        .card .subtitle{font-size:.85rem;color:var(--tm);margin-bottom:1.5rem;line-height:1.5}
+        .field{margin-bottom:1.15rem}
+        .field label{display:block;font-size:.78rem;font-weight:600;margin-bottom:.35rem;color:var(--tm);text-transform:uppercase;letter-spacing:.04em}
+        .field input{width:100%;padding:.8rem 1rem;border:1.5px solid var(--b);border-radius:10px;font-size:.95rem;font-family:inherit;transition:border-color .2s}
+        .field input:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(220,20,60,.1)}
+        .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+        @media(max-width:400px){.fgrid{grid-template-columns:1fr}}
+        .btn{width:100%;padding:.9rem;background:var(--p);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s}
+        .btn:hover{background:var(--pd)}.btn:active{transform:scale(.98)}
+        .btn:disabled{background:var(--b);color:var(--tm);cursor:not-allowed}
+        .alert{padding:.8rem 1rem;border-radius:10px;font-size:.88rem;font-weight:500;margin-bottom:1rem;display:none}
+        .alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+        .alert-success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+        .links{text-align:center;margin-top:1.25rem;font-size:.88rem}
+        .links a{color:var(--tm);text-decoration:none}.links a:hover{color:var(--p)}
+        .footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--tm)}
+        .footer a{color:var(--tm)}
+        .features{width:100%;max-width:440px;margin-top:1.25rem}
+        .feat{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:1rem}
+        .feat-icon{font-size:1.3rem;flex-shrink:0;margin-top:.1rem}
+        .feat-text{font-size:.85rem;color:var(--tm);line-height:1.5}
+        .feat-text strong{color:var(--t);display:block;margin-bottom:.1rem}
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <img src="/logo.png" alt="KS Polonia" class="hero-logo">
+        <h1>Dauerkarte beantragen</h1>
+        <p>K.S. Polonia Hamburg e.V. 1988</p>
+        <div class="season-badge">⚽ Saison {{ season }}</div>
+    </div>
+    <div class="main">
+        <div class="card">
+            <h2>Antrag stellen</h2>
+            <p class="subtitle">Füllen Sie das Formular aus, um eine Dauerkarte für die aktuelle Saison zu beantragen. Nach Genehmigung erhalten Sie Ihre digitale Dauerkarte per E-Mail.</p>
+            <div id="alert" class="alert"></div>
+            <form id="signupForm">
+                <div class="fgrid">
+                    <div class="field">
+                        <label for="vorname">Vorname *</label>
+                        <input type="text" id="vorname" name="vorname" required placeholder="Max">
+                    </div>
+                    <div class="field">
+                        <label for="nachname">Nachname *</label>
+                        <input type="text" id="nachname" name="nachname" required placeholder="Mustermann">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="email">E-Mail-Adresse *</label>
+                    <input type="email" id="email" name="email" required placeholder="max@example.de" inputmode="email">
+                </div>
+                <div class="field">
+                    <label for="telefon">Telefon (optional)</label>
+                    <input type="tel" id="telefon" name="telefon" placeholder="0123 456789">
+                </div>
+                <button type="submit" class="btn" id="submitBtn">Dauerkarte beantragen</button>
+            </form>
+            <div class="links">
+                <a href="/api/tickets/login">Bereits eine Dauerkarte? → Anmelden</a>
+            </div>
+        </div>
+        <div class="features">
+            <div class="feat"><span class="feat-icon">🪪</span><div class="feat-text"><strong>Digitale Dauerkarte</strong>QR-Code auf dem Smartphone – kein Papierticket nötig.</div></div>
+            <div class="feat"><span class="feat-icon">⚡</span><div class="feat-text"><strong>Schnelle Bearbeitung</strong>Ihr Antrag wird zeitnah geprüft und per E-Mail bestätigt.</div></div>
+            <div class="feat"><span class="feat-icon">🏟️</span><div class="feat-text"><strong>Alle Heimspiele</strong>Zugang zu allen Heimspielen der laufenden Saison.</div></div>
+        </div>
+    </div>
+    <div class="footer"><a href="/">← Zurück zur Website</a> · © KS Polonia Hamburg e.V. 1988</div>
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const alert = document.getElementById('alert');
+            btn.disabled = true; btn.textContent = 'Wird gesendet...';
+            alert.style.display = 'none';
+            try {
+                const fd = new FormData(e.target);
+                const data = Object.fromEntries(fd);
+                const res = await fetch('/api/tickets/apply', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data),
+                });
+                const result = await res.json();
+                alert.textContent = result.message || result.detail;
+                alert.className = 'alert alert-' + (result.success ? 'success' : 'error');
+                alert.style.display = 'block';
+                if (result.success) e.target.reset();
+            } catch (err) {
+                alert.textContent = 'Verbindungsfehler'; alert.className = 'alert alert-error'; alert.style.display = 'block';
+            } finally {
+                btn.disabled = false; btn.textContent = 'Dauerkarte beantragen';
+            }
+        });
+    </script>
+</body>
+</html>

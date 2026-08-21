@@ -393,6 +393,96 @@ async def get_dashboard_stats() -> dict:
         }
 
 
+# ═══════════════════════════════════════
+#  PAYMENT TRACKING
+# ═══════════════════════════════════════
+
+async def get_member_payments(member_id: int, limit: int = 50) -> list[dict]:
+    """Get payment history for a member, newest first."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT id, amount, description, period, payment_date,
+                   payment_method, status, notes, created_at
+            FROM member_payments
+            WHERE member_id = $1
+            ORDER BY payment_date DESC, created_at DESC
+            LIMIT $2
+            """,
+            member_id, limit,
+        )
+        result = []
+        for r in rows:
+            d = dict(r)
+            for key in ("payment_date", "created_at"):
+                if d.get(key):
+                    d[key] = str(d[key])
+            d["amount"] = float(d["amount"])
+            result.append(d)
+        return result
+
+
+async def get_payment_summary(member_id: int) -> dict:
+    """Get payment summary for a member."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            """
+            SELECT COUNT(*) as total_payments,
+                   COALESCE(SUM(amount), 0) as total_paid,
+                   MAX(payment_date) as last_payment_date
+            FROM member_payments
+            WHERE member_id = $1 AND status = 'received'
+            """,
+            member_id,
+        )
+        return {
+            "total_payments": row["total_payments"],
+            "total_paid": float(row["total_paid"]),
+            "last_payment_date": str(row["last_payment_date"]) if row["last_payment_date"] else None,
+        }
+
+
+async def create_payment(
+    member_id: int,
+    amount: float,
+    description: str,
+    period: str = "",
+    payment_date: str = "",
+    payment_method: str = "Überweisung",
+    status: str = "received",
+    notes: str = "",
+    created_by: str = "",
+) -> int:
+    """Create a new payment record (admin function)."""
+    pool = await get_pool()
+    pay_date = _parse_date(payment_date) if payment_date else datetime.date.today()
+    async with pool.acquire() as conn:
+        new_id = await conn.fetchval(
+            """
+            INSERT INTO member_payments (
+                member_id, amount, description, period, payment_date,
+                payment_method, status, notes, created_by
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING id
+            """,
+            member_id, amount, description, period or "",
+            pay_date, payment_method, status, notes or "", created_by,
+        )
+        return new_id
+
+
+async def delete_payment(payment_id: int) -> bool:
+    """Delete a payment record (admin function)."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        result = await conn.execute(
+            "DELETE FROM member_payments WHERE id = $1", payment_id
+        )
+        return "DELETE 1" in result
+
+
 # --- Helpers ---
 
 def _parse_date(date_str: str):
@@ -419,3 +509,4 @@ def _map_division_name(form_value: str) -> str:
         "Volleyball": "Volleyball",
     }
     return mapping.get(form_value, form_value)
+

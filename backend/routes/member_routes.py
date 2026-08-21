@@ -1,13 +1,16 @@
 """
 KS Polonia – Member self-service routes.
-Profile view/edit, bank account, password change, division/team info.
+Profile view/edit, bank account, password change, division/team info, document upload.
 """
+import os
+import datetime
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 
 from auth import get_current_member, verify_password, hash_password
 from models.member import MemberProfileUpdate, PasswordChange, BankAccountUpdate
 from services import member_service
+from config import UPLOAD_DIR
 
 router = APIRouter(prefix="/member", tags=["member"])
 
@@ -137,3 +140,97 @@ async def get_teams(request: Request):
                 t[key] = str(t[key])
 
     return {"teams": teams}
+
+
+# ═══════════════════════════════════════
+#  ID DOCUMENT UPLOAD (logged-in members)
+# ═══════════════════════════════════════
+
+@router.get("/documents")
+async def get_documents_status(request: Request):
+    """Check whether the current member has uploaded ID documents."""
+    current = get_current_member(request)
+    member = await member_service.get_member_by_id(current["member_id"])
+    if not member:
+        raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+
+    has_front = bool(member.get("id_front_path"))
+    has_back = bool(member.get("id_back_path"))
+
+    return {
+        "has_front": has_front,
+        "has_back": has_back,
+        "complete": has_front and has_back,
+    }
+
+
+@router.post("/documents")
+async def upload_documents(request: Request):
+    """Upload ID document front and/or back for the current member."""
+    current = get_current_member(request)
+    member = await member_service.get_member_by_id(current["member_id"])
+    if not member:
+        raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+
+    form = await request.form()
+    id_front = form.get("id_front")
+    id_back = form.get("id_back")
+
+    has_front = id_front and hasattr(id_front, "filename") and id_front.filename
+    has_back = id_back and hasattr(id_back, "filename") and id_back.filename
+
+    if not has_front and not has_back:
+        return JSONResponse(
+            {"success": False, "error": "Bitte wählen Sie mindestens ein Dokument aus."},
+            status_code=400,
+        )
+
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    vorname = member.get("vorname", "")
+    nachname = member.get("nachname", "")
+    updates = {}
+
+    if has_front:
+        front_filename = f"{nachname}_{vorname}_Front_{timestamp}.jpg"
+        front_path = os.path.join(UPLOAD_DIR, front_filename)
+        with open(front_path, "wb") as f:
+            f.write(await id_front.read())
+        updates["id_front_path"] = front_path
+
+    if has_back:
+        back_filename = f"{nachname}_{vorname}_Back_{timestamp}.jpg"
+        back_path = os.path.join(UPLOAD_DIR, back_filename)
+        with open(back_path, "wb") as f:
+            f.write(await id_back.read())
+        updates["id_back_path"] = back_path
+
+    # Persist paths in member record
+    success = await member_service.update_member_profile(current["member_id"], updates)
+    if not success:
+        raise HTTPException(status_code=500, detail="Fehler beim Speichern der Dokumente")
+
+    uploaded = []
+    if has_front:
+        uploaded.append("Vorderseite")
+    if has_back:
+        uploaded.append("Rückseite")
+
+    return JSONResponse({
+        "success": True,
+        "message": f"Dokument(e) erfolgreich hochgeladen: {', '.join(uploaded)}",
+    })
+
+
+# ═══════════════════════════════════════
+#  PAYMENT HISTORY (logged-in members)
+# ═══════════════════════════════════════
+
+@router.get("/payments")
+async def get_payments(request: Request):
+    """Get the current member's payment history."""
+    current = get_current_member(request)
+    payments = await member_service.get_member_payments(current["member_id"])
+    summary = await member_service.get_payment_summary(current["member_id"])
+    return {"payments": payments, "summary": summary}
+

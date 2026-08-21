@@ -2,220 +2,378 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#DC143C">
     <title>Mein Konto – KS Polonia</title>
+    <link rel="icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <style>
-        :root { --primary: #DC143C; --primary-dark: #b91c1c; --bg: #f9fafb; --surface: #fff; --border: #e5e7eb; --text: #111827; --text-muted: #6b7280; --success: #22c55e; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
-        .header { background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%); color: #fff; padding: 1.25rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.15rem; font-weight: 700; }
-        .header-links { display: flex; gap: 1rem; align-items: center; font-size: 0.88rem; }
-        .header-links a { color: rgba(255,255,255,0.85); text-decoration: none; }
-        .header-links a:hover { color: #fff; }
-        .container { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; }
-        .welcome { margin-bottom: 2rem; }
-        .welcome h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
-        .welcome p { color: var(--text-muted); }
-        .tabs { display: flex; gap: 0.25rem; margin-bottom: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.3rem; overflow-x: auto; }
-        .tab { padding: 0.65rem 1.2rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s; border: none; background: none; white-space: nowrap; }
-        .tab.active { background: var(--primary); color: #fff; }
-        .tab:hover:not(.active) { background: #f3f4f6; color: var(--text); }
-        .panel { display: none; }
-        .panel.active { display: block; }
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
-        .card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .form-group { }
-        .form-group.full { grid-column: 1 / -1; }
-        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-        .form-group input, .form-group select { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.92rem; transition: border-color 0.2s; }
-        .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,20,60,0.08); }
-        .form-group input[readonly] { background: #f9fafb; color: var(--text-muted); }
-        .btn { padding: 0.7rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.15s; }
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-primary:disabled { background: var(--border); color: var(--text-muted); }
-        .btn-row { display: flex; justify-content: flex-end; margin-top: 1.25rem; }
-        .chip-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        .chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.85rem; font-weight: 500; background: rgba(220,20,60,0.08); color: var(--primary); }
-        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-        .detail-item .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
-        .detail-item .value { font-size: 0.95rem; margin-top: 0.1rem; }
-        .alert { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.88rem; margin-bottom: 1rem; display: none; }
-        .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
-        .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .detail-grid { grid-template-columns: 1fr; } }
+        :root{--p:#DC143C;--pd:#a50e2d;--bg:#f5f5f7;--s:#fff;--b:#e5e7eb;--t:#111827;--tm:#6b7280;--tl:#9ca3af;--ok:#22c55e;--r:14px;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--t);min-height:100dvh;-webkit-font-smoothing:antialiased;padding-bottom:calc(70px + var(--sab))}
+
+        /* Header */
+        .hdr{background:linear-gradient(145deg,#DC143C 0%,#8B0000 100%);color:#fff;padding:calc(var(--sat) + .75rem) 1rem .75rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+        .hdr h1{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+        .hdr-logo{width:28px;height:28px;border-radius:50%}
+        .hdr-r{display:flex;gap:.75rem;align-items:center;font-size:.8rem}
+        .hdr-r a{color:rgba(255,255,255,.8);text-decoration:none}
+        .hdr-r a:hover{color:#fff}
+
+        /* Bottom nav */
+        .bnav{position:fixed;bottom:0;left:0;right:0;background:var(--s);border-top:1px solid var(--b);display:flex;justify-content:space-around;padding:.4rem 0 calc(.4rem + var(--sab));z-index:100}
+        .bnav-item{display:flex;flex-direction:column;align-items:center;gap:.15rem;font-size:.65rem;font-weight:500;color:var(--tm);cursor:pointer;padding:.3rem .5rem;border:none;background:none;transition:color .15s;-webkit-tap-highlight-color:transparent}
+        .bnav-item .ico{font-size:1.3rem}
+        .bnav-item.active{color:var(--p)}
+
+        /* Content */
+        .content{padding:.75rem;max-width:600px;margin:0 auto}
+        .section{display:none}.section.active{display:block}
+
+        /* Cards */
+        .card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:1.25rem;margin-bottom:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+        .card h3{font-size:.95rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+
+        /* Detail grid */
+        .dg{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+        .di .lb{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--tm);font-weight:600}
+        .di .vl{font-size:.9rem;margin-top:.1rem}
+
+        /* Form elements */
+        .fg{margin-bottom:1rem}
+        .fg label{display:block;font-size:.75rem;font-weight:600;margin-bottom:.3rem;color:var(--tm);text-transform:uppercase;letter-spacing:.04em}
+        .fg input,.fg select{width:100%;padding:.7rem .85rem;border:1.5px solid var(--b);border-radius:10px;font-size:.92rem;font-family:inherit;transition:border-color .2s}
+        .fg input:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(220,20,60,.08)}
+        .fg input[readonly]{background:#f9fafb;color:var(--tm)}
+        .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+        .fgrid .full{grid-column:1/-1}
+
+        /* Buttons */
+        .btn{padding:.7rem 1.25rem;border-radius:10px;border:none;font-weight:600;font-size:.85rem;font-family:inherit;cursor:pointer;transition:all .15s}
+        .btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pd)}
+        .btn-p:disabled{background:var(--b);color:var(--tl)}
+        .btn-row{display:flex;justify-content:flex-end;margin-top:1rem}
+        .btn-sm{padding:.5rem .85rem;font-size:.8rem}
+
+        /* Chips */
+        .chips{display:flex;flex-wrap:wrap;gap:.4rem}
+        .chip{padding:.35rem .75rem;border-radius:99px;font-size:.8rem;font-weight:500;background:rgba(220,20,60,.08);color:var(--p)}
+
+        /* Alert */
+        .alert{padding:.7rem 1rem;border-radius:10px;font-size:.85rem;font-weight:500;margin-bottom:.75rem;display:none}
+        .alert-success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+        .alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+
+        /* Membership card */
+        .mcard{background:linear-gradient(145deg,#DC143C 0%,#8B0000 60%,#6d0020 100%);color:#fff;border-radius:16px;padding:1.5rem;position:relative;overflow:hidden;aspect-ratio:1.6/1;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 32px rgba(220,20,60,.25)}
+        .mcard::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.1) 0%,transparent 50%)}
+        .mcard-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
+        .mcard-logo{width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.3)}
+        .mcard-title{text-align:right}
+        .mcard-title h4{font-size:.75rem;font-weight:600;opacity:.8;text-transform:uppercase;letter-spacing:.06em}
+        .mcard-title p{font-size:.7rem;opacity:.6}
+        .mcard-body{position:relative;z-index:1}
+        .mcard-name{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
+        .mcard-nr{font-size:.8rem;opacity:.7;margin-top:.15rem;font-family:monospace;letter-spacing:.05em}
+        .mcard-bottom{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1}
+        .mcard-info{font-size:.7rem;opacity:.7}
+        .mcard-info strong{display:block;font-size:.8rem;opacity:1}
+        .mcard-qr{width:56px;height:56px;background:#fff;border-radius:6px;padding:3px;display:flex;align-items:center;justify-content:center}
+        .mcard-qr canvas,.mcard-qr img{width:100%!important;height:100%!important}
+
+        /* Payment table */
+        .pay-list{width:100%}
+        .pay-item{display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid var(--b)}
+        .pay-item:last-child{border-bottom:none}
+        .pay-left{flex:1}
+        .pay-desc{font-size:.88rem;font-weight:500}
+        .pay-meta{font-size:.75rem;color:var(--tm);margin-top:.1rem}
+        .pay-amount{font-size:.95rem;font-weight:700;color:var(--p);white-space:nowrap}
+        .pay-summary{display:flex;gap:.75rem;margin-bottom:1rem}
+        .pay-stat{flex:1;background:var(--bg);border-radius:10px;padding:.75rem;text-align:center}
+        .pay-stat .num{font-size:1.15rem;font-weight:700;color:var(--p)}
+        .pay-stat .lbl{font-size:.68rem;color:var(--tm);text-transform:uppercase;margin-top:.15rem}
+
+        /* Doc status */
+        .doc-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.4rem .8rem;border-radius:8px;font-size:.82rem;border:1px solid var(--b);background:var(--bg)}
+        .doc-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+        .doc-dot.ok{background:var(--ok)}.doc-dot.pending{background:#f59e0b}
+
+        /* Empty state */
+        .empty{text-align:center;padding:2rem 1rem;color:var(--tm);font-size:.9rem}
+        .empty .ico{font-size:2rem;margin-bottom:.5rem;opacity:.5}
+
+        @media(max-width:400px){.fgrid{grid-template-columns:1fr}.dg{grid-template-columns:1fr}.mcard{aspect-ratio:auto;min-height:200px}}
+        @media(min-width:768px){.bnav{display:none}.content{padding:1.5rem}.dtabs{display:flex;gap:.25rem;margin-bottom:1.5rem;background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:.3rem;overflow-x:auto}.dtab{padding:.6rem 1rem;border-radius:10px;font-size:.85rem;font-weight:500;color:var(--tm);cursor:pointer;border:none;background:none;white-space:nowrap;font-family:inherit}.dtab.active{background:var(--p);color:#fff}.dtab:hover:not(.active){background:#f3f4f6}}
+        @media(max-width:767px){.dtabs{display:none}}
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>⚽ KS Polonia Mitgliederportal</h1>
-        <div class="header-links">
-            <span id="memberName"></span>
-            {% if is_admin %}<a href="/api/admin/dashboard">Admin →</a>{% endif %}
+    <div class="hdr">
+        <h1><img src="/logo.png" alt="" class="hdr-logo"> Mitgliederportal</h1>
+        <div class="hdr-r">
+            {% if is_admin %}<a href="/api/admin/dashboard">Admin</a>{% endif %}
             <a href="#" onclick="logout()">Abmelden</a>
         </div>
     </div>
-    <div class="container">
-        <div class="welcome">
-            <h2>Willkommen, {{ member.vorname }}!</h2>
-            <p>Mitglied seit {{ member.eintrittsdatum or '—' }} · {{ member.mitgliedsnummer or '' }}</p>
-        </div>
 
+    <div class="content">
         <div id="globalAlert" class="alert"></div>
 
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('profil')">Profil</button>
-            <button class="tab" onclick="switchTab('adresse')">Adresse</button>
-            <button class="tab" onclick="switchTab('bank')">Bankverbindung</button>
-            <button class="tab" onclick="switchTab('verein')">Verein & Teams</button>
-            <button class="tab" onclick="switchTab('passwort')">Passwort</button>
+        <!-- Desktop tabs -->
+        <div class="dtabs">
+            <button class="dtab active" onclick="go('ausweis')">🪪 Ausweis</button>
+            <button class="dtab" onclick="go('profil')">👤 Profil</button>
+            <button class="dtab" onclick="go('zahlungen')">💳 Zahlungen</button>
+            <button class="dtab" onclick="go('dokumente')">📄 Dokumente</button>
+            <button class="dtab" onclick="go('einstellungen')">⚙️ Einstellungen</button>
         </div>
 
-        <!-- PROFIL TAB -->
-        <div class="panel active" id="panel-profil">
-            <div class="card">
-                <h3>Persönliche Daten</h3>
-                <div class="detail-grid">
-                    <div class="detail-item"><div class="label">Vorname</div><div class="value">{{ member.vorname }}</div></div>
-                    <div class="detail-item"><div class="label">Nachname</div><div class="value">{{ member.nachname }}</div></div>
-                    <div class="detail-item"><div class="label">E-Mail</div><div class="value">{{ member.email }}</div></div>
-                    <div class="detail-item"><div class="label">Telefon</div><div class="value">{{ member.telefon or '—' }}</div></div>
-                    <div class="detail-item"><div class="label">Geburtsdatum</div><div class="value">{{ member.geburtsdatum or '—' }}</div></div>
-                    <div class="detail-item"><div class="label">Geschlecht</div><div class="value">{{ member.geschlecht or '—' }}</div></div>
-                    <div class="detail-item"><div class="label">Mitgliedsstufe</div><div class="value">{{ member.membership_level or 'regular' }}</div></div>
-                    <div class="detail-item"><div class="label">Mitgliedsnummer</div><div class="value">{{ member.mitgliedsnummer or '—' }}</div></div>
+        <!-- AUSWEIS -->
+        <div class="section active" id="s-ausweis">
+            <div class="mcard" id="memberCard">
+                <div class="mcard-top">
+                    <img src="/logo.png" alt="" class="mcard-logo">
+                    <div class="mcard-title">
+                        <h4>Mitgliedsausweis</h4>
+                        <p>K.S. Polonia Hamburg e.V.</p>
+                    </div>
+                </div>
+                <div class="mcard-body">
+                    <div class="mcard-name">{{ member.vorname }} {{ member.nachname }}</div>
+                    <div class="mcard-nr">{{ member.mitgliedsnummer or '—' }}</div>
+                </div>
+                <div class="mcard-bottom">
+                    <div class="mcard-info">
+                        MITGLIED SEIT<br>
+                        <strong>{{ member.eintrittsdatum or '—' }}</strong>
+                    </div>
+                    <div class="mcard-qr" id="qrContainer"></div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:.75rem">
+                <div class="dg">
+                    <div class="di"><div class="lb">Abteilungen</div><div class="vl">
+                        {% if divisions %}{% for d in divisions %}{{ d.icon }} {{ d.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}—{% endif %}
+                    </div></div>
+                    <div class="di"><div class="lb">Mannschaften</div><div class="vl">
+                        {% if teams %}{% for t in teams %}{{ t.mannschaftsname }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}—{% endif %}
+                    </div></div>
+                    <div class="di"><div class="lb">Stufe</div><div class="vl">{{ member.membership_level or 'regular' }}</div></div>
+                    <div class="di"><div class="lb">Status</div><div class="vl" style="color:var(--ok)">✓ Aktiv</div></div>
                 </div>
             </div>
         </div>
 
-        <!-- ADRESSE TAB -->
-        <div class="panel" id="panel-adresse">
+        <!-- PROFIL -->
+        <div class="section" id="s-profil">
             <div class="card">
-                <h3>Adresse ändern</h3>
+                <h3>👤 Persönliche Daten</h3>
+                <div class="dg">
+                    <div class="di"><div class="lb">Vorname</div><div class="vl">{{ member.vorname }}</div></div>
+                    <div class="di"><div class="lb">Nachname</div><div class="vl">{{ member.nachname }}</div></div>
+                    <div class="di"><div class="lb">E-Mail</div><div class="vl">{{ member.email }}</div></div>
+                    <div class="di"><div class="lb">Telefon</div><div class="vl">{{ member.telefon or '—' }}</div></div>
+                    <div class="di"><div class="lb">Geburtsdatum</div><div class="vl">{{ member.geburtsdatum or '—' }}</div></div>
+                    <div class="di"><div class="lb">Geschlecht</div><div class="vl">{{ member.geschlecht or '—' }}</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <h3>📍 Adresse ändern</h3>
                 <form id="addressForm">
-                    <div class="form-grid">
-                        <div class="form-group full"><label>Straße und Hausnummer</label><input type="text" name="strasse" value="{{ member.strasse or '' }}"></div>
-                        <div class="form-group"><label>PLZ</label><input type="text" name="plz" value="{{ member.plz or '' }}"></div>
-                        <div class="form-group"><label>Ort</label><input type="text" name="ort" value="{{ member.ort or '' }}"></div>
-                        <div class="form-group"><label>Land</label><input type="text" name="land" value="{{ member.land or 'Deutschland' }}"></div>
-                        <div class="form-group"><label>Telefon</label><input type="tel" name="telefon" value="{{ member.telefon or '' }}"></div>
+                    <div class="fgrid">
+                        <div class="fg full"><label>Straße</label><input type="text" name="strasse" value="{{ member.strasse or '' }}"></div>
+                        <div class="fg"><label>PLZ</label><input type="text" name="plz" value="{{ member.plz or '' }}"></div>
+                        <div class="fg"><label>Ort</label><input type="text" name="ort" value="{{ member.ort or '' }}"></div>
+                        <div class="fg"><label>Land</label><input type="text" name="land" value="{{ member.land or 'Deutschland' }}"></div>
+                        <div class="fg"><label>Telefon</label><input type="tel" name="telefon" value="{{ member.telefon or '' }}"></div>
                     </div>
-                    <div class="btn-row"><button type="submit" class="btn btn-primary">Speichern</button></div>
+                    <div class="btn-row"><button type="submit" class="btn btn-p">Speichern</button></div>
                 </form>
             </div>
-        </div>
-
-        <!-- BANK TAB -->
-        <div class="panel" id="panel-bank">
             <div class="card">
-                <h3>Bankverbindung</h3>
+                <h3>🏦 Bankverbindung</h3>
                 <form id="bankForm">
-                    <div class="form-grid">
-                        <div class="form-group full"><label>Kontoinhaber</label><input type="text" name="kontoinhaber" value="{{ bank.kontoinhaber if bank else '' }}" required></div>
-                        <div class="form-group full"><label>IBAN</label><input type="text" name="iban" value="{{ bank.iban if bank else '' }}" required placeholder="DE89 3704 0044 0532 0130 00"></div>
-                        <div class="form-group"><label>BIC</label><input type="text" name="bic" value="{{ bank.bic if bank else '' }}"></div>
-                        <div class="form-group"><label>Bank</label><input type="text" name="bank_name" value="{{ bank.bank_name if bank else '' }}"></div>
+                    <div class="fgrid">
+                        <div class="fg full"><label>Kontoinhaber</label><input type="text" name="kontoinhaber" value="{{ bank.kontoinhaber if bank else '' }}" required></div>
+                        <div class="fg full"><label>IBAN</label><input type="text" name="iban" value="{{ bank.iban if bank else '' }}" required placeholder="DE89 3704 0044 0532 0130 00"></div>
+                        <div class="fg"><label>BIC</label><input type="text" name="bic" value="{{ bank.bic if bank else '' }}"></div>
+                        <div class="fg"><label>Bank</label><input type="text" name="bank_name" value="{{ bank.bank_name if bank else '' }}"></div>
                     </div>
-                    <div class="btn-row"><button type="submit" class="btn btn-primary">Bankverbindung speichern</button></div>
+                    <div class="btn-row"><button type="submit" class="btn btn-p">Speichern</button></div>
                 </form>
             </div>
         </div>
 
-        <!-- VEREIN TAB -->
-        <div class="panel" id="panel-verein">
+        <!-- ZAHLUNGEN -->
+        <div class="section" id="s-zahlungen">
             <div class="card">
-                <h3>Meine Abteilungen</h3>
-                {% if divisions %}
-                <div class="chip-list">
-                    {% for d in divisions %}<span class="chip">{{ d.icon }} {{ d.name }}</span>{% endfor %}
+                <h3>💳 Zahlungsübersicht</h3>
+                <div class="pay-summary">
+                    <div class="pay-stat"><div class="num">{{ payment_summary.total_payments }}</div><div class="lbl">Zahlungen</div></div>
+                    <div class="pay-stat"><div class="num">{{ "%.2f"|format(payment_summary.total_paid) }} €</div><div class="lbl">Gesamt</div></div>
+                    <div class="pay-stat"><div class="num">{{ payment_summary.last_payment_date or '—' }}</div><div class="lbl">Letzte</div></div>
                 </div>
-                {% else %}<p style="color: var(--text-muted); font-size: 0.9rem;">Keine Abteilungen zugewiesen.</p>{% endif %}
-            </div>
-            <div class="card">
-                <h3>Meine Mannschaften</h3>
-                {% if teams %}
-                <div class="chip-list">
-                    {% for t in teams %}<span class="chip">{{ t.mannschaftsname }} {% if t.position %}({{ t.position }}){% endif %}</span>{% endfor %}
+                {% if payments %}
+                <div class="pay-list">
+                    {% for p in payments %}
+                    <div class="pay-item">
+                        <div class="pay-left">
+                            <div class="pay-desc">{{ p.description }}</div>
+                            <div class="pay-meta">{{ p.payment_date }}{% if p.period %} · {{ p.period }}{% endif %} · {{ p.payment_method }}</div>
+                        </div>
+                        <div class="pay-amount">{{ "%.2f"|format(p.amount) }} €</div>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% else %}<p style="color: var(--text-muted); font-size: 0.9rem;">Keine Mannschaftszuordnung.</p>{% endif %}
+                {% else %}
+                <div class="empty"><div class="ico">📭</div>Noch keine Zahlungen erfasst.</div>
+                {% endif %}
             </div>
         </div>
 
-        <!-- PASSWORT TAB -->
-        <div class="panel" id="panel-passwort">
+        <!-- DOKUMENTE -->
+        <div class="section" id="s-dokumente">
             <div class="card">
-                <h3>Passwort ändern</h3>
+                <h3>📄 Ausweisdokumente</h3>
+                <p style="font-size:.85rem;color:var(--tm);margin-bottom:1rem">Laden Sie die Vorder- und Rückseite Ihres Personalausweises hoch.</p>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+                    <span class="doc-badge"><span class="doc-dot {% if has_id_front %}ok{% else %}pending{% endif %}"></span>Vorderseite: {% if has_id_front %}<strong>✓</strong>{% else %}ausstehend{% endif %}</span>
+                    <span class="doc-badge"><span class="doc-dot {% if has_id_back %}ok{% else %}pending{% endif %}"></span>Rückseite: {% if has_id_back %}<strong>✓</strong>{% else %}ausstehend{% endif %}</span>
+                </div>
+                <form id="documentsForm" enctype="multipart/form-data">
+                    <div class="fgrid">
+                        <div class="fg"><label>Vorderseite</label><input type="file" name="id_front" accept="image/*,application/pdf" style="border:none;padding:.4rem 0"></div>
+                        <div class="fg"><label>Rückseite</label><input type="file" name="id_back" accept="image/*,application/pdf" style="border:none;padding:.4rem 0"></div>
+                    </div>
+                    <p style="font-size:.75rem;color:var(--tl);margin-top:.5rem">Vorhandene Dokumente werden bei erneutem Upload ersetzt.</p>
+                    <div class="btn-row"><button type="submit" class="btn btn-p">Hochladen</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- EINSTELLUNGEN -->
+        <div class="section" id="s-einstellungen">
+            <div class="card">
+                <h3>🔒 Passwort ändern</h3>
                 <form id="passwordForm">
-                    <div class="form-grid">
-                        <div class="form-group full"><label>Aktuelles Passwort</label><input type="password" name="current_password" required></div>
-                        <div class="form-group"><label>Neues Passwort</label><input type="password" name="new_password" required minlength="8"></div>
-                        <div class="form-group"><label>Bestätigung</label><input type="password" name="confirm_password" required minlength="8"></div>
+                    <div class="fgrid">
+                        <div class="fg full"><label>Aktuelles Passwort</label><input type="password" name="current_password" required></div>
+                        <div class="fg"><label>Neues Passwort</label><input type="password" name="new_password" required minlength="8"></div>
+                        <div class="fg"><label>Bestätigung</label><input type="password" name="confirm_password" required minlength="8"></div>
                     </div>
-                    <div class="btn-row"><button type="submit" class="btn btn-primary">Passwort ändern</button></div>
+                    <div class="btn-row"><button type="submit" class="btn btn-p">Passwort ändern</button></div>
                 </form>
+            </div>
+            <div class="card">
+                <h3>ℹ️ Vereinsmitgliedschaft</h3>
+                <div class="dg">
+                    <div class="di"><div class="lb">Mitgliedsnummer</div><div class="vl">{{ member.mitgliedsnummer or '—' }}</div></div>
+                    <div class="di"><div class="lb">Mitglied seit</div><div class="vl">{{ member.eintrittsdatum or '—' }}</div></div>
+                </div>
+                {% if divisions %}
+                <div style="margin-top:.75rem"><div class="lb" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--tm);font-weight:600;margin-bottom:.4rem">Abteilungen</div>
+                <div class="chips">{% for d in divisions %}<span class="chip">{{ d.icon }} {{ d.name }}</span>{% endfor %}</div></div>
+                {% endif %}
+                {% if teams %}
+                <div style="margin-top:.75rem"><div class="lb" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--tm);font-weight:600;margin-bottom:.4rem">Mannschaften</div>
+                <div class="chips">{% for t in teams %}<span class="chip">{{ t.mannschaftsname }}{% if t.position %} ({{ t.position }}){% endif %}</span>{% endfor %}</div></div>
+                {% endif %}
             </div>
         </div>
     </div>
 
+    <!-- Bottom nav (mobile) -->
+    <nav class="bnav">
+        <button class="bnav-item active" onclick="go('ausweis')"><span class="ico">🪪</span>Ausweis</button>
+        <button class="bnav-item" onclick="go('profil')"><span class="ico">👤</span>Profil</button>
+        <button class="bnav-item" onclick="go('zahlungen')"><span class="ico">💳</span>Zahlungen</button>
+        <button class="bnav-item" onclick="go('dokumente')"><span class="ico">📄</span>Dokumente</button>
+        <button class="bnav-item" onclick="go('einstellungen')"><span class="ico">⚙️</span>Mehr</button>
+    </nav>
+
     <script>
-        function switchTab(name) {
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('panel-' + name).classList.add('active');
-            event.target.classList.add('active');
-        }
+    // Navigation
+    function go(name) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.dtab').forEach(b => b.classList.remove('active'));
+        document.getElementById('s-' + name).classList.add('active');
+        // Activate matching nav items
+        document.querySelectorAll('.bnav-item').forEach(b => { if(b.textContent.trim().toLowerCase().includes(name.substring(0,4))) b.classList.add('active'); });
+        document.querySelectorAll('.dtab').forEach(b => { if(b.textContent.trim().toLowerCase().includes(name.substring(0,4))) b.classList.add('active'); });
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
 
-        function showGlobal(msg, type) {
-            const a = document.getElementById('globalAlert');
-            a.textContent = msg; a.className = 'alert alert-' + type; a.style.display = 'block';
-            setTimeout(() => a.style.display = 'none', 5000);
-        }
+    function showGlobal(msg, type) {
+        const a = document.getElementById('globalAlert');
+        a.textContent = msg; a.className = 'alert alert-' + type; a.style.display = 'block';
+        setTimeout(() => a.style.display = 'none', 5000);
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
 
-        async function submitJSON(url, data) {
-            const res = await fetch(url, {
-                method: 'PUT', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data),
-            });
-            return await res.json();
-        }
+    async function submitJSON(url, data) {
+        const res = await fetch(url, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+        return await res.json();
+    }
 
-        document.getElementById('addressForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const fd = new FormData(e.target);
-            const data = Object.fromEntries(fd);
-            const result = await submitJSON('/api/member/profile', data);
-            showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
-        });
+    // QR Code
+    (function() {
+        const nr = '{{ member.mitgliedsnummer or "" }}';
+        const mid = '{{ member.id }}';
+        const qrData = 'https://www.ks-polonia.de/api/member/verify/' + mid + '/' + nr;
+        const qr = qrcode(0, 'M');
+        qr.addData(qrData);
+        qr.make();
+        document.getElementById('qrContainer').innerHTML = qr.createImgTag(3, 0);
+    })();
 
-        document.getElementById('bankForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const fd = new FormData(e.target);
-            const data = Object.fromEntries(fd);
-            const result = await submitJSON('/api/member/bank-account', data);
-            showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
-        });
+    // Address form
+    document.getElementById('addressForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        const result = await submitJSON('/api/member/profile', data);
+        showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
+    });
 
-        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const fd = new FormData(e.target);
-            const data = Object.fromEntries(fd);
-            if (data.new_password !== data.confirm_password) {
-                showGlobal('Passwörter stimmen nicht überein.', 'error'); return;
-            }
-            const result = await submitJSON('/api/member/password', {
-                current_password: data.current_password,
-                new_password: data.new_password,
-            });
-            showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
-            if (result.success) e.target.reset();
-        });
+    // Bank form
+    document.getElementById('bankForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        const result = await submitJSON('/api/member/bank-account', data);
+        showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
+    });
 
-        async function logout() {
-            await fetch('/api/auth/logout', {method: 'POST'});
-            window.location.href = '/api/portal/login';
-        }
+    // Password form
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        if (data.new_password !== data.confirm_password) { showGlobal('Passwörter stimmen nicht überein.', 'error'); return; }
+        const result = await submitJSON('/api/member/password', { current_password: data.current_password, new_password: data.new_password });
+        showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
+        if (result.success) e.target.reset();
+    });
+
+    // Documents form
+    document.getElementById('documentsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const f = fd.get('id_front'), b = fd.get('id_back');
+        if ((!f || !f.size) && (!b || !b.size)) { showGlobal('Bitte wählen Sie mindestens ein Dokument aus.', 'error'); return; }
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true; btn.textContent = 'Wird hochgeladen...';
+        try {
+            const res = await fetch('/api/member/documents', { method: 'POST', body: fd });
+            const result = await res.json();
+            showGlobal(result.message || result.error || result.detail, result.success ? 'success' : 'error');
+            if (result.success) { e.target.reset(); setTimeout(() => window.location.reload(), 1500); }
+        } catch(err) { showGlobal('Verbindungsfehler.', 'error'); }
+        finally { btn.disabled = false; btn.textContent = 'Hochladen'; }
+    });
+
+    async function logout() { await fetch('/api/auth/logout', {method:'POST'}); window.location.href = '/api/portal/login'; }
     </script>
 </body>
 </html>

@@ -275,3 +275,49 @@ async def admin_review_application(request: Request, app_id: int, data: Applicat
             raise HTTPException(status_code=404)
         return JSONResponse({"success": True, "message": "Abgelehnt"})
     raise HTTPException(status_code=400, detail="Status: 'approved' oder 'rejected'")
+
+
+# --- Payments (admin) ---
+
+@router.get("/members/{member_id}/payments")
+async def admin_get_payments(request: Request, member_id: int):
+    """Get all payments for a specific member."""
+    require_admin(request)
+    payments = await member_service.get_member_payments(member_id, limit=200)
+    summary = await member_service.get_payment_summary(member_id)
+    return {"payments": payments, "summary": summary}
+
+
+@router.post("/members/{member_id}/payments")
+async def admin_create_payment(request: Request, member_id: int):
+    """Create a payment record for a member."""
+    admin = require_admin(request)
+    body = await request.json()
+
+    amount = body.get("amount")
+    if not amount or float(amount) <= 0:
+        raise HTTPException(status_code=400, detail="Ungültiger Betrag")
+
+    new_id = await member_service.create_payment(
+        member_id=member_id,
+        amount=float(amount),
+        description=body.get("description", "Mitgliedsbeitrag"),
+        period=body.get("period", ""),
+        payment_date=body.get("payment_date", ""),
+        payment_method=body.get("payment_method", "Überweisung"),
+        status=body.get("status", "received"),
+        notes=body.get("notes", ""),
+        created_by=admin["email"],
+    )
+    return JSONResponse({"success": True, "id": new_id, "message": "Zahlung erfasst"})
+
+
+@router.delete("/payments/{payment_id}")
+async def admin_delete_payment(request: Request, payment_id: int):
+    """Delete a payment record."""
+    require_admin(request)
+    ok = await member_service.delete_payment(payment_id)
+    if not ok:
+        raise HTTPException(status_code=404)
+    return JSONResponse({"success": True, "message": "Zahlung gelöscht"})
+

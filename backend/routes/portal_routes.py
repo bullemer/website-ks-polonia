@@ -28,7 +28,7 @@ async def portal_login(request: Request):
 
 @router.get("")
 async def portal_dashboard(request: Request):
-    """Member dashboard — profile, address, bank, teams."""
+    """Member dashboard — profile, address, bank, teams, payments, card."""
     try:
         current = get_current_member(request)
     except Exception:
@@ -41,6 +41,12 @@ async def portal_dashboard(request: Request):
     divisions = await member_service.get_member_divisions(current["member_id"])
     teams = await member_service.get_member_teams(current["member_id"])
     bank = await member_service.get_bank_account(current["member_id"])
+    payments = await member_service.get_member_payments(current["member_id"])
+    payment_summary = await member_service.get_payment_summary(current["member_id"])
+
+    # Document upload status
+    has_id_front = bool(member.get("id_front_path"))
+    has_id_back = bool(member.get("id_back_path"))
 
     # Serialize dates
     for key in ("geburtsdatum", "eintrittsdatum"):
@@ -52,5 +58,9 @@ async def portal_dashboard(request: Request):
         "divisions": divisions,
         "teams": teams,
         "bank": bank,
+        "payments": payments,
+        "payment_summary": payment_summary,
         "is_admin": current["is_admin"],
+        "has_id_front": has_id_front,
+        "has_id_back": has_id_back,
     })

@@ -2,70 +2,225 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#DC143C">
     <title>Mitgliederportal – KS Polonia Hamburg</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #DC143C; --primary-dark: #b91c1c; --bg: #f9fafb; --surface: #fff; --border: #e5e7eb; --text: #111827; --text-muted: #6b7280; --success: #22c55e; --danger: #ef4444; }
+        :root {
+            --primary: #DC143C; --primary-dark: #a50e2d; --primary-light: #f0325a;
+            --bg: #fafafa; --surface: #fff; --border: #e5e7eb;
+            --text: #111827; --text-muted: #6b7280; --text-light: #9ca3af;
+            --success: #22c55e; --danger: #ef4444;
+            --radius: 14px;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-container { width: 100%; max-width: 420px; padding: 2rem; }
-        .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
-        .logo { text-align: center; margin-bottom: 2rem; }
-        .logo-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-        .logo h1 { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
-        .logo p { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; min-height: 100dvh;
+            display: flex; flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Hero header --- */
+        .hero {
+            background: linear-gradient(145deg, #DC143C 0%, #8B0000 60%, #6d0020 100%);
+            color: #fff; text-align: center;
+            padding: calc(var(--safe-top) + 3rem) 1.5rem 3rem;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 60%);
+        }
+        .hero-logo {
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.3);
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .hero h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
+        .hero p { font-size: 0.88rem; opacity: 0.8; margin-top: 0.35rem; font-weight: 400; }
+
+        /* --- Main content --- */
+        .main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1.5rem; }
+
+        .login-card {
+            width: 100%; max-width: 400px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem 1.5rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            margin-top: -1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
         .field { margin-bottom: 1.25rem; }
-        .field label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
-        .field input { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; }
-        .field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,20,60,0.1); }
-        .submit-btn { width: 100%; padding: 0.85rem; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+        .field label {
+            display: block; font-size: 0.8rem; font-weight: 600;
+            margin-bottom: 0.4rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .field input {
+            width: 100%; padding: 0.85rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 10px; font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fdfdfd;
+        }
+        .field input:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(220,20,60,0.1);
+            background: #fff;
+        }
+
+        .submit-btn {
+            width: 100%; padding: 0.9rem;
+            background: var(--primary); color: #fff;
+            border: none; border-radius: 10px;
+            font-size: 1rem; font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
         .submit-btn:hover { background: var(--primary-dark); }
-        .submit-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
-        .forgot-link { display: block; text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted); text-decoration: none; }
-        .forgot-link:hover { color: var(--primary); }
-        .alert { padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; margin-bottom: 1.25rem; display: none; }
+        .submit-btn:active { transform: scale(0.98); }
+        .submit-btn:disabled { background: var(--border); color: var(--text-light); cursor: not-allowed; }
+
+        .links {
+            text-align: center;
+            margin-top: 1.25rem;
+            display: flex; flex-direction: column; gap: 0.75rem;
+        }
+        .links a {
+            font-size: 0.88rem; color: var(--text-muted);
+            text-decoration: none; transition: color 0.2s;
+        }
+        .links a:hover { color: var(--primary); }
+        .links .signup-link {
+            font-weight: 600; color: var(--primary);
+            padding: 0.7rem 1rem;
+            border: 1.5px solid var(--primary);
+            border-radius: 10px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        .links .signup-link:hover {
+            background: var(--primary); color: #fff;
+        }
+
+        .alert {
+            padding: 0.8rem 1rem; border-radius: 10px;
+            font-size: 0.88rem; font-weight: 500;
+            margin-bottom: 1.25rem; display: none;
+        }
         .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
         .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+
+        .divider {
+            display: flex; align-items: center; gap: 1rem;
+            margin: 1.25rem 0; color: var(--text-light); font-size: 0.8rem;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        .footer-note {
+            text-align: center; padding: 1.5rem;
+            font-size: 0.75rem; color: var(--text-light);
+        }
+        .footer-note a { color: var(--text-muted); }
+
+        /* --- Forgot password inline form --- */
+        .forgot-section { display: none; }
+        .forgot-section.active { display: block; }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            font-size: 0.85rem; color: var(--text-muted); text-decoration: none;
+            margin-bottom: 1rem;
+        }
+        .back-link:hover { color: var(--primary); }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="hero">
+        <img src="/logo.png" alt="KS Polonia" class="hero-logo">
+        <h1>KS Polonia Hamburg</h1>
+        <p>Mitgliederportal</p>
+    </div>
+
+    <div class="main">
         <div class="login-card">
-            <div class="logo">
-                <div class="logo-icon">⚽</div>
-                <h1>KS Polonia Hamburg</h1>
-                <p>Mitgliederportal</p>
-            </div>
             <div id="alert" class="alert"></div>
-            <form id="loginForm">
-                <div class="field">
-                    <label for="email">E-Mail-Adresse</label>
-                    <input type="email" id="email" name="email" required placeholder="max@example.de" autocomplete="email">
+
+            <!-- Login Form -->
+            <div id="loginSection">
+                <form id="loginForm">
+                    <div class="field">
+                        <label for="email">E-Mail-Adresse</label>
+                        <input type="email" id="email" name="email" required placeholder="max@example.de" autocomplete="email" inputmode="email">
+                    </div>
+                    <div class="field">
+                        <label for="password">Passwort</label>
+                        <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">Anmelden</button>
+                </form>
+                <div class="links">
+                    <a href="#" id="forgotLink">Passwort vergessen?</a>
+                    <div class="divider">oder</div>
+                    <a href="/mitgliedsantrag/" class="signup-link">Mitglied werden →</a>
                 </div>
-                <div class="field">
-                    <label for="password">Passwort</label>
-                    <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
-                </div>
-                <button type="submit" class="submit-btn" id="submitBtn">Anmelden</button>
-            </form>
-            <a href="#" class="forgot-link" id="forgotLink">Passwort vergessen?</a>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgotSection" class="forgot-section">
+                <a href="#" class="back-link" id="backToLogin">← Zurück zur Anmeldung</a>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                    Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.
+                </p>
+                <form id="forgotForm">
+                    <div class="field">
+                        <label for="forgotEmail">E-Mail-Adresse</label>
+                        <input type="email" id="forgotEmail" required placeholder="max@example.de" autocomplete="email" inputmode="email">
+                    </div>
+                    <button type="submit" class="submit-btn" id="forgotBtn">Link senden</button>
+                </form>
+            </div>
         </div>
     </div>
+
+    <div class="footer-note">
+        <a href="/">← Zurück zur Website</a> · © KS Polonia Hamburg e.V. 1988
+    </div>
+
     <script>
-        const form = document.getElementById('loginForm');
-        const alert = document.getElementById('alert');
-        const submitBtn = document.getElementById('submitBtn');
+        const loginSection = document.getElementById('loginSection');
+        const forgotSection = document.getElementById('forgotSection');
+        const alertEl = document.getElementById('alert');
 
         // Check for verified param
         if (new URLSearchParams(window.location.search).get('verified') === '1') {
             showAlert('E-Mail bestätigt! Sie können sich jetzt anmelden.', 'success');
         }
 
-        form.addEventListener('submit', async (e) => {
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Anmelden...';
-            alert.style.display = 'none';
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true; btn.textContent = 'Anmelden...';
+            alertEl.style.display = 'none';
             try {
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
@@ -77,39 +232,55 @@
                 });
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    window.location.href = data.is_admin ? '/api/admin/dashboard' : '/api/portal';
+                    window.location.href = '/api/portal';
                 } else {
                     showAlert(data.detail || 'Anmeldung fehlgeschlagen', 'error');
                 }
             } catch (err) {
                 showAlert('Verbindungsfehler', 'error');
             } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Anmelden';
+                btn.disabled = false; btn.textContent = 'Anmelden';
             }
         });
 
-        document.getElementById('forgotLink').addEventListener('click', async (e) => {
+        // Forgot password toggle
+        document.getElementById('forgotLink').addEventListener('click', (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            if (!email) { showAlert('Bitte geben Sie Ihre E-Mail-Adresse ein.', 'error'); return; }
+            loginSection.style.display = 'none';
+            forgotSection.classList.add('active');
+            const emailVal = document.getElementById('email').value;
+            if (emailVal) document.getElementById('forgotEmail').value = emailVal;
+        });
+        document.getElementById('backToLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotSection.classList.remove('active');
+            loginSection.style.display = 'block';
+        });
+
+        // Forgot password submit
+        document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('forgotBtn');
+            btn.disabled = true; btn.textContent = 'Wird gesendet...';
             try {
                 const res = await fetch('/api/auth/forgot-password', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email}),
+                    body: JSON.stringify({ email: document.getElementById('forgotEmail').value }),
                 });
                 const data = await res.json();
                 showAlert(data.message, 'success');
             } catch (err) {
                 showAlert('Fehler beim Senden', 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Link senden';
             }
         });
 
         function showAlert(msg, type) {
-            alert.textContent = msg;
-            alert.className = 'alert alert-' + type;
-            alert.style.display = 'block';
+            alertEl.textContent = msg;
+            alertEl.className = 'alert alert-' + type;
+            alertEl.style.display = 'block';
         }
     </script>
 </body>

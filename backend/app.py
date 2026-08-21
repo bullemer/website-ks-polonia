@@ -253,27 +253,33 @@ async def handle_membership(request: Request):
     nachname = form.get("nachname", "")
     email = form.get("email", "")
 
-    # --- File uploads ---
+    # --- File uploads (optional) ---
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     id_front = form.get("id_front")
     id_back = form.get("id_back")
 
-    if not id_front or not hasattr(id_front, "filename") or not id_front.filename:
-        return JSONResponse({"success": False, "error": "Bitte laden Sie die Vorderseite Ihres Ausweises hoch."})
-    if not id_back or not hasattr(id_back, "filename") or not id_back.filename:
-        return JSONResponse({"success": False, "error": "Bitte laden Sie die Rückseite Ihres Ausweises hoch."})
+    front_path = ""
+    back_path = ""
+    front_filename = ""
+    back_filename = ""
+    attachments = []
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    front_filename = f"{nachname}_{vorname}_Front_{timestamp}.jpg"
-    back_filename = f"{nachname}_{vorname}_Back_{timestamp}.jpg"
-    front_path = os.path.join(UPLOAD_DIR, front_filename)
-    back_path = os.path.join(UPLOAD_DIR, back_filename)
 
-    with open(front_path, "wb") as f:
-        f.write(await id_front.read())
-    with open(back_path, "wb") as f:
-        f.write(await id_back.read())
+    if id_front and hasattr(id_front, "filename") and id_front.filename:
+        front_filename = f"{nachname}_{vorname}_Front_{timestamp}.jpg"
+        front_path = os.path.join(UPLOAD_DIR, front_filename)
+        with open(front_path, "wb") as f:
+            f.write(await id_front.read())
+        attachments.append(front_path)
+
+    if id_back and hasattr(id_back, "filename") and id_back.filename:
+        back_filename = f"{nachname}_{vorname}_Back_{timestamp}.jpg"
+        back_path = os.path.join(UPLOAD_DIR, back_filename)
+        with open(back_path, "wb") as f:
+            f.write(await id_back.read())
+        attachments.append(back_path)
 
     # --- Insert into database ---
     try:
@@ -330,11 +336,19 @@ async def handle_membership(request: Request):
         if bemerkungen:
             body += f"Bemerkungen:\n{bemerkungen}\n"
         body += "\n"
+
+    body += "=== 6. AUSWEISDOKUMENTE ===\n"
+    if front_filename or back_filename:
+        body += f"Storage: {UPLOAD_DIR}/\n"
+        if front_filename:
+            body += f"1. Vorderseite: {front_filename}\n"
+        if back_filename:
+            body += f"2. Rückseite: {back_filename}\n"
+    else:
+        body += "⚠ Keine Dokumente hochgeladen — Nachreichung über Mitgliederportal ausstehend.\n"
+    body += "\n"
+
     body += (
-        f"=== 6. AUSWEISDOKUMENTE (SICHERER UPLOAD) ===\n"
-        f"Storage: {UPLOAD_DIR}/\n"
-        f"1. Vorderseite: {front_filename}\n"
-        f"2. Rückseite: {back_filename}\n\n"
         f"=== 7. ZUSTIMMUNGEN ===\n"
         f"✓ DSGVO und BDSG zugestimmt.\n"
         f"✓ Rechtsverbindlichkeit des Antrags bestätigt.\n\n"
@@ -344,7 +358,7 @@ async def handle_membership(request: Request):
     success, error_msg = send_email(
         subject=email_subject, text_body=body,
         reply_to_email=email, reply_to_name=f"{vorname} {nachname}",
-        attachments=[front_path, back_path],
+        attachments=attachments if attachments else None,
     )
     if success:
         return JSONResponse({"success": True, "message": "Vielen Dank! Ihr Antrag wurde erfolgreich übermittelt."})

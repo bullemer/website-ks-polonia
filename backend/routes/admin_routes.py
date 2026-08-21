@@ -148,8 +148,18 @@ async def admin_list_divisions(request: Request):
             LEFT JOIN teams t ON t.division_id = d.id
             GROUP BY d.id ORDER BY d.sort_order
         """)
+        teams = await conn.fetch("""
+            SELECT t.*, COUNT(mt.member_id) FILTER (WHERE mt.status = 'active') as member_count
+            FROM teams t LEFT JOIN member_teams mt ON mt.team_id = t.id
+            GROUP BY t.id ORDER BY t.sort_order
+        """)
+    divisions = [dict(r) for r in rows]
+    teams_list = [dict(t) for t in teams]
+    # Group teams by division_id
+    for d in divisions:
+        d["teams"] = [t for t in teams_list if t.get("division_id") == d["id"]]
     return templates.TemplateResponse(request, "admin_divisions.html", {
-        "divisions": [dict(r) for r in rows],
+        "divisions": divisions,
     })
 
 
@@ -197,6 +207,49 @@ async def admin_list_teams(request: Request, division_id: Optional[int] = None):
     return JSONResponse({"teams": [dict(r) for r in rows]})
 
 
+@router.get("/teams/{team_id}")
+async def admin_team_detail(request: Request, team_id: int):
+    """Team detail page with member roster management."""
+    require_admin(request)
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        team = await conn.fetchrow("""
+            SELECT t.*, d.name as division_name, d.icon as division_icon
+            FROM teams t LEFT JOIN divisions d ON d.id = t.division_id
+            WHERE t.id = $1
+        """, team_id)
+        if not team:
+            raise HTTPException(status_code=404, detail="Team nicht gefunden")
+
+        # Get team members with their roles
+        team_members = await conn.fetch("""
+            SELECT mt.id as assignment_id, mt.role, mt.position, mt.jersey_number, mt.status,
+                   m.id as member_id, m.vorname, m.nachname, m.email, m.mitgliedsnummer
+            FROM member_teams mt
+            JOIN members m ON m.id = mt.member_id
+            WHERE mt.team_id = $1 AND mt.status = 'active'
+            ORDER BY
+                CASE mt.role WHEN 'trainer' THEN 1 WHEN 'co-trainer' THEN 2 WHEN 'manager' THEN 3 ELSE 4 END,
+                m.nachname
+        """, team_id)
+
+        # Get all active members for the add-member dropdown
+        all_members = await conn.fetch("""
+            SELECT id, vorname, nachname, mitgliedsnummer FROM members
+            WHERE is_active = TRUE ORDER BY nachname, vorname
+        """)
+
+        # Get all divisions for breadcrumb
+        divisions = await conn.fetch("SELECT id, name, icon FROM divisions WHERE is_active = TRUE ORDER BY sort_order")
+
+    return templates.TemplateResponse(request, "admin_team_detail.html", {
+        "team": dict(team),
+        "team_members": [dict(m) for m in team_members],
+        "all_members": [dict(m) for m in all_members],
+        "divisions": [dict(d) for d in divisions],
+    })
+
+
 @router.post("/teams")
 async def admin_create_team(request: Request, data: TeamCreate):
     require_admin(request)
@@ -225,16 +278,30 @@ async def admin_update_team(request: Request, team_id: int, data: TeamUpdate):
     return JSONResponse({"success": True})
 
 
+@router.delete("/teams/{team_id}")
+async def admin_delete_team(request: Request, team_id: int):
+    """Permanently delete a team and all member assignments."""
+    require_admin(request)
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        exists = await conn.fetchval("SELECT id FROM teams WHERE id = $1", team_id)
+        if not exists:
+            raise HTTPException(status_code=404, detail="Team nicht gefunden")
+        await conn.execute("DELETE FROM member_teams WHERE team_id = $1", team_id)
+        await conn.execute("DELETE FROM teams WHERE id = $1", team_id)
+    return JSONResponse({"success": True, "message": "Team gelöscht"})
+
+
 @router.post("/teams/{team_id}/members")
 async def admin_assign_member(request: Request, team_id: int, data: TeamMemberAssign):
     require_admin(request)
     pool = await get_pool()
     async with pool.acquire() as conn:
         await conn.execute(
-            """INSERT INTO member_teams (member_id, team_id, position, jersey_number)
-               VALUES ($1,$2,$3,$4) ON CONFLICT (member_id, team_id)
-               DO UPDATE SET position=$3, jersey_number=$4, status='active', left_at=NULL""",
-            data.member_id, team_id, data.position or "", data.jersey_number,
+            """INSERT INTO member_teams (member_id, team_id, position, jersey_number, role)
+               VALUES ($1,$2,$3,$4,$5) ON CONFLICT (member_id, team_id)
+               DO UPDATE SET position=$3, jersey_number=$4, role=$5, status='active', left_at=NULL""",
+            data.member_id, team_id, data.position or "", data.jersey_number, data.role or "player",
         )
     return JSONResponse({"success": True})
 
@@ -245,7 +312,7 @@ async def admin_remove_member(request: Request, team_id: int, member_id: int):
     pool = await get_pool()
     async with pool.acquire() as conn:
         await conn.execute(
-            "UPDATE member_teams SET status='inactive', left_at=CURRENT_DATE WHERE member_id=$1 AND team_id=$2",
+            "DELETE FROM member_teams WHERE member_id=$1 AND team_id=$2",
             member_id, team_id,
         )
     return JSONResponse({"success": True})

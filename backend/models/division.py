@@ -87,3 +87,4 @@ class TeamMemberAssign(BaseModel):
     member_id: int
     position: Optional[str] = ""
     jersey_number: Optional[int] = None
+    role: Optional[str] = "player"  # player, trainer, co-trainer, manager

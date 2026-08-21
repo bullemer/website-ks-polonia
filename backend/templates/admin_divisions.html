@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abteilungen – KS Polonia Admin</title>
+    <title>Abteilungen & Teams – KS Polonia Admin</title>
     <style>
-        :root { --primary: #DC143C; --bg: #0f1117; --surface: #1a1d27; --surface-hover: #22252f; --border: #2a2d3a; --text: #e4e4e7; --text-muted: #9ca3af; --success: #22c55e; }
+        :root { --primary: #DC143C; --bg: #0f1117; --surface: #1a1d27; --surface-hover: #22252f; --border: #2a2d3a; --text: #e4e4e7; --text-muted: #9ca3af; --success: #22c55e; --warning: #f59e0b; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
         .layout { display: flex; min-height: 100vh; }
@@ -17,23 +17,69 @@
         .nav-link:hover, .nav-link.active { background: var(--surface-hover); color: #fff; border-left-color: var(--primary); }
         .nav-link .icon { font-size: 1.1rem; width: 24px; text-align: center; }
         .main { margin-left: 260px; flex: 1; padding: 2rem; }
-        .page-header { margin-bottom: 1.5rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
         .page-header h1 { font-size: 1.8rem; font-weight: 700; }
-        .div-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
-        .div-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: transform 0.15s, border-color 0.2s; }
-        .div-card:hover { transform: translateY(-2px); border-color: var(--primary); }
-        .div-card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-        .div-card-icon { font-size: 2.5rem; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(220,20,60,0.08); border-radius: 14px; }
-        .div-card-info h3 { font-size: 1.15rem; font-weight: 700; }
-        .div-card-info p { font-size: 0.82rem; color: var(--text-muted); }
-        .div-stats { display: flex; gap: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-        .div-stat { text-align: center; }
-        .div-stat .num { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
-        .div-stat .lbl { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
-        .badge-status { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; margin-left: 0.5rem; }
-        .badge-active { background: rgba(34,197,94,0.15); color: var(--success); }
-        .badge-inactive { background: rgba(239,68,68,0.15); color: #ef4444; }
-        @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .div-grid { grid-template-columns: 1fr; } }
+
+        /* Division Cards */
+        .div-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1.25rem; overflow: hidden; }
+        .div-card-header { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; cursor: pointer; transition: background 0.15s; }
+        .div-card-header:hover { background: var(--surface-hover); }
+        .div-icon { font-size: 2rem; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: rgba(220,20,60,0.08); border-radius: 12px; flex-shrink: 0; }
+        .div-info { flex: 1; }
+        .div-info h3 { font-size: 1.1rem; font-weight: 700; }
+        .div-info p { font-size: 0.82rem; color: var(--text-muted); }
+        .div-meta { display: flex; gap: 1rem; }
+        .div-meta .pill { padding: 0.25rem 0.7rem; border-radius: 8px; font-size: 0.78rem; font-weight: 600; background: rgba(220,20,60,0.08); color: var(--primary); }
+        .caret-icon { width: 18px; height: 18px; color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0; }
+        .div-card.open .caret-icon { transform: rotate(180deg); }
+
+        /* Teams list inside division */
+        .div-teams { display: none; border-top: 1px solid var(--border); padding: 0; }
+        .div-card.open .div-teams { display: block; }
+        .team-row { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1.5rem; border-bottom: 1px solid var(--border); transition: background 0.12s; }
+        .team-row:last-child { border-bottom: none; }
+        .team-row:hover { background: var(--surface-hover); }
+        .team-name { font-weight: 600; font-size: 0.92rem; flex: 1; }
+        .team-name a { color: var(--text); text-decoration: none; }
+        .team-name a:hover { color: var(--primary); }
+        .team-meta { font-size: 0.78rem; color: var(--text-muted); }
+        .team-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
+        .tb-active { background: rgba(34,197,94,0.12); color: var(--success); }
+        .tb-inactive { background: rgba(239,68,68,0.12); color: #ef4444; }
+
+        /* Buttons */
+        .btn { padding: 0.5rem 1rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #b91c1c; }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+        .btn-ghost { background: none; border: 1px solid var(--border); color: var(--text-muted); }
+        .btn-ghost:hover { border-color: var(--text); color: var(--text); }
+        .btn-danger { background: none; border: 1px solid var(--border); color: var(--text-muted); }
+        .btn-danger:hover { background: rgba(239,68,68,0.12); border-color: #ef4444; color: #ef4444; }
+        .actions { display: flex; gap: 0.35rem; }
+
+        /* Add team form row */
+        .add-team-row { padding: 0.85rem 1.5rem; background: rgba(0,0,0,0.15); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .add-team-row input, .add-team-row select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.45rem 0.7rem; border-radius: 6px; font-size: 0.82rem; }
+        .add-team-row input:focus, .add-team-row select:focus { outline: none; border-color: var(--primary); }
+
+        /* Alert */
+        .alert { position: fixed; top: 1rem; right: 1rem; padding: 0.8rem 1.25rem; border-radius: 10px; font-size: 0.88rem; font-weight: 500; z-index: 999; display: none; }
+        .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+        /* Modal */
+        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 900; align-items: center; justify-content: center; }
+        .modal-bg.show { display: flex; }
+        .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 2rem; width: 90%; max-width: 500px; }
+        .modal h3 { font-size: 1.1rem; margin-bottom: 1.25rem; }
+        .modal .form-group { margin-bottom: 1rem; }
+        .modal label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .modal input, .modal select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.88rem; }
+        .modal input:focus, .modal select:focus { outline: none; border-color: var(--primary); }
+        .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
+
+        @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; padding: 1rem; } }
     </style>
 </head>
 <body>
@@ -44,38 +90,160 @@
             <a href="/api/admin/members" class="nav-link"><span class="icon">👥</span> Mitglieder</a>
             <a href="/api/admin/applications" class="nav-link"><span class="icon">📋</span> Anträge</a>
             <a href="/api/admin/divisions" class="nav-link active"><span class="icon">🏆</span> Abteilungen</a>
+            <a href="/api/tickets/admin" class="nav-link"><span class="icon">🎫</span> Dauerkarten</a>
             <a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
         </nav>
         <main class="main">
             <div class="page-header">
                 <h1>Abteilungen & Mannschaften</h1>
             </div>
-            <div class="div-grid">
-                {% for d in divisions %}
-                <div class="div-card">
-                    <div class="div-card-header">
-                        <div class="div-card-icon">{{ d.icon }}</div>
-                        <div class="div-card-info">
-                            <h3>{{ d.name }}
-                                <span class="badge-status {% if d.is_active %}badge-active{% else %}badge-inactive{% endif %}">{{ 'Aktiv' if d.is_active else 'Inaktiv' }}</span>
-                            </h3>
-                            <p>{{ d.description or d.sport }}</p>
+
+            {% for d in divisions %}
+            <div class="div-card" id="div-{{ d.id }}">
+                <div class="div-card-header" onclick="toggleDiv({{ d.id }})">
+                    <div class="div-icon">{{ d.icon }}</div>
+                    <div class="div-info">
+                        <h3>{{ d.name }}</h3>
+                        <p>{{ d.description or d.sport }}</p>
+                    </div>
+                    <div class="div-meta">
+                        <span class="pill">{{ d.member_count }} Mitglieder</span>
+                        <span class="pill">{{ d.team_count }} Teams</span>
+                    </div>
+                    <svg class="caret-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                <div class="div-teams">
+                    {% if d.teams %}
+                    {% for t in d.teams %}
+                    <div class="team-row" id="team-row-{{ t.id }}">
+                        <span class="team-name"><a href="/api/admin/teams/{{ t.id }}">{{ t.mannschaftsname }}</a></span>
+                        <span class="team-meta">{{ t.mannschaftsart }}</span>
+                        <span class="team-meta">{{ t.spielklasse or '' }}</span>
+                        <span class="team-badge {% if t.is_active %}tb-active{% else %}tb-inactive{% endif %}">{{ 'Aktiv' if t.is_active else 'Inaktiv' }}</span>
+                        <span class="team-meta">{{ t.member_count }} Mitgl.</span>
+                        <div class="actions">
+                            <button class="btn btn-ghost btn-sm" onclick="editTeam({{ t.id }}, '{{ t.mannschaftsname }}', '{{ t.mannschaftsart }}', '{{ t.spielklasse or '' }}', '{{ t.coach or '' }}')">✏️</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTeam({{ t.id }}, '{{ t.mannschaftsname }}')">🗑️</button>
                         </div>
                     </div>
-                    <div class="div-stats">
-                        <div class="div-stat">
-                            <div class="num">{{ d.member_count }}</div>
-                            <div class="lbl">Mitglieder</div>
-                        </div>
-                        <div class="div-stat">
-                            <div class="num">{{ d.team_count }}</div>
-                            <div class="lbl">Mannschaften</div>
-                        </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="team-row"><span class="team-meta" style="text-align:center;width:100%;padding:1rem;font-style:italic;">Noch keine Mannschaften</span></div>
+                    {% endif %}
+                    <!-- Add team inline form -->
+                    <div class="add-team-row">
+                        <input type="text" id="new-team-name-{{ d.id }}" placeholder="Mannschaftsname" style="flex:1;min-width:120px">
+                        <input type="text" id="new-team-art-{{ d.id }}" placeholder="Art (z.B. Herren)" style="width:120px">
+                        <input type="text" id="new-team-liga-{{ d.id }}" placeholder="Spielklasse" style="width:120px">
+                        <button class="btn btn-primary btn-sm" onclick="addTeam({{ d.id }})">+ Team</button>
                     </div>
                 </div>
-                {% endfor %}
             </div>
+            {% endfor %}
         </main>
     </div>
+
+    <!-- Edit Team Modal -->
+    <div class="modal-bg" id="editModal">
+        <div class="modal">
+            <h3>Team bearbeiten</h3>
+            <input type="hidden" id="edit-id">
+            <div class="form-group">
+                <label>Mannschaftsname</label>
+                <input type="text" id="edit-name">
+            </div>
+            <div class="form-group">
+                <label>Mannschaftsart</label>
+                <input type="text" id="edit-art">
+            </div>
+            <div class="form-group">
+                <label>Spielklasse</label>
+                <input type="text" id="edit-liga">
+            </div>
+            <div class="form-group">
+                <label>Trainer</label>
+                <input type="text" id="edit-coach">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="saveTeam()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <script>
+    function toggleDiv(id) {
+        document.getElementById('div-' + id).classList.toggle('open');
+    }
+
+    function showAlert(msg, ok) {
+        const a = document.getElementById('alert');
+        a.textContent = msg;
+        a.className = 'alert ' + (ok ? 'alert-success' : 'alert-error');
+        a.style.display = 'block';
+        setTimeout(() => a.style.display = 'none', 3000);
+    }
+
+    // --- Add Team ---
+    async function addTeam(divId) {
+        const name = document.getElementById('new-team-name-' + divId).value.trim();
+        const art = document.getElementById('new-team-art-' + divId).value.trim();
+        const liga = document.getElementById('new-team-liga-' + divId).value.trim();
+        if (!name) return showAlert('Bitte Mannschaftsname eingeben', false);
+        const res = await fetch('/api/admin/teams', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ division_id: divId, mannschaftsname: name, mannschaftsart: art || name, spielklasse: liga }),
+        });
+        const data = await res.json();
+        if (data.success) { showAlert('Team erstellt'); setTimeout(() => location.reload(), 800); }
+        else showAlert(data.detail || 'Fehler', false);
+    }
+
+    // --- Edit Team ---
+    function editTeam(id, name, art, liga, coach) {
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-name').value = name;
+        document.getElementById('edit-art').value = art;
+        document.getElementById('edit-liga').value = liga;
+        document.getElementById('edit-coach').value = coach;
+        document.getElementById('editModal').classList.add('show');
+    }
+    function closeModal() { document.getElementById('editModal').classList.remove('show'); }
+
+    async function saveTeam() {
+        const id = document.getElementById('edit-id').value;
+        const res = await fetch('/api/admin/teams/' + id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                mannschaftsname: document.getElementById('edit-name').value,
+                mannschaftsart: document.getElementById('edit-art').value,
+                spielklasse: document.getElementById('edit-liga').value,
+                coach: document.getElementById('edit-coach').value,
+            }),
+        });
+        const data = await res.json();
+        if (data.success) { showAlert('Team aktualisiert'); closeModal(); setTimeout(() => location.reload(), 800); }
+        else showAlert(data.detail || 'Fehler', false);
+    }
+
+    // --- Delete Team ---
+    async function deleteTeam(id, name) {
+        if (!confirm('Team "' + name + '" endgültig löschen?\n\nAlle Mitglieder-Zuordnungen werden entfernt.')) return;
+        const res = await fetch('/api/admin/teams/' + id, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) { showAlert('Team gelöscht'); setTimeout(() => location.reload(), 800); }
+        else showAlert(data.detail || 'Fehler', false);
+    }
+
+    // Auto-open first division
+    document.addEventListener('DOMContentLoaded', () => {
+        const first = document.querySelector('.div-card');
+        if (first) first.classList.add('open');
+    });
+    </script>
 </body>
 </html>

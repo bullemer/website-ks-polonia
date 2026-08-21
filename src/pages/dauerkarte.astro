@@ -1,0 +1,374 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Dauerkarte" description="Sichere dir deine digitale Dauerkarte für alle Heimspiele der KS Polonia Hamburg. Einfach online beantragen und auf dem Smartphone vorzeigen.">
+
+    <div class="dk-hero">
+        <div class="dk-hero-content">
+            <span class="dk-badge">⚽ Saison 2026/2027</span>
+            <h1>Dauerkarte</h1>
+            <p class="dk-subtitle">Deine digitale Eintrittskarte für alle Heimspiele der KS Polonia Hamburg an der Finkenau.</p>
+            <div class="dk-hero-actions">
+                <a href="/api/tickets/signup" class="dk-btn dk-btn-primary">Jetzt beantragen →</a>
+                <a href="/api/tickets/login" class="dk-btn dk-btn-outline">Bereits Inhaber? Anmelden</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="dk-features">
+        <div class="dk-feature">
+            <div class="dk-feature-icon">📱</div>
+            <h3>Digital auf deinem Smartphone</h3>
+            <p>Deine Dauerkarte ist immer dabei – als QR-Code auf deinem Handy. Kein Papierticket, kein Vergessen.</p>
+        </div>
+        <div class="dk-feature">
+            <div class="dk-feature-icon">🏟️</div>
+            <h3>Alle Heimspiele inklusive</h3>
+            <p>Zugang zu allen Pflichtspiel-Heimspielen der laufenden Saison auf unserem Sportplatz an der Finkenau.</p>
+        </div>
+        <div class="dk-feature">
+            <div class="dk-feature-icon">⚡</div>
+            <h3>Schnell & unkompliziert</h3>
+            <p>Online beantragen, genehmigt werden und sofort loslegen. Zugangsdaten erhältst du per E-Mail.</p>
+        </div>
+    </div>
+
+    <div class="dk-steps">
+        <h2>So funktioniert's</h2>
+        <div class="dk-steps-grid">
+            <div class="dk-step">
+                <div class="dk-step-num">1</div>
+                <h4>Online beantragen</h4>
+                <p>Fülle das kurze Formular aus – Name, E-Mail, fertig. Du musst kein Vereinsmitglied sein.</p>
+            </div>
+            <div class="dk-step">
+                <div class="dk-step-num">2</div>
+                <h4>Genehmigung erhalten</h4>
+                <p>Unser Vorstand prüft deinen Antrag. Du erhältst eine E-Mail mit deinen Zugangsdaten.</p>
+            </div>
+            <div class="dk-step">
+                <div class="dk-step-num">3</div>
+                <h4>Dauerkarte vorzeigen</h4>
+                <p>Melde dich an und zeige deinen QR-Code am Eingang vor. Fertig – viel Spaß beim Spiel!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dk-cta">
+        <div class="dk-cta-card">
+            <div class="dk-cta-text">
+                <h2>Bereit für die neue Saison?</h2>
+                <p>Sichere dir jetzt deine Dauerkarte für die Saison 2026/2027 und verpasse kein Heimspiel.</p>
+            </div>
+            <a href="/api/tickets/signup" class="dk-btn dk-btn-primary dk-btn-lg">Dauerkarte beantragen →</a>
+        </div>
+    </div>
+
+    <div class="dk-faq">
+        <h2>Häufige Fragen</h2>
+        <details class="dk-faq-item">
+            <summary>Muss ich Vereinsmitglied sein, um eine Dauerkarte zu kaufen?</summary>
+            <p>Nein! Die Dauerkarte steht allen offen – egal ob Vereinsmitglied oder nicht. Wir freuen uns über jeden Supporter.</p>
+        </details>
+        <details class="dk-faq-item">
+            <summary>Wie erhalte ich meine Dauerkarte?</summary>
+            <p>Nach der Genehmigung erhältst du eine E-Mail mit deinen Zugangsdaten. Damit meldest du dich im Dauerkarten-Portal an und hast Zugriff auf deine digitale Karte mit QR-Code.</p>
+        </details>
+        <details class="dk-faq-item">
+            <summary>Kann ich die Dauerkarte auf mehreren Geräten nutzen?</summary>
+            <p>Ja, du kannst dich auf jedem Gerät mit deinen Zugangsdaten anmelden und den QR-Code vorzeigen.</p>
+        </details>
+        <details class="dk-faq-item">
+            <summary>Für welche Spiele gilt die Dauerkarte?</summary>
+            <p>Die Dauerkarte gilt für alle Pflichtspiel-Heimspiele der KS Polonia Hamburg in der jeweiligen Saison.</p>
+        </details>
+        <details class="dk-faq-item">
+            <summary>Was passiert, wenn ich mein Passwort vergesse?</summary>
+            <p>Kontaktiere uns unter <a href="mailto:info@ks-polonia.de">info@ks-polonia.de</a> und wir setzen dein Passwort zurück.</p>
+        </details>
+    </div>
+
+</Layout>
+
+<style>
+    /* ═══════════════════════════════════════
+       DAUERKARTE PAGE STYLES
+       ═══════════════════════════════════════ */
+    .dk-hero {
+        background: linear-gradient(145deg, #DC143C 0%, #8B0000 60%, #5c0018 100%);
+        border-radius: 16px;
+        padding: 3.5rem 2.5rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2.5rem;
+    }
+    .dk-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
+    .dk-hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 600px;
+    }
+    .dk-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        background: rgba(255,255,255,0.15);
+        border-radius: 99px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .dk-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 0.75rem;
+    }
+    .dk-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.85;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    .dk-hero-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .dk-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.85rem 1.75rem;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+        font-family: inherit;
+    }
+    .dk-btn-primary {
+        background: #fff;
+        color: #DC143C;
+    }
+    .dk-btn-primary:hover {
+        background: #f0f0f0;
+        color: #a50e2d;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .dk-btn-outline {
+        background: transparent;
+        color: #fff;
+        border: 2px solid rgba(255,255,255,0.4);
+    }
+    .dk-btn-outline:hover {
+        border-color: #fff;
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+    }
+    .dk-btn-lg {
+        padding: 1rem 2rem;
+        font-size: 1.05rem;
+    }
+
+    /* Features */
+    .dk-features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    .dk-feature {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        padding: 1.75rem;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .dk-feature:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .dk-feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .dk-feature h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--color-text);
+    }
+    .dk-feature p {
+        font-size: 0.88rem;
+        color: var(--color-text-muted);
+        line-height: 1.5;
+    }
+
+    /* Steps */
+    .dk-steps {
+        margin-bottom: 3rem;
+    }
+    .dk-steps h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .dk-steps-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+    .dk-step {
+        position: relative;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    .dk-step-num {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #DC143C, #a50e2d);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 800;
+        margin: 0 auto 1rem;
+    }
+    .dk-step h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+    }
+    .dk-step p {
+        font-size: 0.88rem;
+        color: var(--color-text-muted);
+        line-height: 1.5;
+    }
+
+    /* CTA */
+    .dk-cta {
+        margin-bottom: 3rem;
+    }
+    .dk-cta-card {
+        background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 16px;
+        padding: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+    }
+    .dk-cta-text h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+    .dk-cta-text p {
+        font-size: 0.95rem;
+        color: #9ca3af;
+        line-height: 1.5;
+    }
+    .dk-cta .dk-btn-primary {
+        flex-shrink: 0;
+        background: #DC143C;
+        color: #fff;
+    }
+    .dk-cta .dk-btn-primary:hover {
+        background: #a50e2d;
+        color: #fff;
+    }
+
+    /* FAQ */
+    .dk-faq {
+        max-width: 700px;
+        margin: 0 auto 2rem;
+    }
+    .dk-faq h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.25rem;
+        text-align: center;
+    }
+    .dk-faq-item {
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        margin-bottom: 0.6rem;
+        overflow: hidden;
+    }
+    .dk-faq-item summary {
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.92rem;
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.15s;
+    }
+    .dk-faq-item summary:hover {
+        background: rgba(220,20,60,0.03);
+    }
+    .dk-faq-item summary::after {
+        content: '+';
+        font-size: 1.2rem;
+        font-weight: 400;
+        color: var(--color-text-muted);
+        transition: transform 0.2s;
+    }
+    .dk-faq-item[open] summary::after {
+        transform: rotate(45deg);
+    }
+    .dk-faq-item summary::-webkit-details-marker {
+        display: none;
+    }
+    .dk-faq-item p {
+        padding: 0 1.25rem 1rem;
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dk-hero {
+            padding: 2.5rem 1.5rem;
+        }
+        .dk-hero h1 {
+            font-size: 1.8rem;
+        }
+        .dk-features {
+            grid-template-columns: 1fr;
+        }
+        .dk-steps-grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+        .dk-cta-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+    }
+</style>

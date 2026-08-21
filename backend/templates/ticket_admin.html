@@ -79,7 +79,7 @@
             <h2>📋 Alle Dauerkarten ({{ season }})</h2>
             {% if all_tickets %}
             <table>
-                <thead><tr><th>Name</th><th>E-Mail</th><th>Ticket-Nr.</th><th>Status</th><th>Datum</th></tr></thead>
+                <thead><tr><th>Name</th><th>E-Mail</th><th>Ticket-Nr.</th><th>Status</th><th>Datum</th><th>Aktion</th></tr></thead>
                 <tbody>
                 {% for t in all_tickets %}
                 <tr>
@@ -92,6 +92,7 @@
                         </span>
                     </td>
                     <td data-label="Datum">{{ t.created_at[:10] if t.created_at else '—' }}</td>
+                    <td data-label="Aktion"><button class="btn btn-no btn-sm" onclick="deleteHolder({{ t.holder_id }}, '{{ t.vorname }} {{ t.nachname }}')">🗑️</button></td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -119,6 +120,18 @@
                 if (row) row.style.opacity = '0.3';
                 setTimeout(() => window.location.reload(), 1500);
             }
+        } catch(e) { a.textContent = 'Fehler'; a.className = 'alert alert-error'; a.style.display = 'block'; }
+    }
+    async function deleteHolder(id, name) {
+        if (!confirm('Dauerkarten-Inhaber "' + name + '" und alle Tickets endgültig löschen?')) return;
+        const a = document.getElementById('alert');
+        try {
+            const res = await fetch('/api/admin/ticket-holders/' + id, { method: 'DELETE' });
+            const result = await res.json();
+            a.textContent = result.message || result.detail;
+            a.className = 'alert alert-' + (result.success ? 'success' : 'error');
+            a.style.display = 'block';
+            if (result.success) setTimeout(() => window.location.reload(), 1000);
         } catch(e) { a.textContent = 'Fehler'; a.className = 'alert alert-error'; a.style.display = 'block'; }
     }
     </script>

@@ -41,6 +41,8 @@
         .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-style: italic; }
         a { color: var(--text); text-decoration: none; }
         a:hover { color: var(--primary); }
+        .btn-del { background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; padding: 0.3rem 0.5rem; font-size: 0.85rem; transition: all 0.15s; }
+        .btn-del:hover { background: rgba(239,68,68,0.15); border-color: #ef4444; }
         @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } }
     </style>
 </head>
@@ -52,6 +54,7 @@
             <a href="/api/admin/members" class="nav-link active"><span class="icon">👥</span> Mitglieder</a>
             <a href="/api/admin/applications" class="nav-link"><span class="icon">📋</span> Anträge</a>
             <a href="/api/admin/divisions" class="nav-link"><span class="icon">🏆</span> Abteilungen</a>
+            <a href="/api/tickets/admin" class="nav-link"><span class="icon">🎫</span> Dauerkarten</a>
             <a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
         </nav>
         <main class="main">
@@ -85,6 +88,7 @@
                         <th>Typ</th>
                         <th>Status</th>
                         <th>Eintritt</th>
+                        <th style="width:70px">Aktion</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,6 +104,7 @@
                         </td>
                         <td><span class="badge {% if m.is_active %}badge-active{% else %}badge-inactive{% endif %}">{{ 'Aktiv' if m.is_active else 'Inaktiv' }}</span></td>
                         <td>{{ m.eintrittsdatum or '—' }}</td>
+                        <td><button class="btn-del" onclick="deleteMember({{ m.id }}, '{{ m.vorname }} {{ m.nachname }}')" title="Löschen">🗑️</button></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -117,5 +122,18 @@
             {% endif %}
         </main>
     </div>
+    <div id="alert" style="display:none;position:fixed;top:1rem;right:1rem;padding:.8rem 1.25rem;border-radius:10px;font-size:.88rem;font-weight:500;z-index:999;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0"></div>
+    <script>
+    async function deleteMember(id, name) {
+        if (!confirm('Mitglied "' + name + '" endgültig löschen?\n\nAlle Daten (Zahlungen, Teams, etc.) werden unwiderruflich entfernt.')) return;
+        const res = await fetch('/api/admin/members/' + id, { method: 'DELETE' });
+        const data = await res.json();
+        const a = document.getElementById('alert');
+        a.textContent = data.message || data.detail;
+        a.style.display = 'block';
+        if (data.success) setTimeout(() => window.location.reload(), 1000);
+        else { a.style.background = '#fef2f2'; a.style.color = '#991b1b'; a.style.borderColor = '#fecaca'; }
+    }
+    </script>
 </body>
 </html>

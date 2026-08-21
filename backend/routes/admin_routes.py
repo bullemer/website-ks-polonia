@@ -104,10 +104,22 @@ async def admin_update_member(request: Request, member_id: int, updates: MemberA
 
 
 @router.delete("/members/{member_id}")
-async def admin_deactivate_member(request: Request, member_id: int):
+async def admin_delete_member(request: Request, member_id: int):
+    """Permanently delete a member and all related data."""
     require_admin(request)
-    await member_service.update_member_profile(member_id, {"is_active": False})
-    return JSONResponse({"success": True, "message": "Mitglied deaktiviert"})
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        # Check member exists
+        exists = await conn.fetchval("SELECT id FROM members WHERE id = $1", member_id)
+        if not exists:
+            raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+        # Delete in order (cascading relations first)
+        await conn.execute("DELETE FROM member_payments WHERE member_id = $1", member_id)
+        await conn.execute("DELETE FROM member_teams WHERE member_id = $1", member_id)
+        await conn.execute("DELETE FROM member_divisions WHERE member_id = $1", member_id)
+        await conn.execute("DELETE FROM member_bank_accounts WHERE member_id = $1", member_id)
+        await conn.execute("DELETE FROM members WHERE id = $1", member_id)
+    return JSONResponse({"success": True, "message": "Mitglied endgültig gelöscht"})
 
 
 @router.put("/members/{member_id}/admin")
@@ -321,3 +333,18 @@ async def admin_delete_payment(request: Request, payment_id: int):
         raise HTTPException(status_code=404)
     return JSONResponse({"success": True, "message": "Zahlung gelöscht"})
 
+
+# --- Season Ticket Holder Delete ---
+
+@router.delete("/ticket-holders/{holder_id}")
+async def admin_delete_ticket_holder(request: Request, holder_id: int):
+    """Permanently delete a season ticket holder and all their tickets."""
+    require_admin(request)
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        exists = await conn.fetchval("SELECT id FROM season_ticket_holders WHERE id = $1", holder_id)
+        if not exists:
+            raise HTTPException(status_code=404, detail="Dauerkarten-Inhaber nicht gefunden")
+        await conn.execute("DELETE FROM season_tickets WHERE holder_id = $1", holder_id)
+        await conn.execute("DELETE FROM season_ticket_holders WHERE id = $1", holder_id)
+    return JSONResponse({"success": True, "message": "Dauerkarten-Inhaber gelöscht"})

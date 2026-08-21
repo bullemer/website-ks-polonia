@@ -9,3 +9,5 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.2.1
 python-jose[cryptography]==3.3.0
 a2wsgi==1.10.4
+fpdf2==2.8.8
+qrcode[pil]==8.2

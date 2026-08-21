@@ -227,12 +227,33 @@ async def ticket_review(request: Request, ticket_id: int, data: TicketReviewRequ
         if not result:
             raise HTTPException(status_code=404, detail="Ticket nicht gefunden oder bereits bearbeitet")
 
-        # Send approval email with credentials
+        # Generate PDF ticket
+        from services.ticket_pdf import generate_ticket_pdf
+        from config import UPLOAD_DIR
+        import os
+
+        pdf_bytes = generate_ticket_pdf(
+            vorname=result["vorname"],
+            nachname=result["nachname"],
+            ticket_code=result["ticket_code"],
+            season=result["season"],
+            seat_info=data.seat_info or "",
+        )
+
+        # Save PDF to disk
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        pdf_filename = f"Dauerkarte_{result['ticket_code'].replace('-', '_')}.pdf"
+        pdf_path = os.path.join(UPLOAD_DIR, pdf_filename)
+        with open(pdf_path, "wb") as f:
+            f.write(pdf_bytes)
+
+        # Send approval email with PDF attachment
         body = (
             f"Hallo {result['vorname']},\n\n"
             f"Ihre Dauerkarte für die Saison {result['season']} wurde genehmigt! 🎉\n\n"
             f"Ticket-Nummer: {result['ticket_code']}\n\n"
-            f"Digitale Dauerkarte anzeigen:\n"
+            f"Ihre digitale Dauerkarte finden Sie als PDF im Anhang dieser E-Mail.\n"
+            f"Sie können sie auch jederzeit online anzeigen:\n"
             f"{SITE_URL}/api/tickets/login\n\n"
         )
         if result["temp_password"]:
@@ -250,10 +271,10 @@ async def ticket_review(request: Request, ticket_id: int, data: TicketReviewRequ
         send_email(
             subject=f"Dauerkarte genehmigt – {result['season']}",
             text_body=body,
-            reply_to_email=result["email"],
-            reply_to_name=f"{result['vorname']} {result['nachname']}",
+            to_email=result["email"],
+            attachments=[pdf_path],
         )
-        return JSONResponse({"success": True, "message": f"Genehmigt. E-Mail an {result['email']} gesendet."})
+        return JSONResponse({"success": True, "message": f"Genehmigt. PDF + E-Mail an {result['email']} gesendet."})
 
     elif data.status == "rejected":
         ok = await ticket_service.reject_ticket(ticket_id, admin["email"], data.admin_notes or "")

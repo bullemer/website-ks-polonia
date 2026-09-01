@@ -6,9 +6,9 @@ import WeatherWidget from '../components/WeatherWidget.astro';
 import FAQ from '../components/FAQ.astro';
 import YouTube from '../components/YouTube.astro';
 import startpageData from '../content/startpage/index.json';
+import heroImage from '../assets/images/fussball-finkenau.jpg';
 
 const allNews = await getCollection('news');
-const allPages = await getCollection('pages');
 
 // Sort news by date (newest first), fallback to title
 const sortedNews = allNews.sort((a, b) => {
@@ -25,16 +25,45 @@ const latestNews = sortedNews.slice(0, 6);
     description="KS Polonia Hamburg e.V. 1988 – Polnischer Sportverein (polski klub sportowy) in Hamburg-Uhlenhorst. Fußball, Basketball und Badminton für Kinder, Jugendliche und Erwachsene. Probetraining jederzeit möglich!"
     type="website"
 >
-    <!-- Hero Section -->
-    <section class="hero">
+    <!-- Hero Section with Background Image -->
+    <section class="hero" id="hero">
+        <Image 
+            src={heroImage} 
+            alt="Fußballplatz an der Finkenau – KS Polonia Hamburg" 
+            class="hero-bg"
+            width={1400}
+            height={600}
+            loading="eager"
+        />
+        <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1>{startpageData.heroTitle}</h1>
             <p class="hero-subtitle">{startpageData.heroSubtitle}</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-number">1988</span>
+                    <span class="hero-stat-label">Gegründet</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">3</span>
+                    <span class="hero-stat-label">Sportarten</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">15+</span>
+                    <span class="hero-stat-label">Mannschaften</span>
+                </div>
+            </div>
+            <a href="/seiten/probetraining" class="hero-cta" id="hero-cta">
+                Kostenloses Probetraining anfragen
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
         </div>
     </section>
 
     <!-- Latest News -->
-    <section class="section">
+    <section class="section" id="news">
         <div class="section-header">
             <h2>Aktuelle Nachrichten</h2>
             <a href="/news" class="view-all">Alle anzeigen →</a>
@@ -78,7 +107,7 @@ const latestNews = sortedNews.slice(0, 6);
     </section>
 
     <!-- Active City Day 2026 Video -->
-    <section class="section">
+    <section class="section" id="video">
         <div class="section-header">
             <h2>Active City Day 2026 – KS Polonia macht mit! 🎬</h2>
         </div>
@@ -94,38 +123,37 @@ const latestNews = sortedNews.slice(0, 6);
         </div>
     </section>
 
-    <!-- Gameday Dashboard (Matches + Weather) -->
-    <section class="section">
-        <div class="dashboard-grid">
-            <!-- Next Matches Widget -->
-            <div class="dashboard-card">
-                <div class="section-header" style="margin-bottom: 1rem;">
-                    <h2>Nächste Spiele</h2>
-                    <a href="/spieltermine" class="view-all">Alle Termine →</a>
-                </div>
-                <div class="matches-widget-container" style="background: var(--color-surface); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); height: 100%;">
-                    <script is:inline type="text/javascript" src="https://www.fussball.de/widgets.js"></script>
-                    <div 
-                      class="fussballde_widget"
-                      data-id="576e80b1-c9b0-4ea0-a1ca-b7bcf6a4b9b7"
-                      data-type="club-matches"
-                      style="width: 100%"
-                    ></div>
-                </div>
-            </div>
+    <!-- Weather & Pitch Status — Compact Inline Bar -->
+    <section class="section" id="weather-status">
+        <WeatherWidget />
+    </section>
 
-            <!-- Weather & Status Widget -->
-            <div class="dashboard-card">
-                <div class="section-header" style="margin-bottom: 1rem;">
-                    <h2>Wetter & Platzstatus</h2>
-                </div>
-                <WeatherWidget />
-            </div>
+    <!-- Next Matches — Full-Width, Height-Capped -->
+    <section class="section" id="matches">
+        <div class="section-header">
+            <h2>Nächste Spiele</h2>
+            <a href="/spieltermine" class="view-all">Alle Termine →</a>
+        </div>
+        <div class="matches-container" id="matches-container">
+            <script is:inline type="text/javascript" src="https://www.fussball.de/widgets.js"></script>
+            <div 
+              class="fussballde_widget"
+              data-id="576e80b1-c9b0-4ea0-a1ca-b7bcf6a4b9b7"
+              data-type="club-matches"
+              style="width: 100%"
+            ></div>
+            <div class="matches-fade"></div>
+        </div>
+        <div class="matches-show-more">
+            <button class="matches-toggle-btn" id="matchesToggle" type="button">
+                Mehr Spiele anzeigen
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
         </div>
     </section>
 
-    <!-- Unsere Sportarten – SEO: Internal Links to key sport pages -->
-    <section class="section">
+    <!-- Unsere Sportarten – 2×2 Grid -->
+    <section class="section" id="sportarten">
         <div class="section-header">
             <h2>Unsere Sportarten in Uhlenhorst &amp; Barmbek</h2>
         </div>
@@ -157,8 +185,28 @@ const latestNews = sortedNews.slice(0, 6);
         </div>
     </section>
 
+    <!-- Mitmachen CTA Banner -->
+    <section class="section" id="mitmachen">
+        <div class="cta-banner">
+            <div class="cta-banner-content">
+                <h2>Werde Teil der Polonia-Familie! 🇵🇱</h2>
+                <p>Egal ob Fußball, Basketball oder Badminton – bei KS Polonia ist jeder willkommen. Komm einfach zum kostenlosen Probetraining vorbei!</p>
+                <div class="cta-banner-buttons">
+                    <a href="/seiten/probetraining" class="cta-btn cta-btn--primary" id="cta-probetraining">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Probetraining anfragen
+                    </a>
+                    <a href="/mitgliedsantrag" class="cta-btn cta-btn--secondary" id="cta-mitglied">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        Mitglied werden
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Häufig gestellte Fragen (FAQ) -->
-    <section class="section">
+    <section class="section" id="faq">
         <FAQ items={[
             {
                 question: "Muss man Polnisch sprechen, um bei KS Polonia zu spielen?",
@@ -187,44 +235,173 @@ const latestNews = sortedNews.slice(0, 6);
         ]} />
     </section>
 
-    <!-- Pages Overview -->
-    <section class="section">
+    <!-- So findest du uns – Google Maps + Contact Info -->
+    <section class="section" id="anfahrt">
         <div class="section-header">
-            <h2>Seiten</h2>
-            <a href="/seiten" class="view-all">Alle anzeigen →</a>
+            <h2>So findest du uns</h2>
         </div>
-        <div class="pages-grid">
-            {allPages.slice(0, 8).map((page) => (
-                <a href={`/seiten/${page.id}`} class="page-link">
-                    {page.data.title}
-                </a>
-            ))}
+        <div class="location-grid">
+            <div class="location-map">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2369.5!2d10.026131!3d53.568461!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47b18f1b5e8a4c27%3A0x4a3c8d6e8b4b4a0a!2sFinkenau%2038%2C%2022081%20Hamburg!5e0!3m2!1sde!2sde!4v1234567890"
+                    width="100%"
+                    height="100%"
+                    style="border:0; border-radius: var(--radius);"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="KS Polonia Hamburg – Sportplatz Finkenau 38"
+                ></iframe>
+            </div>
+            <div class="location-info">
+                <div class="location-detail">
+                    <div class="location-icon">📍</div>
+                    <div>
+                        <strong>Sportplatz Finkenau</strong>
+                        <p>Finkenau 38, 22081 Hamburg</p>
+                    </div>
+                </div>
+                <div class="location-detail">
+                    <div class="location-icon">🚇</div>
+                    <div>
+                        <strong>U-Bahn Mundsburg (U3)</strong>
+                        <p>5 Minuten Fußweg</p>
+                    </div>
+                </div>
+                <div class="location-detail">
+                    <div class="location-icon">⚽</div>
+                    <div>
+                        <strong>Training & Spieltage</strong>
+                        <p>Mo–So nach Spielplan</p>
+                        <a href="/trainingszeiten" class="location-link">Trainingszeiten ansehen →</a>
+                    </div>
+                </div>
+                <div class="location-detail">
+                    <div class="location-icon">✉️</div>
+                    <div>
+                        <strong>Kontakt</strong>
+                        <p>info@ks-polonia.de</p>
+                        <a href="/kontakt" class="location-link">Kontaktformular →</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </Layout>
 
 <style>
+    /* ═══════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════ */
     .hero {
-        background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
-        color: white;
-        padding: 4rem 2rem;
+        position: relative;
         border-radius: var(--radius);
         margin-bottom: 3rem;
+        overflow: hidden;
+        min-height: 420px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .hero-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+    }
+    .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            135deg, 
+            rgba(139, 0, 0, 0.85) 0%, 
+            rgba(220, 20, 60, 0.7) 40%, 
+            rgba(26, 26, 46, 0.8) 100%
+        );
+        z-index: 1;
+    }
+    .hero-content {
+        position: relative;
+        z-index: 2;
         text-align: center;
-        box-shadow: 0 8px 32px rgba(220,20,60,0.25);
+        color: white;
+        padding: 4rem 2rem;
+        max-width: 800px;
     }
     .hero h1 {
         font-size: 2.8rem;
         font-weight: 800;
         letter-spacing: -0.03em;
         margin-bottom: 0.5rem;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.3);
     }
     .hero-subtitle {
         font-size: 1.15rem;
-        opacity: 0.9;
+        opacity: 0.92;
         font-weight: 400;
+        margin-bottom: 2rem;
     }
 
+    /* Stats Badges */
+    .hero-stats {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    .hero-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.15rem;
+    }
+    .hero-stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+    }
+    .hero-stat-label {
+        font-size: 0.78rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.8;
+    }
+    .hero-stat-divider {
+        width: 1px;
+        height: 40px;
+        background: rgba(255,255,255,0.3);
+    }
+
+    /* CTA Button */
+    .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: white;
+        color: var(--color-primary);
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 0.85rem 1.75rem;
+        border-radius: 50px;
+        text-decoration: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .hero-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 28px rgba(0,0,0,0.3);
+        color: var(--color-primary-dark);
+    }
+
+    /* ═══════════════════════════════════════
+       SECTIONS
+       ═══════════════════════════════════════ */
     .section {
         margin-bottom: 3rem;
     }
@@ -245,21 +422,9 @@ const latestNews = sortedNews.slice(0, 6);
         font-weight: 500;
     }
 
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    @media (min-width: 900px) {
-        .dashboard-grid {
-            grid-template-columns: 2fr 1fr;
-        }
-    }
-    .dashboard-card {
-        display: flex;
-        flex-direction: column;
-    }
-
+    /* ═══════════════════════════════════════
+       NEWS GRID
+       ═══════════════════════════════════════ */
     .news-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -334,69 +499,9 @@ const latestNews = sortedNews.slice(0, 6);
         letter-spacing: 0.03em;
     }
 
-    .pages-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-    }
-    .page-link {
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        padding: 0.6rem 1rem;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: var(--color-text);
-        transition: background 0.15s, border-color 0.15s;
-    }
-    .page-link:hover {
-        background: rgba(220,20,60,0.04);
-        border-color: var(--color-primary);
-        color: var(--color-primary);
-    }
-
-    /* Sports Section */
-    .sports-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 1.25rem;
-    }
-    .sport-card {
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius);
-        padding: 1.5rem;
-        text-decoration: none;
-        color: inherit;
-        transition: box-shadow 0.25s, transform 0.2s, border-color 0.2s;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        position: relative;
-        overflow: hidden;
-    }
-    .sport-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 4px;
-        border-radius: var(--radius) var(--radius) 0 0;
-    }
-    .sport-card--basketball::before { background: linear-gradient(90deg, #f97316, #ea580c); }
-    .sport-card--fussball::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
-    .sport-card--badminton::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
-    .sport-card:hover {
-        box-shadow: var(--shadow-md);
-        transform: translateY(-3px);
-        border-color: var(--color-primary);
-        color: inherit;
-    }
-    .sport-icon { font-size: 2rem; line-height: 1; }
-    .sport-card h3 { font-size: 1.1rem; font-weight: 700; margin: 0; }
-    .sport-card p { font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; flex: 1; }
-    .sport-cta { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); margin-top: 0.5rem; }
-
-    /* Video Highlight Section */
+    /* ═══════════════════════════════════════
+       VIDEO HIGHLIGHT
+       ═══════════════════════════════════════ */
     .video-highlight {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -448,11 +553,275 @@ const latestNews = sortedNews.slice(0, 6);
         text-decoration: underline;
     }
 
-    @media (max-width: 600px) {
-        .hero { padding: 3rem 1.5rem; }
+    /* ═══════════════════════════════════════
+       MATCHES — FULL WIDTH, HEIGHT CAPPED
+       ═══════════════════════════════════════ */
+    .matches-container {
+        position: relative;
+        max-height: 520px;
+        overflow: hidden;
+        background: var(--color-surface);
+        padding: 1.5rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--color-border);
+        box-shadow: var(--shadow-sm);
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .matches-container.expanded {
+        max-height: 4000px;
+    }
+    .matches-fade {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 80px;
+        background: linear-gradient(transparent, var(--color-surface));
+        pointer-events: none;
+        transition: opacity 0.3s;
+    }
+    .matches-container.expanded .matches-fade {
+        opacity: 0;
+    }
+
+    .matches-show-more {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    .matches-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border);
+        color: var(--color-text);
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 0.6rem 1.25rem;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .matches-toggle-btn:hover {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+        background: rgba(220,20,60,0.04);
+    }
+    .matches-toggle-btn.expanded svg {
+        transform: rotate(180deg);
+    }
+
+    /* ═══════════════════════════════════════
+       SPORTS SECTION — 2×2 Grid
+       ═══════════════════════════════════════ */
+    .sports-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+    .sport-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        transition: box-shadow 0.25s, transform 0.2s, border-color 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .sport-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .sport-card--basketball::before { background: linear-gradient(90deg, #f97316, #ea580c); }
+    .sport-card--fussball::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .sport-card--badminton::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .sport-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-3px);
+        border-color: var(--color-primary);
+        color: inherit;
+    }
+    .sport-icon { font-size: 2rem; line-height: 1; }
+    .sport-card h3 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+    .sport-card p { font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; flex: 1; }
+    .sport-cta { font-size: 0.85rem; font-weight: 600; color: var(--color-primary); margin-top: 0.5rem; }
+
+    /* ═══════════════════════════════════════
+       MITMACHEN CTA BANNER
+       ═══════════════════════════════════════ */
+    .cta-banner {
+        background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #1a1a2e 100%);
+        border-radius: var(--radius);
+        padding: 3rem 2rem;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(220,20,60,0.2);
+    }
+    .cta-banner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .cta-banner::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .cta-banner-content {
+        position: relative;
+        z-index: 1;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .cta-banner h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.02em;
+    }
+    .cta-banner p {
+        font-size: 1rem;
+        opacity: 0.9;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    .cta-banner-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cta-btn:hover {
+        transform: translateY(-2px);
+    }
+    .cta-btn--primary {
+        background: white;
+        color: var(--color-primary);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .cta-btn--primary:hover {
+        box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+        color: var(--color-primary-dark);
+    }
+    .cta-btn--secondary {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        border: 1.5px solid rgba(255,255,255,0.4);
+        backdrop-filter: blur(4px);
+    }
+    .cta-btn--secondary:hover {
+        background: rgba(255,255,255,0.25);
+        color: white;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    /* ═══════════════════════════════════════
+       LOCATION / GOOGLE MAPS
+       ═══════════════════════════════════════ */
+    .location-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 1.5rem;
+        min-height: 360px;
+    }
+    .location-map {
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+        box-shadow: var(--shadow-sm);
+        min-height: 360px;
+    }
+    .location-map iframe {
+        display: block;
+    }
+    .location-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 0.5rem 0;
+    }
+    .location-detail {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    .location-icon {
+        font-size: 1.5rem;
+        line-height: 1;
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(220,20,60,0.06);
+        border-radius: 10px;
+    }
+    .location-detail strong {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 0.15rem;
+    }
+    .location-detail p {
+        font-size: 0.88rem;
+        color: var(--color-text-muted);
+        margin: 0;
+        line-height: 1.4;
+    }
+    .location-link {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        margin-top: 0.2rem;
+        display: inline-block;
+    }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════ */
+    @media (max-width: 768px) {
+        .hero { min-height: 360px; }
+        .hero-content { padding: 3rem 1.5rem; }
         .hero h1 { font-size: 2rem; }
+        .hero-stats { gap: 1rem; }
+        .hero-stat-number { font-size: 1.6rem; }
+        .hero-cta { font-size: 0.9rem; padding: 0.75rem 1.5rem; }
+
         .news-grid { grid-template-columns: 1fr; }
         .sports-grid { grid-template-columns: 1fr; }
+
         .video-highlight {
             grid-template-columns: 1fr;
         }
@@ -461,5 +830,25 @@ const latestNews = sortedNews.slice(0, 6);
             max-width: 320px;
             margin: 0 auto;
         }
+
+        .location-grid { grid-template-columns: 1fr; }
+        .location-map { min-height: 280px; }
+
+        .cta-banner { padding: 2rem 1.5rem; }
+        .cta-banner h2 { font-size: 1.4rem; }
     }
 </style>
+
+<script>
+    // Toggle matches expand/collapse
+    const toggleBtn = document.getElementById('matchesToggle');
+    const matchesContainer = document.getElementById('matches-container');
+
+    toggleBtn?.addEventListener('click', () => {
+        const isExpanded = matchesContainer?.classList.toggle('expanded');
+        toggleBtn.classList.toggle('expanded');
+        toggleBtn.innerHTML = isExpanded 
+            ? 'Weniger Spiele <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="6 9 12 15 18 9"/></svg>'
+            : 'Mehr Spiele anzeigen <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="6 9 12 15 18 9"/></svg>';
+    });
+</script>

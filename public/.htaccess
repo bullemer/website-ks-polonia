@@ -23,7 +23,8 @@
   # ============================================
 
   # Basketball pages
-  RewriteRule ^basketball-fuer-kinder-in-hamburg-uhlenhorst/?$ /seiten/basketball-jugend-u10 [R=301,L]
+  RewriteRule ^seiten/basketball-jugend-u10/?$ /seiten/basketball-jugend-u12 [R=301,L]
+  RewriteRule ^basketball-fuer-kinder-in-hamburg-uhlenhorst/?$ /seiten/basketball-jugend-u12 [R=301,L]
   RewriteRule ^basketball-hamburg-herren-ue35/?$ /seiten/basketball-herren-ue35 [R=301,L]
 
   # News articles (old WordPress /YYYY/MM/DD/slug/ format → new /news/slug)

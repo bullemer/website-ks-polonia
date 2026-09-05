@@ -435,8 +435,8 @@ async def sync_team_to_website(team_id: int) -> Dict[str, Any]:
 
     if team_id == 11 or "e-junioren" in w_url or "1.e" in m_name:
         target_files.append(os.path.join(_REPO_ROOT, "src", "content", "teams", "e-junioren.mdoc"))
-    elif team_id == 12 or "u10" in w_url or "u10" in m_name:
-        target_files.append(os.path.join(_REPO_ROOT, "src", "content", "pages", "basketball-jugend-u10", "index.mdoc"))
+    elif team_id == 12 or "u12" in w_url or "u12" in m_name or "u10" in w_url or "u10" in m_name:
+        target_files.append(os.path.join(_REPO_ROOT, "src", "content", "pages", "basketball-jugend-u12", "index.mdoc"))
     elif team_id == 13 or "ue35" in w_url or "ü35" in m_name or "ue35" in m_name:
         target_files.append(os.path.join(_REPO_ROOT, "src", "content", "pages", "basketball-herren-ue35", "index.mdoc"))
     else:

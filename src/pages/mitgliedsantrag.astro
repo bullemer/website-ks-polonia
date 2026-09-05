@@ -75,13 +75,13 @@ import Layout from '../layouts/Layout.astro';
         </div>
 
         <div class="form-section">
-            <h2>3. Vereinseintritt & Abteilungen</h2>
+            <h2>3. Vereinseintritt & Sparte / Abteilungen</h2>
             <div class="form-group">
                 <label for="eintrittsdatum">Gewünschtes Vereinseintrittsdatum *</label>
                 <input type="date" id="eintrittsdatum" name="eintrittsdatum" required />
             </div>
             <div class="form-group full-width">
-                <label>Abteilungen (Mehrfachauswahl möglich)</label>
+                <label>Sparte / Abteilung wählen * (Mehrfachauswahl möglich)</label>
                 <div class="checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" name="abteilungen[]" value="Badminton" /> Badminton
@@ -97,6 +97,16 @@ import Layout from '../layouts/Layout.astro';
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="abteilungen[]" value="Fußball Jugend" /> Fußball Jugend
+                    </label>
+                    <label class="checkbox-label highlight-passive">
+                        <input type="checkbox" name="abteilungen[]" value="Passive Mitglieder" id="passiveMemberCheck" />
+                        <div class="passive-badge-text">
+                            <div>
+                                <strong>Passive Mitglieder</strong>
+                                <span class="badge-tag">Fördermitgliedschaft</span>
+                            </div>
+                            <span class="passive-subtext">Sie möchten KS Polonia Hamburg unterstützen, ohne aktiv am Trainings- oder Spielbetrieb teilzunehmen.</span>
+                        </div>
                     </label>
                 </div>
             </div>
@@ -179,6 +189,24 @@ import Layout from '../layouts/Layout.astro';
         const form = document.getElementById('membershipForm') as HTMLFormElement;
         const statusDiv = document.getElementById('formStatus');
         const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+        const passiveCheck = document.getElementById('passiveMemberCheck') as HTMLInputElement | null;
+        const sportsChecks = document.querySelectorAll('input[name="abteilungen[]"]:not(#passiveMemberCheck)') as NodeListOf<HTMLInputElement>;
+
+        // Toggle logic: Selecting passive membership clears active sports, and vice versa
+        if (passiveCheck) {
+            passiveCheck.addEventListener('change', () => {
+                if (passiveCheck.checked) {
+                    sportsChecks.forEach(cb => { cb.checked = false; });
+                }
+            });
+            sportsChecks.forEach(cb => {
+                cb.addEventListener('change', () => {
+                    if (cb.checked && passiveCheck.checked) {
+                        passiveCheck.checked = false;
+                    }
+                });
+            });
+        }
 
         if (form && statusDiv && submitBtn) {
             form.addEventListener('submit', async (e) => {
@@ -195,6 +223,14 @@ import Layout from '../layouts/Layout.astro';
                     // The server expects 'abteilungen' as a comma-separated string,
                     // so we need to convert the multiple 'abteilungen[]' entries.
                     const abteilungen = formData.getAll('abteilungen[]');
+                    if (abteilungen.length === 0) {
+                        statusDiv.style.display = 'block';
+                        statusDiv.className = 'form-status error';
+                        statusDiv.textContent = 'Bitte wählen Sie mindestens eine Sparte oder die passive Mitgliedschaft aus.';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Antrag absenden';
+                        return;
+                    }
                     formData.delete('abteilungen[]'); // Remove individual entries
                     formData.append('abteilungen', abteilungen.join(', ')); // Add as a single string
 
@@ -343,6 +379,44 @@ import Layout from '../layouts/Layout.astro';
         width: 16px;
         height: 16px;
         accent-color: var(--color-primary);
+    }
+
+    .highlight-passive {
+        width: 100%;
+        background: #fdf2f4;
+        border: 1.5px solid rgba(220, 20, 60, 0.25);
+        border-radius: 8px;
+        padding: 0.85rem 1rem;
+        margin-top: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    .highlight-passive:hover {
+        background: #fce7eb;
+        border-color: var(--color-primary);
+    }
+    .passive-badge-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    .badge-tag {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: var(--color-primary);
+        color: #fff;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        margin-left: 0.4rem;
+        vertical-align: middle;
+    }
+    .passive-subtext {
+        display: block;
+        font-size: 0.82rem;
+        color: #555;
+        line-height: 1.4;
     }
 
     .consent-section {

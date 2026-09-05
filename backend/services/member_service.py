@@ -47,6 +47,15 @@ async def create_member_from_application(
 
     async with pool.acquire() as conn:
         async with conn.transaction():
+            # Determine membership_level based on selected divisions
+            level = "regular"
+            if abteilungen:
+                div_lower = abteilungen.lower()
+                if "passiv" in div_lower:
+                    has_active = any(s in div_lower for s in ["fußball", "fussball", "basketball", "badminton", "volleyball"])
+                    if not has_active:
+                        level = "passive"
+
             # Insert member
             member_id = await conn.fetchval(
                 """
@@ -59,14 +68,14 @@ async def create_member_from_application(
                     $1, $2, $3, $4, $5,
                     $6, $7, $8, $9, $10, $11,
                     $12, $13, $14,
-                    $15, $16, FALSE, 'regular'
+                    $15, $16, FALSE, $17
                 )
                 RETURNING id
                 """,
                 mitgliedsnummer, vorname, nachname, email, telefon or "",
                 strasse, plz, ort, land, geb_date, geschlecht,
                 ein_date, id_front_path, id_back_path,
-                trainer_referenz or "", bemerkungen or "",
+                trainer_referenz or "", bemerkungen or "", level,
             )
 
             # Create application record
@@ -507,6 +516,10 @@ def _map_division_name(form_value: str) -> str:
         "Fußball Herren": "Fußball",
         "Fußball Jugend": "Fußball",
         "Volleyball": "Volleyball",
+        "Passive Mitglieder": "Passive Mitglieder",
+        "Passives Mitglied": "Passive Mitglieder",
+        "Passive Mitgliedschaft": "Passive Mitglieder",
+        "Passiv": "Passive Mitglieder",
     }
     return mapping.get(form_value, form_value)
 

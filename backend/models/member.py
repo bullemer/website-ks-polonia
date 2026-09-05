@@ -36,6 +36,9 @@ class MemberProfileUpdate(BaseModel):
     plz: Optional[str] = None
     ort: Optional[str] = None
     land: Optional[str] = None
+    geburtsdatum: Optional[str] = None
+    geschlecht: Optional[str] = None
+    eintrittsdatum: Optional[str] = None
 
 
 class MemberAdminUpdate(BaseModel):

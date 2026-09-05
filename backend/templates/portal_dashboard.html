@@ -192,27 +192,41 @@
         <!-- PROFIL -->
         <div class="section" id="s-profil">
             <div class="card">
-                <h3>👤 Persönliche Daten</h3>
-                <div class="dg">
-                    <div class="di"><div class="lb">Vorname</div><div class="vl">{{ member.vorname }}</div></div>
-                    <div class="di"><div class="lb">Nachname</div><div class="vl">{{ member.nachname }}</div></div>
-                    <div class="di"><div class="lb">E-Mail</div><div class="vl">{{ member.email }}</div></div>
-                    <div class="di"><div class="lb">Telefon</div><div class="vl">{{ member.telefon or '—' }}</div></div>
-                    <div class="di"><div class="lb">Geburtsdatum</div><div class="vl">{{ member.geburtsdatum or '—' }}</div></div>
-                    <div class="di"><div class="lb">Geschlecht</div><div class="vl">{{ member.geschlecht or '—' }}</div></div>
+                <div style="margin-bottom:1rem;">
+                    <h3 style="margin-bottom:0.2rem;">👤 Persönliche Daten & Adresse</h3>
+                    <p style="font-size:0.84rem;color:var(--tm);">Hier können Sie Ihre persönlichen Kontaktdaten, Geburtsdatum, Eintrittsdatum und Anschrift bearbeiten. Änderungen werden sofort in Ihrem Profil und Ihrer offiziellen Mitgliedsbescheinigung wirksam.</p>
                 </div>
-            </div>
-            <div class="card">
-                <h3>📍 Adresse ändern</h3>
-                <form id="addressForm">
+                <form id="profileForm">
                     <div class="fgrid">
-                        <div class="fg full"><label>Straße</label><input type="text" name="strasse" value="{{ member.strasse or '' }}"></div>
-                        <div class="fg"><label>PLZ</label><input type="text" name="plz" value="{{ member.plz or '' }}"></div>
-                        <div class="fg"><label>Ort</label><input type="text" name="ort" value="{{ member.ort or '' }}"></div>
-                        <div class="fg"><label>Land</label><input type="text" name="land" value="{{ member.land or 'Deutschland' }}"></div>
-                        <div class="fg"><label>Telefon</label><input type="tel" name="telefon" value="{{ member.telefon or '' }}"></div>
+                        <div class="fg"><label>Vorname</label><input type="text" name="vorname" value="{{ member.vorname or '' }}" required></div>
+                        <div class="fg"><label>Nachname</label><input type="text" name="nachname" value="{{ member.nachname or '' }}" required></div>
+                        <div class="fg full"><label>E-Mail-Adresse (Login)</label><input type="email" value="{{ member.email }}" disabled style="background:#f3f4f6;cursor:not-allowed;" title="Ihre registrierte E-Mail-Adresse"></div>
+                        <div class="fg"><label>Telefon / WhatsApp</label><input type="tel" name="telefon" value="{{ member.telefon or '' }}" placeholder="z. B. 0176 12345678"></div>
+                        <div class="fg"><label>Geschlecht</label>
+                            <select name="geschlecht">
+                                <option value="">Bitte wählen...</option>
+                                <option value="männlich" {% if member.geschlecht == 'männlich' %}selected{% endif %}>männlich</option>
+                                <option value="weiblich" {% if member.geschlecht == 'weiblich' %}selected{% endif %}>weiblich</option>
+                                <option value="divers" {% if member.geschlecht == 'divers' %}selected{% endif %}>divers</option>
+                            </select>
+                        </div>
+                        <div class="fg"><label>Geburtsdatum</label><input type="date" name="geburtsdatum" value="{{ member.geburtsdatum or '' }}"></div>
+                        <div class="fg"><label>Eintrittsdatum</label><input type="date" name="eintrittsdatum" value="{{ member.eintrittsdatum or '' }}"></div>
                     </div>
-                    <div class="btn-row"><button type="submit" class="btn btn-p">Speichern</button></div>
+
+                    <h4 style="margin: 1.25rem 0 0.5rem; font-size: 0.95rem; color: var(--t); border-top: 1px solid var(--b); padding-top: 1rem;">📍 Anschrift</h4>
+                    <div class="fgrid">
+                        <div class="fg full"><label>Straße & Hausnummer</label><input type="text" name="strasse" value="{{ member.strasse or '' }}" placeholder="z. B. Finkenau 38"></div>
+                        <div class="fg"><label>Postleitzahl (PLZ)</label><input type="text" name="plz" value="{{ member.plz or '' }}" placeholder="z. B. 22081"></div>
+                        <div class="fg"><label>Wohnort</label><input type="text" name="ort" value="{{ member.ort or '' }}" placeholder="z. B. Hamburg"></div>
+                        <div class="fg"><label>Land</label><input type="text" name="land" value="{{ member.land or 'Deutschland' }}"></div>
+                    </div>
+
+                    <div class="btn-row" style="margin-top:1.25rem;">
+                        <button type="submit" class="btn btn-p" id="saveProfileBtn">
+                            💾 Profil & Adresse speichern
+                        </button>
+                    </div>
                 </form>
             </div>
             <div class="card">
@@ -484,13 +498,36 @@
         document.getElementById('qrContainer').innerHTML = qr.createImgTag(3, 0);
     })();
 
-    // Address form
-    document.getElementById('addressForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(e.target));
-        const result = await submitJSON('/api/member/profile', data);
-        showGlobal(result.message || result.detail, result.success ? 'success' : 'error');
-    });
+    // Profile & Address form
+    const pForm = document.getElementById('profileForm') || document.getElementById('addressForm');
+    if (pForm) {
+        pForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveProfileBtn') || e.target.querySelector('button[type="submit"]');
+            if (btn) { btn.disabled = true; btn.textContent = 'Wird gespeichert...'; }
+            try {
+                const data = Object.fromEntries(new FormData(e.target));
+                const result = await submitJSON('/api/member/profile', data);
+                showGlobal(result.message || result.detail || 'Erfolgreich gespeichert', result.success ? 'success' : 'error');
+                if (result.success) {
+                    if (data.vorname && data.nachname) {
+                        const h1 = document.querySelector('.hero-head h1');
+                        if (h1) h1.textContent = data.vorname + ' ' + data.nachname;
+                        const cardName = document.querySelector('.mcard-name');
+                        if (cardName) cardName.textContent = data.vorname + ' ' + data.nachname;
+                    }
+                    if (data.eintrittsdatum) {
+                        const cardSince = document.querySelector('.mcard-info strong');
+                        if (cardSince) cardSince.textContent = data.eintrittsdatum;
+                    }
+                }
+            } catch(err) {
+                showGlobal('Verbindungsfehler beim Speichern des Profils.', 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '💾 Profil & Adresse speichern'; }
+            }
+        });
+    }
 
     // Bank form
     document.getElementById('bankForm').addEventListener('submit', async (e) => {
@@ -530,7 +567,7 @@
     function downloadCert() {
         const input = document.getElementById('certPurpose');
         const purpose = input ? encodeURIComponent(input.value.trim()) : '';
-        const url = '/api/member/certificate/pdf' + (purpose ? '?purpose=' + purpose : '');
+        const url = '/api/member/certificate/pdf?t=' + Date.now() + (purpose ? '&purpose=' + purpose : '');
         window.open(url, '_blank');
     }
 

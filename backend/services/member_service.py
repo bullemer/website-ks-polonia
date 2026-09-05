@@ -210,6 +210,14 @@ async def update_member_profile(member_id: int, updates: dict) -> bool:
     if "role" in fields:
         fields["is_admin"] = fields["role"] in ("superadmin", "admin")
 
+    # Safely convert date strings to date objects for PostgreSQL
+    for df in ("geburtsdatum", "eintrittsdatum"):
+        if df in fields:
+            if isinstance(fields[df], str):
+                fields[df] = _parse_date(fields[df]) if fields[df].strip() else None
+            elif not isinstance(fields[df], (datetime.date, datetime.datetime)):
+                fields[df] = None
+
     set_clauses = ", ".join(f"{k} = ${i+2}" for i, k in enumerate(fields.keys()))
     values = [member_id] + list(fields.values())
 

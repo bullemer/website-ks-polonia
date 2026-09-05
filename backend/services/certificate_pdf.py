@@ -95,21 +95,31 @@ def generate_membership_certificate(
     pdf.set_xy(25, 47)
     pdf.cell(100, 3.5, "K.S. Polonia Hamburg e.V. · Finkenau 38 · 22081 Hamburg", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
-    # Member Address
-    vorname = member.get("vorname", "")
-    nachname = member.get("nachname", "")
-    strasse = member.get("strasse", "")
-    plz = member.get("plz", "")
-    ort = member.get("ort", "Hamburg")
+    # Member Address & Name
+    vorname = (member.get("vorname") or "").strip()
+    nachname = (member.get("nachname") or "").strip()
+    full_name = f"{vorname} {nachname}".strip() or "Mitglied"
+
+    strasse = (member.get("strasse") or "").strip()
+    plz = (member.get("plz") or "").strip()
+    ort = (member.get("ort") or "").strip()
+    plz_ort = f"{plz} {ort}".strip()
+
+    addr_parts = []
+    if strasse:
+        addr_parts.append(strasse)
+    if plz_ort:
+        addr_parts.append(plz_ort)
+    addr_full = ", ".join(addr_parts) if addr_parts else "—"
 
     pdf.set_font(font_family, "", 10)
     pdf.set_text_color(30, 30, 30)
     pdf.set_xy(25, 53)
-    pdf.cell(100, 5, f"{vorname} {nachname}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(100, 5, full_name, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_x(25)
-    pdf.cell(100, 5, strasse or "—", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(100, 5, strasse if strasse else "—", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_x(25)
-    pdf.cell(100, 5, f"{plz} {ort}".strip() or "—", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(100, 5, plz_ort if plz_ort else "—", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     # Place & Date (Right-aligned)
     today_str = datetime.date.today().strftime("%d.%m.%Y")
@@ -150,7 +160,7 @@ def generate_membership_certificate(
     pdf.set_font(font_family, "B", 10)
     pdf.cell(36, 6, "Name:")
     pdf.set_font(font_family, "", 10)
-    pdf.cell(110, 6, f"{vorname} {nachname}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(110, 6, full_name, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     geb_date = _format_date(member.get("geburtsdatum"))
     pdf.set_x(30)
@@ -159,12 +169,11 @@ def generate_membership_certificate(
     pdf.set_font(font_family, "", 10)
     pdf.cell(110, 6, geb_date, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
-    addr_full = f"{strasse}, {plz} {ort}".strip(", ")
     pdf.set_x(30)
     pdf.set_font(font_family, "B", 10)
     pdf.cell(36, 6, "Anschrift:")
     pdf.set_font(font_family, "", 10)
-    pdf.cell(110, 6, addr_full or "—", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(110, 6, addr_full, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     # Continue text below the box
     pdf.set_y(box_start_y + 32)

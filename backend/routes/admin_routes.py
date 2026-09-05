@@ -473,5 +473,8 @@ async def admin_download_membership_certificate(request: Request, member_id: int
         media_type="application/pdf",
         headers={
             "Content-Disposition": f'inline; filename="{clean_name}"',
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
         },
     )

@@ -44,6 +44,8 @@ async def portal_dashboard(request: Request):
     bank = await member_service.get_bank_account(current["member_id"])
     payments = await member_service.get_member_payments(current["member_id"])
     payment_summary = await member_service.get_payment_summary(current["member_id"])
+    all_divisions = await member_service.get_all_divisions()
+    all_teams = await member_service.get_all_teams()
 
     # Enrich teams with roster, treasury and tasks
     teams_enriched = []
@@ -77,6 +79,8 @@ async def portal_dashboard(request: Request):
         "divisions": divisions,
         "teams": teams,
         "teams_enriched": teams_enriched,
+        "all_divisions": all_divisions,
+        "all_teams": all_teams,
         "bank": bank,
         "payments": payments,
         "payment_summary": payment_summary,
@@ -86,3 +90,4 @@ async def portal_dashboard(request: Request):
         "has_id_front": has_id_front,
         "has_id_back": has_id_back,
     })
+

@@ -262,17 +262,51 @@ async def get_bank_account(member_id: int) -> dict | None:
         return dict(row) if row else None
 
 
+async def get_all_divisions() -> list[dict]:
+    """Get all active divisions."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT id, name, sport, icon, description, sort_order
+            FROM divisions
+            WHERE is_active = TRUE
+            ORDER BY sort_order, id
+            """
+        )
+        return [dict(r) for r in rows]
+
+
+async def get_all_teams() -> list[dict]:
+    """Get all active teams with their division info."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT t.id, t.nummer, t.mannschaftsname, t.mannschaftsart, t.spielklasse,
+                   t.division_id, t.coach, t.training_times, t.training_location,
+                   d.name as division_name, d.icon as division_icon, d.sort_order as division_sort
+            FROM teams t
+            LEFT JOIN divisions d ON d.id = t.division_id
+            WHERE t.is_active = TRUE
+            ORDER BY d.sort_order, t.sort_order, t.id
+            """
+        )
+        return [dict(r) for r in rows]
+
+
 async def get_member_divisions(member_id: int) -> list[dict]:
     """Get all division memberships for a member."""
     pool = await get_pool()
     async with pool.acquire() as conn:
         rows = await conn.fetch(
             """
-            SELECT md.id, md.status, md.joined_at, d.name, d.sport, d.icon
+            SELECT md.id as assignment_id, md.status, md.joined_at,
+                   d.id as division_id, d.id, d.name, d.sport, d.icon
             FROM member_divisions md
             JOIN divisions d ON d.id = md.division_id
-            WHERE md.member_id = $1
-            ORDER BY d.sort_order
+            WHERE md.member_id = $1 AND md.status = 'active'
+            ORDER BY d.sort_order, d.id
             """,
             member_id,
         )
@@ -297,6 +331,90 @@ async def get_member_teams(member_id: int) -> list[dict]:
             member_id,
         )
         return [dict(r) for r in rows]
+
+
+async def set_member_divisions_and_teams(
+    member_id: int, division_ids: list[int], team_ids: list[int]
+) -> dict:
+    """
+    Update division and team assignments for a member.
+    Automatically includes divisions for any assigned teams.
+    Preserves existing roles (e.g. manager, trainer) when updating team assignments.
+    """
+    division_ids = list({int(x) for x in division_ids if x is not None})
+    team_ids = list({int(x) for x in team_ids if x is not None})
+
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            # 1. Auto-include divisions of selected teams
+            if team_ids:
+                team_divs = await conn.fetch(
+                    "SELECT DISTINCT division_id FROM teams WHERE id = ANY($1) AND division_id IS NOT NULL",
+                    team_ids,
+                )
+                for td in team_divs:
+                    if td["division_id"] and td["division_id"] not in division_ids:
+                        division_ids.append(td["division_id"])
+
+            # 2. Update member_divisions
+            if not division_ids:
+                await conn.execute("DELETE FROM member_divisions WHERE member_id = $1", member_id)
+            else:
+                await conn.execute(
+                    "DELETE FROM member_divisions WHERE member_id = $1 AND division_id != ALL($2)",
+                    member_id,
+                    division_ids,
+                )
+                for d_id in division_ids:
+                    await conn.execute(
+                        """
+                        INSERT INTO member_divisions (member_id, division_id, status, joined_at)
+                        VALUES ($1, $2, 'active', CURRENT_DATE)
+                        ON CONFLICT (member_id, division_id)
+                        DO UPDATE SET status = 'active'
+                        """,
+                        member_id,
+                        d_id,
+                    )
+
+            # 3. Update member_teams
+            if not team_ids:
+                await conn.execute("DELETE FROM member_teams WHERE member_id = $1", member_id)
+            else:
+                await conn.execute(
+                    "DELETE FROM member_teams WHERE member_id = $1 AND team_id != ALL($2)",
+                    member_id,
+                    team_ids,
+                )
+                for t_id in team_ids:
+                    # Check existing to preserve special roles (manager, trainer, etc.)
+                    existing = await conn.fetchrow(
+                        "SELECT id, role, position FROM member_teams WHERE member_id = $1 AND team_id = $2",
+                        member_id,
+                        t_id,
+                    )
+                    if existing:
+                        await conn.execute(
+                            "UPDATE member_teams SET status = 'active' WHERE member_id = $1 AND team_id = $2",
+                            member_id,
+                            t_id,
+                        )
+                    else:
+                        await conn.execute(
+                            """
+                            INSERT INTO member_teams (member_id, team_id, role, position, status, joined_at)
+                            VALUES ($1, $2, 'player', '', 'active', CURRENT_DATE)
+                            """,
+                            member_id,
+                            t_id,
+                        )
+
+    return {
+        "divisions": await get_member_divisions(member_id),
+        "teams": await get_member_teams(member_id),
+    }
+
 
 
 

@@ -62,6 +62,13 @@ class MemberAdminUpdate(BaseModel):
     bemerkungen: Optional[str] = None
 
 
+class MemberAssignmentsUpdate(BaseModel):
+    """Fields to update division and team assignments for a member."""
+    division_ids: list[int] = []
+    team_ids: list[int] = []
+
+
+
 class PasswordChange(BaseModel):
     """Password change request."""
     current_password: str

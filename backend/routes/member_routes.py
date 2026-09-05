@@ -8,7 +8,8 @@ from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse, Response
 
 from auth import get_current_member, verify_password, hash_password
-from models.member import MemberProfileUpdate, PasswordChange, BankAccountUpdate
+from models.member import MemberProfileUpdate, PasswordChange, BankAccountUpdate, MemberAssignmentsUpdate
+
 from services import member_service
 from config import UPLOAD_DIR
 
@@ -141,8 +142,31 @@ async def get_teams(request: Request):
 
     return {"teams": teams}
 
+@router.get("/divisions/all")
+async def get_all_divisions_list():
+    """List all active divisions."""
+    return {"divisions": await member_service.get_all_divisions()}
 
-# ═══════════════════════════════════════
+
+@router.get("/teams/all")
+async def get_all_teams_list():
+    """List all active teams."""
+    return {"teams": await member_service.get_all_teams()}
+
+
+@router.put("/assignments")
+async def update_my_assignments(request: Request, payload: MemberAssignmentsUpdate):
+    """Member selects or changes their divisions and teams."""
+    current = get_current_member(request)
+    result = await member_service.set_member_divisions_and_teams(
+        current["member_id"], payload.division_ids, payload.team_ids
+    )
+    return {
+        "success": True,
+        "message": "Abteilungen und Teams erfolgreich aktualisiert",
+        **result,
+    }
+
 #  ID DOCUMENT UPLOAD (logged-in members)
 # ═══════════════════════════════════════
 

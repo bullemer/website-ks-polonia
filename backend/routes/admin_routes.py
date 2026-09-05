@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 from typing import Optional
 
 from auth import require_admin, require_superadmin, require_team_admin
-from models.member import MemberAdminUpdate
+from models.member import MemberAdminUpdate, MemberAssignmentsUpdate
 from models.division import DivisionCreate, DivisionUpdate, TeamCreate, TeamUpdate, TeamMemberAssign
 from models.application import ApplicationReview
 from models.team_management import MemberRoleUpdate
@@ -83,12 +83,16 @@ async def admin_get_member(request: Request, member_id: int):
     divisions = await member_service.get_member_divisions(member_id)
     teams = await member_service.get_member_teams(member_id)
     bank = await member_service.get_bank_account(member_id)
+    all_divisions = await member_service.get_all_divisions()
+    all_teams = await member_service.get_all_teams()
     for key in ("geburtsdatum", "eintrittsdatum", "created_at", "updated_at"):
         if member.get(key):
             member[key] = str(member[key])
     return templates.TemplateResponse(request, "admin_member_detail.html", {
         "member": member, "divisions": divisions,
         "teams": teams, "bank": bank,
+        "all_divisions": all_divisions,
+        "all_teams": all_teams,
     })
 
 
@@ -104,6 +108,22 @@ async def admin_update_member(request: Request, member_id: int, updates: MemberA
     if success:
         return JSONResponse({"success": True, "message": "Mitglied aktualisiert"})
     raise HTTPException(status_code=500)
+
+
+@router.put("/members/{member_id}/assignments")
+async def admin_update_member_assignments(
+    request: Request, member_id: int, payload: MemberAssignmentsUpdate
+):
+    require_admin(request)
+    result = await member_service.set_member_divisions_and_teams(
+        member_id, payload.division_ids, payload.team_ids
+    )
+    return {
+        "success": True,
+        "message": "Abteilungen und Teams des Mitglieds erfolgreich aktualisiert",
+        **result,
+    }
+
 
 
 @router.delete("/members/{member_id}")

@@ -295,6 +295,27 @@ const latestNews = sortedNews.slice(0, 6);
             </div>
         </div>
     </section>
+
+    <!-- Berlinale 2024 Video -->
+    <section class="section" id="berlinale">
+        <div class="section-header">
+            <h2>Berlinale 2024 - Berlinale meets Fußball 🎬</h2>
+            <a href="/news/berlinale-meets-fussball-filmprojekt-zur-euro2024" class="view-all">Mehr erfahren →</a>
+        </div>
+        <div class="berlinale-highlight">
+            <div class="berlinale-video-embed">
+                <YouTube id="Mp8J2oMbr5U" title="Berlinale 2024 - Berlinale meets Fußball" />
+            </div>
+            <div class="berlinale-video-text">
+                <h3>Kompilationsfilm „Elf Mal Morgen“ mit der Jugend von KS Polonia</h3>
+                <p>Im Rahmen des Kulturprogramms zur Fußball-Europameisterschaft 2024 begleitete die Berlinale mit Studierenden der HFF München junge Fußballerinnen und Fußballer aus ganz Deutschland. Der K.S. Polonia Hamburg war stolzer Teil dieses einzigartigen Projekts, das bei den Internationalen Filmfestspielen Berlin Premiere feierte.</p>
+                <div class="berlinale-actions">
+                    <a href="/news/berlinale-meets-fussball-filmprojekt-zur-euro2024" class="video-highlight-cta">Zum Projektbericht →</a>
+                    <a href="https://youtu.be/Mp8J2oMbr5U?si=qUneRmu1hfGZcnLR" target="_blank" rel="noopener noreferrer" class="video-highlight-cta" style="color: var(--color-text-muted);">Auf YouTube ansehen ↗</a>
+                </div>
+            </div>
+        </div>
+    </section>
 </Layout>
 
 <style>
@@ -560,6 +581,61 @@ const latestNews = sortedNews.slice(0, 6);
     .video-highlight-cta:hover {
         text-decoration: underline;
     }
+
+    /* ═══════════════════════════════════════
+       BERLINALE 2024 VIDEO HIGHLIGHT
+       ═══════════════════════════════════════ */
+    .berlinale-highlight {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 2rem;
+        align-items: center;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+    .berlinale-video-embed {
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        width: 100%;
+    }
+    .berlinale-video-embed :global(.youtube-embed) {
+        margin: 0;
+        border-radius: var(--radius);
+    }
+    .berlinale-video-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .berlinale-video-text h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+    .berlinale-video-text p {
+        font-size: 0.95rem;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+    }
+    .berlinale-actions {
+        display: flex;
+        gap: 1.25rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+    @media (max-width: 860px) {
+        .berlinale-highlight {
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            padding: 1.25rem;
+        }
+    }
+
 
     /* ═══════════════════════════════════════
        MATCHES — FULL WIDTH, HEIGHT CAPPED

@@ -50,6 +50,9 @@ const SITEMAP_EXCLUDE_PATTERNS = [
 export default defineConfig({
     site: 'https://www.ks-polonia.de',
     trailingSlash: 'never',
+    redirects: {
+        '/seiten/basketball-jugend-u10': '/seiten/basketball-jugend-u12',
+    },
     integrations: [
         react(),
         markdoc(),

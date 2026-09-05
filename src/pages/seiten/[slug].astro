@@ -26,7 +26,7 @@ const basketballSEO: Record<string, { teamName: string; teamDescription: string;
     'basketball-herren-ue35': {
         teamName: 'KS Polonia Basketball Herren Ü35',
         teamDescription: 'Basketball Hamburg Ü35 Herren – Freizeitbasketball für Erwachsene in Hamburg-Uhlenhorst und Barmbek.',
-        trainingTime: '18:30 – 20:00',
+        trainingTime: '18:00 – 19:30',
     },
 };
 
@@ -45,8 +45,8 @@ const isBasketball = !!seoConfig;
             teamDescription={seoConfig.teamDescription}
             trainingDay="Dienstag"
             trainingTime={seoConfig.trainingTime}
-            trainingLocation="Schulsporthalle Uferstraße 10"
-            trainingAddress="Uferstraße 10, 22081 Hamburg"
+            trainingLocation="Sporthalle am Sportplatz Finkenau"
+            trainingAddress="Finkenau 38, 22081 Hamburg"
             pageUrl={`https://www.ks-polonia.de/seiten/${entry.id}`}
         />
     )}

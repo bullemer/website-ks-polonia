@@ -100,7 +100,13 @@
                         <td>{{ m.divisions or '—' }}</td>
                         <td>
                             <span class="badge badge-level">{{ m.membership_level or 'regular' }}</span>
-                            {% if m.is_admin %}<span class="badge badge-admin">Admin</span>{% endif %}
+                            {% if m.role == 'superadmin' %}
+                            <span class="badge" style="background:rgba(220,20,60,0.2);color:#ef4444;">👑 Superadmin</span>
+                            {% elif m.role == 'admin' %}
+                            <span class="badge badge-admin">🛡️ Admin</span>
+                            {% else %}
+                            <span class="badge" style="background:rgba(255,255,255,0.06);color:var(--text-muted);">⚽ Mitglied</span>
+                            {% endif %}
                         </td>
                         <td><span class="badge {% if m.is_active %}badge-active{% else %}badge-inactive{% endif %}">{{ 'Aktiv' if m.is_active else 'Inaktiv' }}</span></td>
                         <td>{{ m.eintrittsdatum or '—' }}</td>

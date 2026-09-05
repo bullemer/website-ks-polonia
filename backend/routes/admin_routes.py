@@ -8,11 +8,12 @@ from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from typing import Optional
 
-from auth import require_admin
+from auth import require_admin, require_superadmin, require_team_admin
 from models.member import MemberAdminUpdate
 from models.division import DivisionCreate, DivisionUpdate, TeamCreate, TeamUpdate, TeamMemberAssign
 from models.application import ApplicationReview
-from services import member_service
+from models.team_management import MemberRoleUpdate
+from services import member_service, team_service
 from database import get_pool
 from mailer import send_email
 from config import SITE_URL
@@ -26,9 +27,11 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 @router.get("/dashboard")
 async def admin_dashboard(request: Request):
     admin = require_admin(request)
+    is_super = admin.get("role") == "superadmin"
     stats = await member_service.get_dashboard_stats()
+    managed_teams = await team_service.get_managed_teams(admin["member_id"], is_superadmin=is_super)
     return templates.TemplateResponse(request, "admin_dashboard.html", {
-        "stats": stats, "admin": admin,
+        "stats": stats, "admin": admin, "is_superadmin": is_super, "managed_teams": managed_teams,
     })
 
 
@@ -105,8 +108,8 @@ async def admin_update_member(request: Request, member_id: int, updates: MemberA
 
 @router.delete("/members/{member_id}")
 async def admin_delete_member(request: Request, member_id: int):
-    """Permanently delete a member and all related data."""
-    require_admin(request)
+    """Permanently delete a member and all related data (Superadmin only)."""
+    require_superadmin(request)
     pool = await get_pool()
     async with pool.acquire() as conn:
         # Check member exists
@@ -122,15 +125,26 @@ async def admin_delete_member(request: Request, member_id: int):
     return JSONResponse({"success": True, "message": "Mitglied endgültig gelöscht"})
 
 
+@router.put("/members/{member_id}/role")
+async def admin_change_role(request: Request, member_id: int, data: MemberRoleUpdate):
+    """Change member system role: superadmin, admin, or member (Superadmin only)."""
+    require_superadmin(request)
+    success = await member_service.update_member_profile(member_id, {"role": data.role})
+    if success:
+        return JSONResponse({"success": True, "message": f"Rolle auf '{data.role}' geändert"})
+    raise HTTPException(status_code=500, detail="Fehler beim Aktualisieren der Rolle")
+
+
 @router.put("/members/{member_id}/admin")
 async def admin_toggle_admin(request: Request, member_id: int):
-    require_admin(request)
+    require_superadmin(request)
     member = await member_service.get_member_by_id(member_id)
     if not member:
         raise HTTPException(status_code=404)
     new_status = not member["is_admin"]
-    await member_service.update_member_profile(member_id, {"is_admin": new_status})
-    return JSONResponse({"success": True, "is_admin": new_status})
+    new_role = "admin" if new_status else "member"
+    await member_service.update_member_profile(member_id, {"role": new_role})
+    return JSONResponse({"success": True, "is_admin": new_status, "role": new_role})
 
 
 # --- Divisions ---
@@ -165,7 +179,7 @@ async def admin_list_divisions(request: Request):
 
 @router.post("/divisions")
 async def admin_create_division(request: Request, data: DivisionCreate):
-    require_admin(request)
+    require_superadmin(request)
     pool = await get_pool()
     async with pool.acquire() as conn:
         new_id = await conn.fetchval(
@@ -177,7 +191,7 @@ async def admin_create_division(request: Request, data: DivisionCreate):
 
 @router.put("/divisions/{div_id}")
 async def admin_update_division(request: Request, div_id: int, data: DivisionUpdate):
-    require_admin(request)
+    require_superadmin(request)
     updates = data.model_dump(exclude_none=True)
     if not updates:
         raise HTTPException(status_code=400)
@@ -209,8 +223,8 @@ async def admin_list_teams(request: Request, division_id: Optional[int] = None):
 
 @router.get("/teams/{team_id}")
 async def admin_team_detail(request: Request, team_id: int):
-    """Team detail page with member roster management."""
-    require_admin(request)
+    """Team detail page with roster, Mannschaftskasse, and tasks."""
+    admin = await require_team_admin(request, team_id)
     pool = await get_pool()
     async with pool.acquire() as conn:
         team = await conn.fetchrow("""
@@ -230,6 +244,7 @@ async def admin_team_detail(request: Request, team_id: int):
             WHERE mt.team_id = $1 AND mt.status = 'active'
             ORDER BY
                 CASE mt.role WHEN 'trainer' THEN 1 WHEN 'co-trainer' THEN 2 WHEN 'manager' THEN 3 ELSE 4 END,
+                mt.jersey_number NULLS LAST,
                 m.nachname
         """, team_id)
 
@@ -242,17 +257,27 @@ async def admin_team_detail(request: Request, team_id: int):
         # Get all divisions for breadcrumb
         divisions = await conn.fetch("SELECT id, name, icon FROM divisions WHERE is_active = TRUE ORDER BY sort_order")
 
+    # Fetch treasury and tasks
+    treasury_summary = await team_service.get_team_treasury_summary(team_id)
+    treasury_transactions = await team_service.get_team_treasury_transactions(team_id)
+    team_tasks = await team_service.get_team_tasks(team_id)
+
     return templates.TemplateResponse(request, "admin_team_detail.html", {
         "team": dict(team),
         "team_members": [dict(m) for m in team_members],
         "all_members": [dict(m) for m in all_members],
         "divisions": [dict(d) for d in divisions],
+        "treasury_summary": treasury_summary,
+        "treasury_transactions": treasury_transactions,
+        "team_tasks": team_tasks,
+        "admin": admin,
+        "is_superadmin": (admin.get("role") == "superadmin"),
     })
 
 
 @router.post("/teams")
 async def admin_create_team(request: Request, data: TeamCreate):
-    require_admin(request)
+    require_superadmin(request)
     pool = await get_pool()
     async with pool.acquire() as conn:
         new_id = await conn.fetchval(
@@ -267,7 +292,7 @@ async def admin_create_team(request: Request, data: TeamCreate):
 
 @router.put("/teams/{team_id}")
 async def admin_update_team(request: Request, team_id: int, data: TeamUpdate):
-    require_admin(request)
+    await require_team_admin(request, team_id)
     updates = data.model_dump(exclude_none=True)
     if not updates:
         raise HTTPException(status_code=400)
@@ -280,8 +305,8 @@ async def admin_update_team(request: Request, team_id: int, data: TeamUpdate):
 
 @router.delete("/teams/{team_id}")
 async def admin_delete_team(request: Request, team_id: int):
-    """Permanently delete a team and all member assignments."""
-    require_admin(request)
+    """Permanently delete a team and all member assignments (Superadmin only)."""
+    require_superadmin(request)
     pool = await get_pool()
     async with pool.acquire() as conn:
         exists = await conn.fetchval("SELECT id FROM teams WHERE id = $1", team_id)

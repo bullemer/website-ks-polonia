@@ -52,6 +52,7 @@ class MemberAdminUpdate(BaseModel):
     geschlecht: Optional[str] = None
     eintrittsdatum: Optional[str] = None
     membership_level: Optional[str] = None
+    role: Optional[str] = None
     is_active: Optional[bool] = None
     is_admin: Optional[bool] = None
     trainer_referenz: Optional[str] = None
@@ -107,6 +108,7 @@ class MemberResponse(BaseModel):
     geschlecht: Optional[str] = None
     eintrittsdatum: Optional[date] = None
     membership_level: Optional[str] = "regular"
+    role: Optional[str] = "member"
     is_admin: bool = False
     is_active: bool = True
     email_verified: bool = False
@@ -123,6 +125,7 @@ class MemberListItem(BaseModel):
     nachname: str
     email: str
     membership_level: Optional[str] = "regular"
+    role: Optional[str] = "member"
     is_active: bool = True
     is_admin: bool = False
     eintrittsdatum: Optional[date] = None

@@ -38,11 +38,30 @@ async def portal_dashboard(request: Request):
     if not member:
         return RedirectResponse(url="/api/portal/login")
 
+    from services import team_service
     divisions = await member_service.get_member_divisions(current["member_id"])
     teams = await member_service.get_member_teams(current["member_id"])
     bank = await member_service.get_bank_account(current["member_id"])
     payments = await member_service.get_member_payments(current["member_id"])
     payment_summary = await member_service.get_payment_summary(current["member_id"])
+
+    # Enrich teams with roster, treasury and tasks
+    teams_enriched = []
+    for t in teams:
+        t_id = t.get("team_id") or t.get("id")
+        if t_id:
+            summary = await team_service.get_team_treasury_summary(t_id)
+            tasks = await team_service.get_team_tasks(t_id)
+            roster = await team_service.get_team_members(t_id)
+            is_ta = await team_service.is_team_admin(current["member_id"], t_id, is_superadmin=current.get("is_superadmin", False))
+            teams_enriched.append({
+                **t,
+                "team_id": t_id,
+                "treasury_summary": summary,
+                "tasks": tasks,
+                "roster": roster,
+                "is_team_admin": is_ta,
+            })
 
     # Document upload status
     has_id_front = bool(member.get("id_front_path"))
@@ -57,10 +76,13 @@ async def portal_dashboard(request: Request):
         "member": member,
         "divisions": divisions,
         "teams": teams,
+        "teams_enriched": teams_enriched,
         "bank": bank,
         "payments": payments,
         "payment_summary": payment_summary,
+        "role": current.get("role", "member"),
         "is_admin": current["is_admin"],
+        "is_superadmin": current.get("is_superadmin", False),
         "has_id_front": has_id_front,
         "has_id_back": has_id_back,
     })

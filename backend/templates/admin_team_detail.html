@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ team.mannschaftsname }} – KS Polonia Admin</title>
+    <title>{{ team.mannschaftsname }} – Team Management – KS Polonia</title>
     <style>
-        :root { --primary: #DC143C; --bg: #0f1117; --surface: #1a1d27; --surface-hover: #22252f; --border: #2a2d3a; --text: #e4e4e7; --text-muted: #9ca3af; --success: #22c55e; --warning: #f59e0b; }
+        :root { 
+            --primary: #DC143C; 
+            --bg: #0f1117; 
+            --surface: #1a1d27; 
+            --surface-hover: #22252f; 
+            --border: #2a2d3a; 
+            --text: #e4e4e7; 
+            --text-muted: #9ca3af; 
+            --success: #22c55e; 
+            --warning: #f59e0b; 
+            --info: #3b82f6; 
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
         .layout { display: flex; min-height: 100vh; }
@@ -16,7 +27,7 @@
         .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; border-left: 3px solid transparent; }
         .nav-link:hover, .nav-link.active { background: var(--surface-hover); color: #fff; border-left-color: var(--primary); }
         .nav-link .icon { font-size: 1.1rem; width: 24px; text-align: center; }
-        .main { margin-left: 260px; flex: 1; padding: 2rem; }
+        .main { margin-left: 260px; flex: 1; padding: 2rem; max-width: 1200px; }
 
         /* Breadcrumb */
         .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
@@ -30,40 +41,57 @@
         .team-header-info h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.3rem; }
         .team-header-info p { font-size: 0.88rem; color: var(--text-muted); }
         .team-header-meta { margin-left: auto; display: flex; gap: 1rem; flex-wrap: wrap; }
-        .stat-box { text-align: center; background: rgba(220,20,60,0.06); padding: 0.6rem 1rem; border-radius: 10px; }
-        .stat-box .num { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
-        .stat-box .lbl { font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; }
+        .stat-box { text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 0.6rem 1.1rem; border-radius: 10px; }
+        .stat-box .num { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+        .stat-box .lbl { font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-top: 0.15rem; }
 
-        /* Sections */
+        /* Tabs */
+        .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; }
+        .tab-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 0.65rem 1.25rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+        .tab-btn:hover { background: var(--surface-hover); color: #fff; }
+        .tab-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Sections & Cards */
         .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden; }
         .section-title { padding: 1rem 1.5rem; font-size: 1rem; font-weight: 700; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 
-        /* Roster Table */
+        /* Tables */
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 0.7rem 1rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); background: rgba(0,0,0,0.2); }
         td { padding: 0.75rem 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
         tr:hover { background: var(--surface-hover); }
+
+        /* Role & Status Badges */
         .role-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
         .role-trainer { background: rgba(245,158,11,0.15); color: var(--warning); }
         .role-co-trainer { background: rgba(59,130,246,0.15); color: #3b82f6; }
         .role-manager { background: rgba(168,85,247,0.15); color: #a855f7; }
+        .role-captain { background: rgba(234,179,8,0.15); color: #eab308; }
         .role-player { background: rgba(34,197,94,0.08); color: var(--success); }
 
-        /* Add Member Form */
-        .add-member-form { padding: 1rem 1.5rem; background: rgba(0,0,0,0.15); display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
-        .add-member-form select, .add-member-form input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.85rem; }
-        .add-member-form select:focus, .add-member-form input:focus { outline: none; border-color: var(--primary); }
-        .member-select { flex: 1; min-width: 200px; }
+        /* Forms */
+        .form-bar { padding: 1rem 1.5rem; background: rgba(0,0,0,0.15); display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+        .form-bar select, .form-bar input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.55rem 0.8rem; border-radius: 8px; font-size: 0.85rem; }
+        .form-bar select:focus, .form-bar input:focus { outline: none; border-color: var(--primary); }
 
         /* Buttons */
-        .btn { padding: 0.5rem 1rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+        .btn { padding: 0.55rem 1.1rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: all 0.15s; font-family: inherit; }
         .btn-primary { background: var(--primary); color: #fff; }
         .btn-primary:hover { background: #b91c1c; }
-        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+        .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
         .btn-danger { background: none; border: 1px solid var(--border); color: var(--text-muted); }
         .btn-danger:hover { background: rgba(239,68,68,0.12); border-color: #ef4444; color: #ef4444; }
 
-        .empty-row { text-align: center; padding: 2rem; color: var(--text-muted); font-style: italic; }
+        .empty-row { text-align: center; padding: 2.5rem; color: var(--text-muted); font-style: italic; }
+
+        /* Grid for stats */
+        .stats-3col { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card-inner { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+        .stat-card-inner .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.4rem; }
+        .stat-card-inner .val { font-size: 1.6rem; font-weight: 800; }
 
         /* Alert */
         .alert { position: fixed; top: 1rem; right: 1rem; padding: 0.8rem 1.25rem; border-radius: 10px; font-size: 0.88rem; font-weight: 500; z-index: 999; display: none; }
@@ -81,28 +109,42 @@
 <body>
     <div class="layout">
         <nav class="sidebar">
-            <div class="sidebar-logo"><h2>KS Polonia Admin</h2><span>Vereinsverwaltung</span></div>
+            <div class="sidebar-logo">
+                <h2>KS Polonia</h2>
+                <span>{% if is_superadmin %}👑 Superadmin{% else %}🛡️ Team-Admin{% endif %}</span>
+            </div>
             <a href="/api/admin/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
+            {% if is_superadmin %}
             <a href="/api/admin/members" class="nav-link"><span class="icon">👥</span> Mitglieder</a>
             <a href="/api/admin/applications" class="nav-link"><span class="icon">📋</span> Anträge</a>
             <a href="/api/admin/divisions" class="nav-link active"><span class="icon">🏆</span> Abteilungen</a>
             <a href="/api/tickets/admin" class="nav-link"><span class="icon">🎫</span> Dauerkarten</a>
-            <a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
+            {% else %}
+            <a href="/api/admin/dashboard" class="nav-link active"><span class="icon">⚽</span> Mein Team</a>
+            {% endif %}
+            <a href="/api/portal" class="nav-link"><span class="icon">👤</span> Zum Portal</a>
+            <a href="/api/auth/logout" class="nav-link" style="margin-top: auto;"><span class="icon">🚪</span> Abmelden</a>
         </nav>
+
         <main class="main">
             <div class="breadcrumb">
+                {% if is_superadmin %}
                 <a href="/api/admin/divisions">Abteilungen</a>
                 <span class="sep">›</span>
                 <span>{{ team.division_icon }} {{ team.division_name }}</span>
+                {% else %}
+                <a href="/api/admin/dashboard">Team-Cockpit</a>
+                {% endif %}
                 <span class="sep">›</span>
                 <span>{{ team.mannschaftsname }}</span>
             </div>
 
+            <!-- Header -->
             <div class="team-header">
                 <div class="team-header-icon">{{ team.division_icon or '⚽' }}</div>
                 <div class="team-header-info">
                     <h1>{{ team.mannschaftsname }}</h1>
-                    <p>{{ team.mannschaftsart }} · {{ team.spielklasse or '—' }}{% if team.coach %} · Trainer: {{ team.coach }}{% endif %}</p>
+                    <p>{{ team.mannschaftsart }} · {{ team.spielklasse or 'Liga' }}{% if team.coach %} · Trainer: {{ team.coach }}{% endif %}</p>
                 </div>
                 <div class="team-header-meta">
                     <div class="stat-box">
@@ -110,73 +152,250 @@
                         <div class="lbl">Kader</div>
                     </div>
                     <div class="stat-box">
-                        <div class="num">{{ team_members|selectattr('role','equalto','trainer')|list|length + team_members|selectattr('role','equalto','co-trainer')|list|length }}</div>
-                        <div class="lbl">Trainer</div>
+                        <div class="num" style="color:{% if treasury_summary.total_balance >= 0 %}var(--success){% else %}var(--primary){% endif %};">
+                            {{ "%.2f"|format(treasury_summary.total_balance) }} €
+                        </div>
+                        <div class="lbl">Mannschaftskasse</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="num" style="color:var(--warning);">
+                            {{ team_tasks|selectattr('status','equalto','open')|list|length }}
+                        </div>
+                        <div class="lbl">Offene Aufgaben</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Roster -->
-            <div class="section">
-                <div class="section-title">
-                    <span>👥 Kader & Staff</span>
-                    <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 400;">{{ team_members|length }} Personen</span>
-                </div>
-                {% if team_members %}
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Rolle</th>
-                            <th>Position</th>
-                            <th>Mitgl.-Nr.</th>
-                            <th>Aktion</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for m in team_members %}
-                        <tr id="member-row-{{ m.member_id }}">
-                            <td>{{ m.jersey_number or '—' }}</td>
-                            <td><strong>{{ m.vorname }} {{ m.nachname }}</strong></td>
-                            <td>
-                                <span class="role-badge role-{{ m.role }}">
-                                    {% if m.role == 'trainer' %}🏋️ Trainer
-                                    {% elif m.role == 'co-trainer' %}🏋️ Co-Trainer
-                                    {% elif m.role == 'manager' %}📋 Manager
-                                    {% else %}⚽ Spieler{% endif %}
-                                </span>
-                            </td>
-                            <td>{{ m.position or '—' }}</td>
-                            <td style="font-size: 0.82rem; color: var(--text-muted);">{{ m.mitgliedsnummer or '—' }}</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm" onclick="removeMember({{ m.member_id }}, '{{ m.vorname }} {{ m.nachname }}')">Entfernen</button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <div class="empty-row">Noch keine Mitglieder zugeordnet. Füge unten Spieler oder Trainer hinzu.</div>
-                {% endif %}
+            <!-- Tab Bar -->
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('kader')">👥 Kader & Staff ({{ team_members|length }})</button>
+                <button class="tab-btn" onclick="switchTab('kasse')">💰 Mannschaftskasse ({{ "%.2f"|format(treasury_summary.total_balance) }} €)</button>
+                <button class="tab-btn" onclick="switchTab('aufgaben')">📋 Aufgaben & Dienste ({{ team_tasks|length }})</button>
+            </div>
 
-                <!-- Add member form -->
-                <div class="add-member-form">
-                    <select id="addMemberSelect" class="member-select">
-                        <option value="">— Mitglied auswählen —</option>
-                        {% for m in all_members %}
-                        <option value="{{ m.id }}">{{ m.nachname }}, {{ m.vorname }} ({{ m.mitgliedsnummer or 'keine Nr.' }})</option>
-                        {% endfor %}
-                    </select>
-                    <select id="addRole">
-                        <option value="player">⚽ Spieler</option>
-                        <option value="trainer">🏋️ Trainer</option>
-                        <option value="co-trainer">🏋️ Co-Trainer</option>
-                        <option value="manager">📋 Manager</option>
-                    </select>
-                    <input type="text" id="addPosition" placeholder="Position (z.B. Torwart)" style="width:150px">
-                    <input type="number" id="addJersey" placeholder="#" style="width:60px" min="0" max="99">
-                    <button class="btn btn-primary" onclick="addMember()">+ Hinzufügen</button>
+            <!-- TAB 1: KADER -->
+            <div class="tab-content active" id="tab-kader">
+                <div class="section">
+                    <div class="section-title">
+                        <span>👥 Teamkader & Betreuer</span>
+                        <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 400;">{{ team_members|length }} Personen</span>
+                    </div>
+                    {% if team_members %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Rolle</th>
+                                <th>Position</th>
+                                <th>Kontakt</th>
+                                <th>Mitgl.-Nr.</th>
+                                <th>Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in team_members %}
+                            <tr id="member-row-{{ m.member_id }}">
+                                <td><strong>{{ m.jersey_number or '—' }}</strong></td>
+                                <td><strong>{{ m.vorname }} {{ m.nachname }}</strong></td>
+                                <td>
+                                    <span class="role-badge role-{{ m.role }}">
+                                        {% if m.role == 'trainer' %}🏋️ Trainer
+                                        {% elif m.role == 'co-trainer' %}🏋️ Co-Trainer
+                                        {% elif m.role == 'manager' %}📋 Manager
+                                        {% elif m.role == 'captain' %}⭐ Kapitän
+                                        {% else %}⚽ Spieler{% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ m.position or '—' }}</td>
+                                <td style="font-size: 0.8rem; color: var(--text-muted);">{{ m.telefon or m.email }}</td>
+                                <td style="font-size: 0.82rem; color: var(--text-muted);">{{ m.mitgliedsnummer or '—' }}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="removeMember({{ m.member_id }}, '{{ m.vorname }} {{ m.nachname }}')">Entfernen</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-row">Noch keine Mitglieder zugeordnet. Füge unten Spieler oder Trainer hinzu.</div>
+                    {% endif %}
+
+                    <!-- Add member form -->
+                    <div class="form-bar">
+                        <select id="addMemberSelect" style="flex:1; min-width: 200px;">
+                            <option value="">— Vereinsmitglied auswählen —</option>
+                            {% for m in all_members %}
+                            <option value="{{ m.id }}">{{ m.nachname }}, {{ m.vorname }} ({{ m.mitgliedsnummer or 'keine Nr.' }})</option>
+                            {% endfor %}
+                        </select>
+                        <select id="addRole">
+                            <option value="player">⚽ Spieler</option>
+                            <option value="captain">⭐ Kapitän</option>
+                            <option value="trainer">🏋️ Trainer</option>
+                            <option value="co-trainer">🏋️ Co-Trainer</option>
+                            <option value="manager">📋 Manager</option>
+                        </select>
+                        <input type="text" id="addPosition" placeholder="Position (z.B. Torwart)" style="width:140px">
+                        <input type="number" id="addJersey" placeholder="Nr." style="width:65px" min="0" max="99">
+                        <button class="btn btn-primary" onclick="addMember()">+ Zu Team hinzufügen</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: MANNSCHAFTSKASSE -->
+            <div class="tab-content" id="tab-kasse">
+                <div class="stats-3col">
+                    <div class="stat-card-inner">
+                        <div class="label">Kassenstand (Saldo)</div>
+                        <div class="val" style="color:{% if treasury_summary.total_balance >= 0 %}var(--success){% else %}var(--primary){% endif %};">
+                            {{ "%.2f"|format(treasury_summary.total_balance) }} €
+                        </div>
+                    </div>
+                    <div class="stat-card-inner">
+                        <div class="label">Einnahmen gesamt</div>
+                        <div class="val" style="color:var(--success);">+{{ "%.2f"|format(treasury_summary.total_income) }} €</div>
+                    </div>
+                    <div class="stat-card-inner">
+                        <div class="label">Ausgaben gesamt</div>
+                        <div class="val" style="color:var(--primary);">-{{ "%.2f"|format(treasury_summary.total_expense) }} €</div>
+                    </div>
+                    <div class="stat-card-inner">
+                        <div class="label">Strafenkatalog</div>
+                        <div class="val" style="color:var(--warning);">{{ "%.2f"|format(treasury_summary.total_fines) }} €</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>💰 Neue Buchung erfassen</span>
+                    </div>
+                    <form id="treasuryForm" class="form-bar" onsubmit="addTreasuryTx(event)">
+                        <select id="txType" required>
+                            <option value="income">🟢 Einnahme</option>
+                            <option value="expense">🔴 Ausgabe</option>
+                            <option value="fine">⚠️ Strafe</option>
+                        </select>
+                        <input type="number" step="0.01" min="0.01" id="txAmount" placeholder="Betrag € *" required style="width:100px;">
+                        <input type="text" id="txDesc" placeholder="Beschreibung (z.B. Verspätung, Trikotkauf) *" required style="flex:1; min-width: 200px;">
+                        <select id="txMember">
+                            <option value="">— Spieler / Betroffener (optional) —</option>
+                            {% for m in team_members %}
+                            <option value="{{ m.member_id }}">{{ m.vorname }} {{ m.nachname }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="date" id="txDate">
+                        <button type="submit" class="btn btn-primary">+ Buchen</button>
+                    </form>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>📜 Buchungsverlauf</span>
+                        <span style="font-size:0.78rem;color:var(--text-muted);font-weight:400;">{{ treasury_transactions|length }} Buchungen</span>
+                    </div>
+                    {% if treasury_transactions %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Typ</th>
+                                <th>Beschreibung</th>
+                                <th>Betroffener</th>
+                                <th>Betrag</th>
+                                <th>Erfasst von</th>
+                                <th>Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in treasury_transactions %}
+                            <tr id="tx-row-{{ t.id }}">
+                                <td>{{ t.transaction_date or '—' }}</td>
+                                <td>
+                                    <span class="role-badge" style="{% if t.type == 'income' %}background:rgba(34,197,94,0.15);color:var(--success);{% elif t.type == 'expense' %}background:rgba(239,68,68,0.15);color:var(--primary);{% else %}background:rgba(245,158,11,0.15);color:var(--warning);{% endif %}">
+                                        {% if t.type == 'income' %}🟢 Einnahme{% elif t.type == 'expense' %}🔴 Ausgabe{% else %}⚠️ Strafe{% endif %}
+                                    </span>
+                                </td>
+                                <td><strong>{{ t.description }}</strong></td>
+                                <td>{{ t.member_name or '—' }}</td>
+                                <td style="font-weight:700; color:{% if t.type == 'expense' %}var(--primary){% else %}var(--success){% endif %};">
+                                    {{ '-' if t.type == 'expense' else '+' }}{{ "%.2f"|format(t.amount) }} €
+                                </td>
+                                <td style="font-size:0.8rem;color:var(--text-muted);">{{ t.created_by_name or 'Admin' }}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteTx({{ t.id }})">Löschen</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-row">Noch keine Buchungen in der Mannschaftskasse erfasst.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- TAB 3: AUFGABEN & DIENSTE -->
+            <div class="tab-content" id="tab-aufgaben">
+                <div class="section">
+                    <div class="section-title">
+                        <span>➕ Neue Aufgabe / Dienst anlegen</span>
+                    </div>
+                    <form id="taskForm" class="form-bar" onsubmit="addTask(event)">
+                        <input type="text" id="taskTitle" placeholder="Titel (z.B. Trikotwäsche Sa., Kabinendienst) *" required style="flex:1; min-width: 220px;">
+                        <input type="text" id="taskDesc" placeholder="Notiz / Details (optional)" style="flex:1; min-width: 150px;">
+                        <select id="taskAssignee">
+                            <option value="">— Zuweisen an Spieler (optional) —</option>
+                            {% for m in team_members %}
+                            <option value="{{ m.member_id }}">{{ m.vorname }} {{ m.nachname }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="date" id="taskDueDate">
+                        <button type="submit" class="btn btn-primary">+ Anlegen</button>
+                    </form>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>📋 Team-Aufgaben & Dienste</span>
+                        <span style="font-size:0.78rem;color:var(--text-muted);font-weight:400;">{{ team_tasks|length }} Einträge</span>
+                    </div>
+                    {% if team_tasks %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Aufgabe / Dienst</th>
+                                <th>Zugewiesen an</th>
+                                <th>Fällig am</th>
+                                <th>Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in team_tasks %}
+                            <tr id="task-row-{{ task.id }}">
+                                <td>
+                                    <button class="btn btn-sm" style="{% if task.status == 'completed' %}background:rgba(34,197,94,0.15);color:var(--success);border:1px solid rgba(34,197,94,0.3);{% else %}background:rgba(245,158,11,0.15);color:var(--warning);border:1px solid rgba(245,158,11,0.3);{% endif %}"
+                                            onclick="toggleTask({{ task.id }}, '{{ 'open' if task.status == 'completed' else 'completed' }}')">
+                                        {{ '✓ Erledigt' if task.status == 'completed' else '○ Offen' }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <strong style="{% if task.status == 'completed' %}text-decoration:line-through;opacity:0.6;{% endif %}">{{ task.title }}</strong>
+                                    {% if task.description %}<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.15rem;">{{ task.description }}</div>{% endif %}
+                                </td>
+                                <td>{{ task.assigned_to_name or '—' }}</td>
+                                <td style="font-size:0.85rem;color:var(--text-muted);">{{ task.due_date or '—' }}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteTask({{ task.id }})">Löschen</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-row">Keine Aufgaben oder Dienste eingetragen.</div>
+                    {% endif %}
                 </div>
             </div>
         </main>
@@ -195,11 +414,19 @@
         setTimeout(() => a.style.display = 'none', 3000);
     }
 
+    function switchTab(name) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    // --- ROSTER ---
     async function addMember() {
         const memberId = document.getElementById('addMemberSelect').value;
         if (!memberId) return showAlert('Bitte Mitglied auswählen', false);
 
-        const res = await fetch('/api/admin/teams/' + teamId + '/members', {
+        const res = await fetch('/api/teams/' + teamId + '/members', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -210,17 +437,98 @@
             }),
         });
         const data = await res.json();
-        if (data.success) { showAlert('Mitglied hinzugefügt'); setTimeout(() => location.reload(), 800); }
+        if (data.success) { showAlert('Mitglied hinzugefügt'); setTimeout(() => location.reload(), 600); }
         else showAlert(data.detail || 'Fehler', false);
     }
 
     async function removeMember(memberId, name) {
         if (!confirm(name + ' aus dem Team entfernen?')) return;
-        const res = await fetch('/api/admin/teams/' + teamId + '/members/' + memberId, { method: 'DELETE' });
+        const res = await fetch('/api/teams/' + teamId + '/members/' + memberId, { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
             showAlert('Entfernt');
             const row = document.getElementById('member-row-' + memberId);
+            if (row) row.style.display = 'none';
+        } else showAlert(data.detail || 'Fehler', false);
+    }
+
+    // --- MANNSCHAFTSKASSE ---
+    async function addTreasuryTx(e) {
+        e.preventDefault();
+        const amount = parseFloat(document.getElementById('txAmount').value);
+        const desc = document.getElementById('txDesc').value.trim();
+        const type = document.getElementById('txType').value;
+        const memberId = document.getElementById('txMember').value ? parseInt(document.getElementById('txMember').value) : null;
+        const dateVal = document.getElementById('txDate').value || null;
+
+        const res = await fetch('/api/teams/' + teamId + '/treasury', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                type: type,
+                amount: amount,
+                description: desc,
+                member_id: memberId,
+                transaction_date: dateVal,
+            }),
+        });
+        const data = await res.json();
+        if (data.success) { showAlert('Buchung gespeichert'); setTimeout(() => location.reload(), 600); }
+        else showAlert(data.detail || 'Fehler', false);
+    }
+
+    async function deleteTx(txId) {
+        if (!confirm('Buchung wirklich löschen?')) return;
+        const res = await fetch('/api/teams/' + teamId + '/treasury/' + txId, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+            showAlert('Gelöscht');
+            const row = document.getElementById('tx-row-' + txId);
+            if (row) row.style.display = 'none';
+        } else showAlert(data.detail || 'Fehler', false);
+    }
+
+    // --- TASKS ---
+    async function addTask(e) {
+        e.preventDefault();
+        const title = document.getElementById('taskTitle').value.trim();
+        const desc = document.getElementById('taskDesc').value.trim();
+        const assignee = document.getElementById('taskAssignee').value ? parseInt(document.getElementById('taskAssignee').value) : null;
+        const dueDate = document.getElementById('taskDueDate').value || null;
+
+        const res = await fetch('/api/teams/' + teamId + '/tasks', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                title: title,
+                description: desc,
+                assigned_to: assignee,
+                due_date: dueDate,
+            }),
+        });
+        const data = await res.json();
+        if (data.success) { showAlert('Aufgabe erstellt'); setTimeout(() => location.reload(), 600); }
+        else showAlert(data.detail || 'Fehler', false);
+    }
+
+    async function toggleTask(taskId, nextStatus) {
+        const res = await fetch('/api/teams/' + teamId + '/tasks/' + taskId, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({status: nextStatus}),
+        });
+        const data = await res.json();
+        if (data.success) { showAlert('Status aktualisiert'); setTimeout(() => location.reload(), 500); }
+        else showAlert(data.detail || 'Fehler', false);
+    }
+
+    async function deleteTask(taskId) {
+        if (!confirm('Aufgabe wirklich löschen?')) return;
+        const res = await fetch('/api/teams/' + teamId + '/tasks/' + taskId, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+            showAlert('Aufgabe gelöscht');
+            const row = document.getElementById('task-row-' + taskId);
             if (row) row.style.display = 'none';
         } else showAlert(data.detail || 'Fehler', false);
     }

@@ -58,7 +58,13 @@
                 <div class="member-header-info">
                     <h1>{{ member.vorname }} {{ member.nachname }}
                         <span class="badge {% if member.is_active %}badge-active{% else %}badge-inactive{% endif %}">{{ 'Aktiv' if member.is_active else 'Inaktiv' }}</span>
-                        {% if member.is_admin %}<span class="badge badge-admin">Admin</span>{% endif %}
+                        {% if member.role == 'superadmin' %}
+                        <span class="badge" style="background:rgba(220,20,60,0.2);color:#ef4444;">👑 Superadmin</span>
+                        {% elif member.role == 'admin' %}
+                        <span class="badge badge-admin">🛡️ Team-Admin</span>
+                        {% else %}
+                        <span class="badge" style="background:rgba(255,255,255,0.06);color:var(--text-muted);">⚽ Mitglied</span>
+                        {% endif %}
                     </h1>
                     <p>{{ member.mitgliedsnummer or 'Keine Mitgliedsnr.' }} · {{ member.email }}</p>
                 </div>
@@ -86,12 +92,31 @@
             </div>
 
             <div class="section">
-                <h2>Mitgliedschaft</h2>
+                <h2>Mitgliedschaft & Rolle</h2>
                 <div class="detail-grid">
                     <div class="detail-item"><div class="label">Eintrittsdatum</div><div class="value">{{ member.eintrittsdatum or '—' }}</div></div>
                     <div class="detail-item"><div class="label">Mitgliedsstufe</div><div class="value">{{ member.membership_level or 'regular' }}</div></div>
+                    <div class="detail-item"><div class="label">System-Rolle</div>
+                        <div class="value">
+                            <span style="font-weight:700;">
+                                {% if member.role == 'superadmin' %}👑 Superadmin
+                                {% elif member.role == 'admin' %}🛡️ Team-Admin
+                                {% else %}⚽ Mitglied{% endif %}
+                            </span>
+                        </div>
+                    </div>
                     <div class="detail-item"><div class="label">Erstellt</div><div class="value">{{ member.created_at or '—' }}</div></div>
-                    <div class="detail-item"><div class="label">Aktualisiert</div><div class="value">{{ member.updated_at or '—' }}</div></div>
+                </div>
+
+                <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Rolle ändern:</label>
+                    <select id="roleSelect" style="background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.45rem 0.8rem; border-radius: 8px; font-size: 0.85rem;">
+                        <option value="member" {% if member.role == 'member' %}selected{% endif %}>⚽ Mitglied</option>
+                        <option value="admin" {% if member.role == 'admin' %}selected{% endif %}>🛡️ Team-Admin</option>
+                        <option value="superadmin" {% if member.role == 'superadmin' %}selected{% endif %}>👑 Superadmin</option>
+                    </select>
+                    <button class="btn" style="background: var(--primary); color: #fff; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none;" onclick="saveRole()">Rolle speichern</button>
+                    <span id="roleMsg" style="font-size: 0.82rem; color: var(--success); display: none;">✓ Gespeichert!</span>
                 </div>
             </div>
 
@@ -130,5 +155,28 @@
             {% endif %}
         </main>
     </div>
+
+    <script>
+    async function saveRole() {
+        const newRole = document.getElementById('roleSelect').value;
+        const msg = document.getElementById('roleMsg');
+        try {
+            const res = await fetch('/api/admin/members/{{ member.id }}/role', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({role: newRole}),
+            });
+            const data = await res.json();
+            if (data.success) {
+                msg.style.display = 'inline';
+                setTimeout(() => location.reload(), 700);
+            } else {
+                alert(data.detail || 'Fehler beim Speichern');
+            }
+        } catch(e) {
+            alert('Netzwerkfehler');
+        }
+    }
+    </script>
 </body>
 </html>

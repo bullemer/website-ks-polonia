@@ -34,6 +34,7 @@ from routes.member_routes import router as member_router
 from routes.admin_routes import router as admin_router
 from routes.portal_routes import router as portal_router
 from routes.ticket_routes import router as ticket_router
+from routes.team_routes import router as team_router
 
 # ═══════════════════════════════════════
 #  APP SETUP
@@ -59,6 +60,7 @@ app.include_router(member_router)
 app.include_router(admin_router)
 app.include_router(portal_router)
 app.include_router(ticket_router)
+app.include_router(team_router)
 
 # --- Lifecycle ---
 @app.on_event("startup")

@@ -43,21 +43,48 @@
     <div class="layout">
         <nav class="sidebar">
             <div class="sidebar-logo">
-                <h2>KS Polonia Admin</h2>
-                <span>Vereinsverwaltung</span>
+                <h2>KS Polonia</h2>
+                <span>{% if is_superadmin %}👑 Superadmin{% else %}🛡️ Team-Admin{% endif %}</span>
             </div>
             <a href="/api/admin/dashboard" class="nav-link active"><span class="icon">📊</span> Dashboard</a>
+            {% if is_superadmin %}
             <a href="/api/admin/members" class="nav-link"><span class="icon">👥</span> Mitglieder</a>
             <a href="/api/admin/applications" class="nav-link"><span class="icon">📋</span> Anträge</a>
             <a href="/api/admin/divisions" class="nav-link"><span class="icon">🏆</span> Abteilungen</a>
             <a href="/api/tickets/admin" class="nav-link"><span class="icon">🎫</span> Dauerkarten</a>
+            {% endif %}
+            <a href="/api/portal" class="nav-link"><span class="icon">👤</span> Zum Portal</a>
             <a href="/api/auth/logout" class="nav-link" style="margin-top: auto;"><span class="icon">🚪</span> Abmelden</a>
         </nav>
         <main class="main">
             <div class="page-header">
-                <h1>Dashboard</h1>
-                <p>Überblick über den Vereinsstatus</p>
+                <h1>{% if is_superadmin %}Vereins-Dashboard{% else %}Trainer & Team-Cockpit{% endif %}</h1>
+                <p>{% if is_superadmin %}Gesamtüberblick: Setup, Finanzen, Mitglieder und Sparten{% else %}Übersicht deiner Teams, Kader, Mannschaftskasse und Aufgaben{% endif %}</p>
             </div>
+
+            <!-- Managed Teams Section -->
+            {% if managed_teams %}
+            <h2 class="section-title">🛡️ Meine Teams & Mannschaftskassen</h2>
+            <div class="division-grid" style="margin-bottom: 2rem;">
+                {% for tm in managed_teams %}
+                <a href="/api/admin/teams/{{ tm.id }}" style="text-decoration: none; color: inherit;">
+                    <div class="div-card" style="border-left: 4px solid var(--primary); justify-content: space-between;">
+                        <div style="display:flex; align-items:center; gap: 1rem;">
+                            <div class="div-icon">{{ tm.division_icon or '⚽' }}</div>
+                            <div class="div-info">
+                                <h3>{{ tm.mannschaftsname }}</h3>
+                                <p>{{ tm.division_name }} · {{ tm.member_count }} Mitglieder</p>
+                            </div>
+                        </div>
+                        <span style="font-size: 0.8rem; color: var(--primary); font-weight: 700;">Verwalten →</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if is_superadmin %}
+            <h2 class="section-title">📊 Vereinsweite Statistiken</h2>
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="label">Mitglieder gesamt</div>
@@ -87,6 +114,7 @@
                 </div>
                 {% endfor %}
             </div>
+            {% endif %}
         </main>
     </div>
 </body>

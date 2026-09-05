@@ -114,7 +114,11 @@
     <div class="hdr">
         <h1><img src="/logo.png" alt="" class="hdr-logo"> Mitgliederportal</h1>
         <div class="hdr-r">
-            {% if is_admin %}<a href="/api/admin/dashboard">Admin</a>{% endif %}
+            {% if is_admin or role in ['superadmin', 'admin'] %}
+            <a href="/api/admin/dashboard" style="background:rgba(255,255,255,0.2);padding:0.25rem 0.65rem;border-radius:6px;font-weight:600;text-decoration:none;">
+                {% if is_superadmin %}👑 Superadmin{% else %}🛡️ Team-Admin{% endif %}
+            </a>
+            {% endif %}
             <a href="#" onclick="logout()">Abmelden</a>
         </div>
     </div>
@@ -126,6 +130,7 @@
         <div class="dtabs">
             <button class="dtab active" onclick="go('ausweis')">🪪 Ausweis</button>
             <button class="dtab" onclick="go('profil')">👤 Profil</button>
+            <button class="dtab" onclick="go('team')">⚽ Mein Team</button>
             <button class="dtab" onclick="go('zahlungen')">💳 Zahlungen</button>
             <button class="dtab" onclick="go('dokumente')">📄 Dokumente</button>
             <button class="dtab" onclick="go('einstellungen')">⚙️ Einstellungen</button>
@@ -205,6 +210,119 @@
                     <div class="btn-row"><button type="submit" class="btn btn-p">Speichern</button></div>
                 </form>
             </div>
+        </div>
+
+        <!-- MEIN TEAM -->
+        <div class="section" id="s-team">
+            {% if teams_enriched %}
+                {% for t in teams_enriched %}
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+                        <div>
+                            <h3 style="margin-bottom:0.2rem;">{{ t.division_name or '⚽' }} {{ t.mannschaftsname }}</h3>
+                            <p style="font-size:0.82rem;color:var(--tm);">{{ t.mannschaftsart }} · {{ t.spielklasse or 'Liga' }}</p>
+                            {% if t.coach %}<p style="font-size:0.8rem;color:var(--tm);margin-top:0.2rem;">🏋️ Trainer: <strong>{{ t.coach }}</strong></p>{% endif %}
+                        </div>
+                        {% if t.is_team_admin or is_superadmin %}
+                        <a href="/api/admin/teams/{{ t.team_id }}" class="btn btn-p btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;">
+                            🛡️ Team-Cockpit →
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Mannschaftskasse Widget -->
+                    <div style="background:#f9fafb;border:1px solid var(--b);border-radius:10px;padding:0.85rem;margin-bottom:1rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                            <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--tm);">💰 Mannschaftskasse</span>
+                            <span style="font-size:1.05rem;font-weight:800;color:{% if t.treasury_summary.total_balance >= 0 %}var(--ok){% else %}var(--p){% endif %};">
+                                {{ "%.2f"|format(t.treasury_summary.total_balance) }} €
+                            </span>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;text-align:center;font-size:0.75rem;">
+                            <div style="background:#fff;padding:0.4rem;border-radius:6px;border:1px solid var(--b);">
+                                <span style="color:var(--tm);display:block;font-size:0.65rem;">Einnahmen</span>
+                                <strong style="color:var(--ok);">+{{ "%.2f"|format(t.treasury_summary.total_income) }} €</strong>
+                            </div>
+                            <div style="background:#fff;padding:0.4rem;border-radius:6px;border:1px solid var(--b);">
+                                <span style="color:var(--tm);display:block;font-size:0.65rem;">Ausgaben</span>
+                                <strong style="color:var(--p);">-{{ "%.2f"|format(t.treasury_summary.total_expense) }} €</strong>
+                            </div>
+                            <div style="background:#fff;padding:0.4rem;border-radius:6px;border:1px solid var(--b);">
+                                <span style="color:var(--tm);display:block;font-size:0.65rem;">Strafen</span>
+                                <strong style="color:#d97706;">{{ "%.2f"|format(t.treasury_summary.total_fines) }} €</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aufgaben & Dienste -->
+                    <div style="margin-bottom:1rem;">
+                        <h4 style="font-size:0.85rem;font-weight:700;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.3rem;">
+                            📋 Anstehende Dienste & Aufgaben
+                        </h4>
+                        {% if t.tasks %}
+                        <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                            {% for task in t.tasks %}
+                            <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--b);border-radius:8px;padding:0.6rem 0.75rem;">
+                                <div>
+                                    <div style="font-size:0.88rem;font-weight:600;{% if task.status == 'completed' %}text-decoration:line-through;opacity:0.6;{% endif %}">
+                                        {{ task.title }}
+                                    </div>
+                                    <div style="font-size:0.75rem;color:var(--tm);">
+                                        {% if task.assigned_to_name %}Zugewiesen: <strong>{{ task.assigned_to_name }}</strong> · {% endif %}
+                                        {% if task.due_date %}Fällig: {{ task.due_date }}{% endif %}
+                                    </div>
+                                </div>
+                                <div>
+                                    {% if task.assigned_to == member.id or t.is_team_admin or is_superadmin %}
+                                    <button class="btn btn-sm" style="padding:0.25rem 0.6rem;font-size:0.75rem;{% if task.status == 'completed' %}background:#ecfdf5;color:var(--ok);border:1px solid #a7f3d0;{% else %}background:var(--p);color:#fff;{% endif %}"
+                                            onclick="toggleTaskStatus({{ t.team_id }}, {{ task.id }}, '{{ 'open' if task.status == 'completed' else 'completed' }}')">
+                                        {{ '✓ Erledigt' if task.status == 'completed' else 'Als erledigt markieren' }}
+                                    </button>
+                                    {% else %}
+                                    <span style="font-size:0.75rem;font-weight:600;color:{% if task.status == 'completed' %}var(--ok){% else %}#f59e0b{% endif %};">
+                                        {{ '✓ Erledigt' if task.status == 'completed' else 'Offen' }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p style="font-size:0.82rem;color:var(--tm);font-style:italic;">Keine offenen Aufgaben für dieses Team eingetragen.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Kaderliste -->
+                    <div>
+                        <h4 style="font-size:0.85rem;font-weight:700;margin-bottom:0.5rem;">👥 Mannschaftskader ({{ t.roster|length }})</h4>
+                        <div style="max-height:180px;overflow-y:auto;border:1px solid var(--b);border-radius:8px;">
+                            <table style="width:100%;font-size:0.82rem;border-collapse:collapse;">
+                                <tbody>
+                                    {% for p in t.roster %}
+                                    <tr style="border-bottom:1px solid var(--b);background:{% if p.member_id == member.id %}rgba(220,20,60,0.06){% else %}transparent{% endif %};">
+                                        <td style="padding:0.4rem 0.6rem;font-weight:700;width:30px;color:var(--p);">{{ p.jersey_number or '—' }}</td>
+                                        <td style="padding:0.4rem 0.6rem;">{{ p.vorname }} {{ p.nachname }}{% if p.member_id == member.id %} <em>(Du)</em>{% endif %}</td>
+                                        <td style="padding:0.4rem 0.6rem;color:var(--tm);">{{ p.position or '—' }}</td>
+                                        <td style="padding:0.4rem 0.6rem;text-align:right;">
+                                            <span class="chip" style="padding:0.15rem 0.4rem;font-size:0.7rem;">{{ p.role }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <div class="empty">
+                        <div class="ico">⚽</div>
+                        <p>Du bist aktuell noch keinem Team zugewiesen.</p>
+                        <p style="font-size:0.8rem;color:var(--tm);margin-top:0.3rem;">Wende dich an deinen Trainer oder an den Vorstand.</p>
+                    </div>
+                </div>
+            {% endif %}
         </div>
 
         <!-- ZAHLUNGEN -->
@@ -289,9 +407,9 @@
     <nav class="bnav">
         <button class="bnav-item active" onclick="go('ausweis')"><span class="ico">🪪</span>Ausweis</button>
         <button class="bnav-item" onclick="go('profil')"><span class="ico">👤</span>Profil</button>
+        <button class="bnav-item" onclick="go('team')"><span class="ico">⚽</span>Team</button>
         <button class="bnav-item" onclick="go('zahlungen')"><span class="ico">💳</span>Zahlungen</button>
         <button class="bnav-item" onclick="go('dokumente')"><span class="ico">📄</span>Dokumente</button>
-        <button class="bnav-item" onclick="go('einstellungen')"><span class="ico">⚙️</span>Mehr</button>
     </nav>
 
     <script>
@@ -305,6 +423,25 @@
         document.querySelectorAll('.bnav-item').forEach(b => { if(b.textContent.trim().toLowerCase().includes(name.substring(0,4))) b.classList.add('active'); });
         document.querySelectorAll('.dtab').forEach(b => { if(b.textContent.trim().toLowerCase().includes(name.substring(0,4))) b.classList.add('active'); });
         window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    async function toggleTaskStatus(teamId, taskId, nextStatus) {
+        try {
+            const res = await fetch('/api/teams/' + teamId + '/tasks/' + taskId, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({status: nextStatus}),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showGlobal('Aufgabe aktualisiert!', 'success');
+                setTimeout(() => location.reload(), 600);
+            } else {
+                showGlobal(data.detail || 'Fehler beim Aktualisieren', 'error');
+            }
+        } catch(err) {
+            showGlobal('Netzwerkfehler.', 'error');
+        }
     }
 
     function showGlobal(msg, type) {

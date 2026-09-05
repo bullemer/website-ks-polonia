@@ -193,8 +193,8 @@ async def ticket_my_page(request: Request):
 @router.get("/admin")
 async def ticket_admin_page(request: Request):
     """Admin page for managing season tickets (reuses member admin auth)."""
-    from auth import require_admin
-    admin = require_admin(request)
+    from auth import require_superadmin
+    admin = require_superadmin(request)
 
     pending = await ticket_service.get_pending_tickets()
     all_tickets = await ticket_service.get_all_tickets(season=ticket_service.CURRENT_SEASON)
@@ -216,8 +216,8 @@ class TicketReviewRequest(BaseModel):
 
 @router.put("/{ticket_id}")
 async def ticket_review(request: Request, ticket_id: int, data: TicketReviewRequest):
-    from auth import require_admin
-    admin = require_admin(request)
+    from auth import require_superadmin
+    admin = require_superadmin(request)
 
     if data.status == "approved":
         result = await ticket_service.approve_ticket(

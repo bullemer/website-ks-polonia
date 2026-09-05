@@ -30,16 +30,20 @@ async def login(req: LoginRequest):
     if not verify_password(req.password, member["password_hash"]):
         raise HTTPException(status_code=401, detail="Ungültige Anmeldedaten")
 
+    role = member.get("role") or ("superadmin" if member.get("is_admin") else "member")
     token = create_access_token(
         member_id=member["id"],
         email=member["email"],
         is_admin=member.get("is_admin", False),
+        role=role,
     )
 
     response = JSONResponse({
         "success": True,
         "message": f"Willkommen, {member['vorname']}!",
-        "is_admin": member.get("is_admin", False),
+        "role": role,
+        "is_admin": member.get("is_admin", False) or (role in ("superadmin", "admin")),
+        "is_superadmin": (role == "superadmin"),
     })
     response.set_cookie(
         key="session_token",
@@ -68,13 +72,16 @@ async def me(request: Request):
     if not member:
         raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
 
+    role = member.get("role") or ("superadmin" if member.get("is_admin") else "member")
     return {
         "id": member["id"],
         "mitgliedsnummer": member["mitgliedsnummer"],
         "vorname": member["vorname"],
         "nachname": member["nachname"],
         "email": member["email"],
-        "is_admin": member["is_admin"],
+        "role": role,
+        "is_admin": member.get("is_admin", False) or (role in ("superadmin", "admin")),
+        "is_superadmin": (role == "superadmin"),
         "membership_level": member["membership_level"],
     }
 

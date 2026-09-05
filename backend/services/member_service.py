@@ -207,6 +207,9 @@ async def update_member_profile(member_id: int, updates: dict) -> bool:
     if not fields:
         return False
 
+    if "role" in fields:
+        fields["is_admin"] = fields["role"] in ("superadmin", "admin")
+
     set_clauses = ", ".join(f"{k} = ${i+2}" for i, k in enumerate(fields.keys()))
     values = [member_id] + list(fields.values())
 
@@ -336,7 +339,7 @@ async def list_members(
         rows = await conn.fetch(
             f"""
             SELECT m.id, m.mitgliedsnummer, m.vorname, m.nachname, m.email,
-                   m.membership_level, m.is_active, m.is_admin, m.eintrittsdatum,
+                   m.membership_level, m.role, m.is_active, m.is_admin, m.eintrittsdatum,
                    STRING_AGG(d.name, ', ' ORDER BY d.sort_order) as divisions
             FROM members m
             LEFT JOIN member_divisions md ON md.member_id = m.id AND md.status = 'active'

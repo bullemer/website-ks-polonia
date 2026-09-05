@@ -75,3 +75,21 @@ class TeamTaskResponse(BaseModel):
 
 class MemberRoleUpdate(BaseModel):
     role: Literal["superadmin", "admin", "member"]
+
+
+# --- Team Website & Content Management ---
+
+class TeamWebProfileUpdate(BaseModel):
+    coach: Optional[str] = None
+    contact_person: Optional[str] = None
+    training_times: Optional[str] = None
+    training_location: Optional[str] = None
+    spielklasse: Optional[str] = None
+    age_group: Optional[str] = None
+    webpage_url: Optional[str] = None
+    content: Optional[str] = None
+
+
+class TeamPhotoDelete(BaseModel):
+    photo_src: str
+

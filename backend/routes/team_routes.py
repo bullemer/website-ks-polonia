@@ -4,7 +4,9 @@ Endpoints for Team Roster, Mannschaftskasse (Treasury), and Team Tasks (Aufgaben
 Accessible to Superadmins and assigned Team Admins (trainers/managers).
 """
 import os
-from fastapi import APIRouter, Request, HTTPException
+import re
+import secrets
+from fastapi import APIRouter, Request, HTTPException, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from typing import Optional
 
@@ -14,6 +16,8 @@ from models.team_management import (
     TeamTreasuryCreate,
     TeamTaskCreate,
     TeamTaskUpdate,
+    TeamWebProfileUpdate,
+    TeamPhotoDelete,
 )
 from services import team_service, member_service
 
@@ -194,3 +198,121 @@ async def delete_team_task(request: Request, team_id: int, task_id: int):
     if success:
         return JSONResponse({"success": True, "message": "Aufgabe gelöscht"})
     raise HTTPException(status_code=404, detail="Aufgabe nicht gefunden")
+
+
+# ═══════════════════════════════════════
+#  TEAM WEBSITE & CONTENT SYNC
+# ═══════════════════════════════════════
+
+@router.get("/{team_id}/web-profile")
+async def get_team_web_profile(request: Request, team_id: int):
+    """Get full team profile for website editing."""
+    await require_team_admin(request, team_id)
+    profile = await team_service.get_team_web_profile(team_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Team nicht gefunden")
+    return profile
+
+
+@router.put("/{team_id}/web-profile")
+async def update_team_web_profile(request: Request, team_id: int, data: TeamWebProfileUpdate):
+    """Update team website information (trainingszeiten, coaches, content, etc.) and sync to site."""
+    await require_team_admin(request, team_id)
+    updates = data.model_dump(exclude_none=True)
+    if not updates:
+        raise HTTPException(status_code=400, detail="Keine Änderungen übermittelt")
+
+    ok = await team_service.update_team_web_profile(team_id, updates)
+    sync_res = await team_service.sync_team_to_website(team_id)
+    if ok:
+        return JSONResponse({
+            "success": True,
+            "message": "Teamseite gespeichert und mit Website synchronisiert",
+            "sync": sync_res,
+        })
+    raise HTTPException(status_code=500, detail="Fehler beim Speichern")
+
+
+@router.post("/{team_id}/photos")
+async def upload_team_photo(
+    request: Request,
+    team_id: int,
+    photo: UploadFile = File(...),
+    caption: str = Form(""),
+):
+    """Upload a new photo for the team gallery and sync to site."""
+    await require_team_admin(request, team_id)
+    if not photo.filename:
+        raise HTTPException(status_code=400, detail="Keine Datei ausgewählt")
+
+    ext = os.path.splitext(photo.filename)[1].lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".webp", ".gif"]:
+        raise HTTPException(status_code=400, detail="Nur Bilddateien (JPG, PNG, WebP) erlaubt")
+
+    safe_name = re.sub(r"[^a-zA-Z0-9_\-\.]", "_", photo.filename)
+    unique_filename = f"team_{team_id}_{secrets.token_hex(4)}_{safe_name}"
+
+    public_teams_dir = os.path.join(team_service._REPO_ROOT, "public", "images", "teams")
+    os.makedirs(public_teams_dir, exist_ok=True)
+    file_path = os.path.join(public_teams_dir, unique_filename)
+
+    content = await photo.read()
+    with open(file_path, "wb") as f:
+        f.write(content)
+
+    from config import UPLOAD_DIR
+    if os.path.exists(UPLOAD_DIR):
+        try:
+            hetzner_dir = os.path.join(UPLOAD_DIR, "teams")
+            os.makedirs(hetzner_dir, exist_ok=True)
+            with open(os.path.join(hetzner_dir, unique_filename), "wb") as f:
+                f.write(content)
+        except Exception:
+            pass
+
+    photo_url = f"/images/teams/{unique_filename}"
+    gallery = await team_service.add_team_photo(team_id, photo_url, caption)
+    await team_service.sync_team_to_website(team_id)
+
+    return JSONResponse({
+        "success": True,
+        "message": "Foto erfolgreich hochgeladen und Galerie aktualisiert",
+        "photo_url": photo_url,
+        "gallery": gallery,
+    })
+
+
+@router.delete("/{team_id}/photos")
+async def delete_team_photo(request: Request, team_id: int, data: TeamPhotoDelete):
+    """Delete a photo from the team gallery and sync to site."""
+    await require_team_admin(request, team_id)
+    gallery = await team_service.remove_team_photo(team_id, data.photo_src)
+    await team_service.sync_team_to_website(team_id)
+    return JSONResponse({
+        "success": True,
+        "message": "Foto aus der Galerie entfernt",
+        "gallery": gallery,
+    })
+
+
+@router.post("/{team_id}/sync-website")
+async def sync_team_website(request: Request, team_id: int):
+    """Manually trigger website sync for a team."""
+    await require_team_admin(request, team_id)
+    sync_res = await team_service.sync_team_to_website(team_id)
+    return JSONResponse(sync_res)
+
+
+@router.get("/{team_id}/public-info")
+async def get_team_public_info(team_id: int):
+    """Public endpoint for website frontends to fetch live team info."""
+    profile = await team_service.get_team_web_profile(team_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Team nicht gefunden")
+    safe_fields = {
+        "id", "mannschaftsname", "mannschaftsart", "spielklasse", "coach",
+        "contact_person", "training_times", "training_location", "webpage_url",
+        "content", "gallery", "division_name", "division_icon"
+    }
+    return {k: v for k, v in profile.items() if k in safe_fields}
+

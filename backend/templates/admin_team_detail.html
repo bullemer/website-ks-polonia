@@ -171,6 +171,7 @@
                 <button class="tab-btn active" onclick="switchTab('kader')">👥 Kader & Staff ({{ team_members|length }})</button>
                 <button class="tab-btn" onclick="switchTab('kasse')">💰 Mannschaftskasse ({{ "%.2f"|format(treasury_summary.total_balance) }} €)</button>
                 <button class="tab-btn" onclick="switchTab('aufgaben')">📋 Aufgaben & Dienste ({{ team_tasks|length }})</button>
+                <button class="tab-btn" onclick="switchTab('website')">🌐 Website & Teamseite</button>
             </div>
 
             <!-- TAB 1: KADER -->
@@ -398,6 +399,151 @@
                     {% endif %}
                 </div>
             </div>
+
+            <!-- TAB 4: WEBSITE & TEAMSEITE -->
+            <div class="tab-content" id="tab-website">
+                <!-- Header Card with Live Link & Sync -->
+                <div class="section">
+                    <div class="section-title">
+                        <span>🌐 Webseiten-Verknüpfung & Live-Status</span>
+                        <div style="display:flex;gap:0.5rem;align-items:center;">
+                            {% if team.webpage_url %}
+                            <a href="{{ team.webpage_url }}" target="_blank" class="btn" style="background:rgba(255,255,255,0.08);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;">
+                                ↗ Live-Seite aufrufen
+                            </a>
+                            {% endif %}
+                            <button class="btn btn-primary" onclick="syncWebsite()">
+                                🔄 Jetzt synchronisieren
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 1.25rem 1.5rem; background: rgba(0,0,0,0.1); border-bottom: 1px solid var(--border); font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                        Bearbeite hier die offiziellen Webseiten-Inhalte für <strong>{{ team.mannschaftsname }}</strong>. Änderungen an Trainingszeiten, Trainern, Texten und Fotos werden direkt in der Datenbank gespeichert und mit der statischen Teamseite auf <strong>ks-polonia.de</strong> synchronisiert.
+                    </div>
+                </div>
+
+                <!-- Form: Trainingszeiten, Trainer, Betreuer, Steckbrief -->
+                <div class="section">
+                    <div class="section-title">
+                        <span>⚙️ Trainingszeiten, Trainer & Steckbrief</span>
+                    </div>
+                    <form id="teamWebForm" onsubmit="saveWebProfile(event)" style="padding: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-bottom: 1.25rem;">
+                            <div>
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+                                    ⏱️ Trainingszeiten
+                                </label>
+                                <input type="text" name="training_times" id="webTrainingTimes" value="{{ team.training_times or '' }}" 
+                                       placeholder="z. B. Montag & Donnerstag, 16:30 – 18:00 Uhr"
+                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+                                    📍 Trainingsort / Halle / Sportplatz
+                                </label>
+                                <input type="text" name="training_location" id="webTrainingLocation" value="{{ team.training_location or '' }}" 
+                                       placeholder="z. B. Sportplatz Finkenau 38, 22081 Hamburg"
+                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+                                    🏋️ Trainer
+                                </label>
+                                <input type="text" name="coach" id="webCoach" value="{{ team.coach or '' }}" 
+                                       placeholder="z. B. Carsten Bullemer, Piotr, Sven"
+                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+                                    📋 Betreuer / Mannschaftsverantwortlicher
+                                </label>
+                                <input type="text" name="contact_person" id="webContactPerson" value="{{ team.contact_person or '' }}" 
+                                       placeholder="z. B. Carsten Bullemer (0173-xxxxxxx)"
+                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+                                    🏆 Spielklasse / Liga
+                                </label>
+                                <input type="text" name="spielklasse" id="webSpielklasse" value="{{ team.spielklasse or '' }}" 
+                                       placeholder="z. B. Kinderfußball / Kreisklasse"
+                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+                                    👶 Altersklasse / Jahrgänge
+                                </label>
+                                <input type="text" name="age_group" id="webAgeGroup" value="{{ team.age_group or '' }}" 
+                                       placeholder="z. B. U10 (Jahrgang 2016/2017)"
+                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+                                    🔗 Webseiten-Pfad (URL Slug)
+                                </label>
+                                <input type="text" name="webpage_url" id="webUrl" value="{{ team.webpage_url or '' }}" 
+                                       placeholder="z. B. /football/e-junioren oder /seiten/basketball-jugend-u10"
+                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+                                    📝 Webseiten-Text / Mannschaftsbeschreibung (Markdown)
+                                </label>
+                                <textarea name="content" id="webContent" rows="8" 
+                                          placeholder="Beschreibe die Mannschaft, Philosophie, Willkommenstext..."
+                                          style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.75rem;border-radius:8px;font-size:0.88rem;font-family:monospace;resize:vertical;">{{ team.content or '' }}</textarea>
+                            </div>
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;">
+                            <button type="submit" class="btn btn-primary" id="saveWebBtn" style="padding:0.75rem 1.5rem;font-size:0.9rem;">
+                                💾 Änderungen speichern & mit Website synchronisieren
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Foto-Galerie & Upload -->
+                <div class="section">
+                    <div class="section-title">
+                        <span>📸 Team-Fotos & Galerie</span>
+                        <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 400;" id="photoCount">{{ team.gallery|length if team.gallery else 0 }} Fotos</span>
+                    </div>
+
+                    <!-- Upload Form -->
+                    <form id="photoUploadForm" onsubmit="uploadPhoto(event)" style="padding: 1.25rem 1.5rem; background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--border); display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                        <input type="file" name="photo" id="photoFileInput" accept="image/png,image/jpeg,image/webp,image/jpg" required
+                               style="background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.45rem 0.65rem; border-radius: 8px; font-size: 0.82rem;">
+                        <input type="text" name="caption" id="photoCaptionInput" placeholder="Bildunterschrift (optional)" 
+                               style="flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.55rem 0.8rem; border-radius: 8px; font-size: 0.85rem;">
+                        <button type="submit" class="btn btn-primary" id="uploadPhotoBtn">
+                            📤 Foto hochladen
+                        </button>
+                    </form>
+
+                    <!-- Gallery Grid -->
+                    <div id="galleryGrid" style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem;">
+                        {% if team.gallery and team.gallery|length > 0 %}
+                            {% for img in team.gallery %}
+                            <div class="photo-card" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
+                                <div style="height: 140px; overflow: hidden; background: #000; position: relative;">
+                                    <img src="{{ img.src }}" alt="{{ img.caption or 'Teamfoto' }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                                <div style="padding: 0.75rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem;">
+                                    <div style="font-size: 0.8rem; color: var(--text); line-height: 1.3;">
+                                        {{ img.caption or 'Keine Bildunterschrift' }}
+                                    </div>
+                                    <button class="btn btn-danger btn-sm" onclick="deletePhoto('{{ img.src }}')" style="width: 100%; margin-top: 0.3rem;">
+                                        🗑️ Foto löschen
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-row" style="grid-column: 1 / -1;">Noch keine Fotos hochgeladen.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -531,6 +677,87 @@
             const row = document.getElementById('task-row-' + taskId);
             if (row) row.style.display = 'none';
         } else showAlert(data.detail || 'Fehler', false);
+    }
+
+    // --- WEBSITE & CONTENT SYNC ---
+    async function saveWebProfile(e) {
+        e.preventDefault();
+        const btn = document.getElementById('saveWebBtn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Wird gespeichert & synchronisiert...'; }
+        try {
+            const fd = new FormData(e.target);
+            const payload = Object.fromEntries(fd.entries());
+            const res = await fetch('/api/teams/' + teamId + '/web-profile', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showAlert(data.message || 'Teamseite erfolgreich synchronisiert');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert(data.detail || 'Fehler beim Speichern', false);
+            }
+        } catch(err) {
+            showAlert('Verbindungsfehler beim Speichern', false);
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = '💾 Änderungen speichern & mit Website synchronisieren'; }
+        }
+    }
+
+    async function syncWebsite() {
+        const res = await fetch('/api/teams/' + teamId + '/sync-website', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            showAlert('Website erfolgreich synchronisiert: ' + (data.synced_files || []).join(', '));
+        } else {
+            showAlert(data.error || 'Fehler bei der Synchronisation', false);
+        }
+    }
+
+    async function uploadPhoto(e) {
+        e.preventDefault();
+        const btn = document.getElementById('uploadPhotoBtn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Lädt hoch...'; }
+        try {
+            const fd = new FormData(e.target);
+            const res = await fetch('/api/teams/' + teamId + '/photos', {
+                method: 'POST',
+                body: fd,
+            });
+            const data = await res.json();
+            if (data.success) {
+                showAlert('Foto erfolgreich hochgeladen');
+                setTimeout(() => location.reload(), 800);
+            } else {
+                showAlert(data.detail || 'Fehler beim Upload', false);
+            }
+        } catch(err) {
+            showAlert('Netzwerkfehler beim Foto-Upload', false);
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = '📤 Foto hochladen'; }
+        }
+    }
+
+    async function deletePhoto(photoSrc) {
+        if (!confirm('Dieses Foto wirklich aus der Team-Galerie löschen?')) return;
+        try {
+            const res = await fetch('/api/teams/' + teamId + '/photos', {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ photo_src: photoSrc }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                showAlert('Foto gelöscht');
+                setTimeout(() => location.reload(), 600);
+            } else {
+                showAlert(data.detail || 'Fehler beim Löschen', false);
+            }
+        } catch(err) {
+            showAlert('Verbindungsfehler', false);
+        }
     }
     </script>
 </body>

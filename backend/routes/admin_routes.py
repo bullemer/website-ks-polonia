@@ -262,8 +262,18 @@ async def admin_team_detail(request: Request, team_id: int):
     treasury_transactions = await team_service.get_team_treasury_transactions(team_id)
     team_tasks = await team_service.get_team_tasks(team_id)
 
+    team_dict = dict(team)
+    if isinstance(team_dict.get("gallery"), str):
+        import json
+        try:
+            team_dict["gallery"] = json.loads(team_dict["gallery"])
+        except Exception:
+            team_dict["gallery"] = []
+    elif team_dict.get("gallery") is None:
+        team_dict["gallery"] = []
+
     return templates.TemplateResponse(request, "admin_team_detail.html", {
-        "team": dict(team),
+        "team": team_dict,
         "team_members": [dict(m) for m in team_members],
         "all_members": [dict(m) for m in all_members],
         "divisions": [dict(d) for d in divisions],

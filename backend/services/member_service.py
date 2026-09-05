@@ -285,18 +285,19 @@ async def get_member_teams(member_id: int) -> list[dict]:
     async with pool.acquire() as conn:
         rows = await conn.fetch(
             """
-            SELECT mt.id, mt.position, mt.jersey_number, mt.status, mt.joined_at,
-                   t.mannschaftsname, t.mannschaftsart, t.spielklasse,
-                   d.name as division_name
+            SELECT mt.id as assignment_id, mt.role, mt.position, mt.jersey_number, mt.status, mt.joined_at,
+                   t.id as team_id, t.id as id, t.mannschaftsname, t.mannschaftsart, t.spielklasse, t.coach,
+                   d.name as division_name, d.icon as division_icon
             FROM member_teams mt
             JOIN teams t ON t.id = mt.team_id
             LEFT JOIN divisions d ON d.id = t.division_id
-            WHERE mt.member_id = $1
+            WHERE mt.member_id = $1 AND mt.status = 'active'
             ORDER BY d.sort_order, t.sort_order
             """,
             member_id,
         )
         return [dict(r) for r in rows]
+
 
 
 async def list_members(

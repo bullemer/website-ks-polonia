@@ -2,9 +2,14 @@
 KS Polonia – Team Management Service.
 Handles team roster, Mannschaftskasse (treasury), and Team Tasks.
 """
+import os
+import json
+import yaml
 import datetime
 from typing import Optional, List, Dict, Any
 from database import get_pool
+
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 def _parse_date(date_str: Optional[str]) -> Optional[datetime.date]:
@@ -307,3 +312,174 @@ async def delete_team_task(task_id: int, team_id: int) -> bool:
     async with pool.acquire() as conn:
         res = await conn.execute("DELETE FROM team_tasks WHERE id = $1 AND team_id = $2", task_id, team_id)
         return "DELETE 1" in res
+
+
+# ═══════════════════════════════════════
+#  TEAM WEBSITE & CONTENT SYNC
+# ═══════════════════════════════════════
+
+def _extract_frontmatter_and_body(text: str):
+    """Safely extract YAML frontmatter and markdown body from a document."""
+    lines = text.splitlines()
+    if lines and lines[0].strip() == "---":
+        fm_lines = []
+        body_start_idx = 1
+        for idx, line in enumerate(lines[1:], start=1):
+            if line.strip() == "---":
+                body_start_idx = idx + 1
+                break
+            fm_lines.append(line)
+        fm_text = "\n".join(fm_lines)
+        body_text = "\n".join(lines[body_start_idx:])
+        try:
+            fm = yaml.safe_load(fm_text) or {}
+        except Exception:
+            fm = {}
+        return fm, body_text.strip()
+    return {}, text.strip()
+
+
+async def get_team_web_profile(team_id: int) -> Optional[Dict[str, Any]]:
+    """Get full team details for web content management."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT t.*, d.name as division_name, d.icon as division_icon
+            FROM teams t
+            LEFT JOIN divisions d ON d.id = t.division_id
+            WHERE t.id = $1
+        """, team_id)
+        if not row:
+            return None
+        data = dict(row)
+        if isinstance(data.get("gallery"), str):
+            try:
+                data["gallery"] = json.loads(data["gallery"])
+            except Exception:
+                data["gallery"] = []
+        elif data.get("gallery") is None:
+            data["gallery"] = []
+        return data
+
+
+async def update_team_web_profile(team_id: int, updates: Dict[str, Any]) -> bool:
+    """Update team web fields in database."""
+    allowed = {
+        "coach", "contact_person", "training_times", "training_location",
+        "spielklasse", "age_group", "webpage_url", "content"
+    }
+    fields = {k: v for k, v in updates.items() if k in allowed and v is not None}
+    if not fields:
+        return True
+
+    set_clauses = [f"{k} = ${i+2}" for i, k in enumerate(fields.keys())]
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        res = await conn.execute(
+            f"UPDATE teams SET {', '.join(set_clauses)} WHERE id = $1",
+            team_id, *fields.values()
+        )
+        return "UPDATE 1" in res
+
+
+async def add_team_photo(team_id: int, photo_url: str, caption: str = "") -> List[Dict[str, str]]:
+    """Add a photo to the team gallery JSON in database."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        curr = await conn.fetchval("SELECT gallery FROM teams WHERE id = $1", team_id)
+        gallery = []
+        if isinstance(curr, str):
+            try:
+                gallery = json.loads(curr)
+            except Exception:
+                gallery = []
+        elif isinstance(curr, list):
+            gallery = curr
+
+        gallery.append({"src": photo_url, "caption": caption.strip()})
+        await conn.execute("UPDATE teams SET gallery = $1::jsonb WHERE id = $2", json.dumps(gallery), team_id)
+        return gallery
+
+
+async def remove_team_photo(team_id: int, photo_src: str) -> List[Dict[str, str]]:
+    """Remove a photo by its src from the team gallery JSON in database."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        curr = await conn.fetchval("SELECT gallery FROM teams WHERE id = $1", team_id)
+        gallery = []
+        if isinstance(curr, str):
+            try:
+                gallery = json.loads(curr)
+            except Exception:
+                gallery = []
+        elif isinstance(curr, list):
+            gallery = curr
+
+        gallery = [img for img in gallery if img.get("src") != photo_src]
+        await conn.execute("UPDATE teams SET gallery = $1::jsonb WHERE id = $2", json.dumps(gallery), team_id)
+        return gallery
+
+
+async def sync_team_to_website(team_id: int) -> Dict[str, Any]:
+    """
+    Synchronize the team's data (coach, training_times, gallery, content)
+    to its corresponding Astro Markdown / Markdoc file on disk.
+    """
+    team = await get_team_web_profile(team_id)
+    if not team:
+        return {"success": False, "error": "Team nicht gefunden"}
+
+    target_files = []
+    m_name = (team.get("mannschaftsname") or "").lower()
+    w_url = (team.get("webpage_url") or "").lower()
+
+    if team_id == 11 or "e-junioren" in w_url or "1.e" in m_name:
+        target_files.append(os.path.join(_REPO_ROOT, "src", "content", "teams", "e-junioren.mdoc"))
+    elif team_id == 12 or "u10" in w_url or "u10" in m_name:
+        target_files.append(os.path.join(_REPO_ROOT, "src", "content", "pages", "basketball-jugend-u10", "index.mdoc"))
+    elif team_id == 13 or "ue35" in w_url or "ü35" in m_name or "ue35" in m_name:
+        target_files.append(os.path.join(_REPO_ROOT, "src", "content", "pages", "basketball-herren-ue35", "index.mdoc"))
+    else:
+        # Fallback check based on slug in webpage_url
+        slug = w_url.strip("/").split("/")[-1]
+        if slug:
+            candidate = os.path.join(_REPO_ROOT, "src", "content", "teams", f"{slug}.mdoc")
+            if os.path.exists(candidate):
+                target_files.append(candidate)
+
+    synced_paths = []
+    for path in target_files:
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                old_text = f.read()
+
+            fm, old_body = _extract_frontmatter_and_body(old_text)
+
+            if team.get("coach"):
+                fm["coach"] = team["coach"]
+            if team.get("training_times"):
+                fm["trainingTimes"] = team["training_times"]
+            if team.get("gallery") is not None:
+                fm["gallery"] = team["gallery"]
+            if team.get("spielklasse"):
+                fm["spielklasse"] = team["spielklasse"]
+            if team.get("age_group"):
+                fm["ageGroup"] = team["age_group"]
+
+            body_text = team.get("content") if team.get("content") else old_body
+
+            new_content = f"---\n{yaml.dump(fm, sort_keys=False, allow_unicode=True)}---\n\n{body_text}\n"
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(new_content)
+            synced_paths.append(path)
+        except Exception as e:
+            return {"success": False, "error": f"Fehler beim Schreiben von {os.path.basename(path)}: {str(e)}"}
+
+    return {
+        "success": True,
+        "team_id": team_id,
+        "synced_files": [os.path.basename(p) for p in synced_paths],
+    }
+

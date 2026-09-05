@@ -56,11 +56,21 @@ async def login(req: LoginRequest):
     return response
 
 
-@router.get("/logout")
-async def logout():
-    """Clear the JWT cookie and redirect to login page."""
-    response = RedirectResponse(url="/api/portal/login", status_code=302)
-    response.delete_cookie("session_token")
+@router.api_route("/logout", methods=["GET", "POST"])
+async def logout(request: Request):
+    """Clear the JWT cookie and redirect to login page (or return JSON)."""
+    is_json = "application/json" in request.headers.get("accept", "") or request.method == "POST"
+    if is_json:
+        response = JSONResponse({"success": True, "message": "Erfolgreich abgemeldet"})
+    else:
+        response = RedirectResponse(url="/api/portal/login", status_code=302)
+    response.delete_cookie(
+        key="session_token",
+        path="/",
+        httponly=True,
+        secure=True,
+        samesite="lax",
+    )
     return response
 
 

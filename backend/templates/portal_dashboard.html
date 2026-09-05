@@ -119,7 +119,7 @@
                 {% if is_superadmin %}👑 Superadmin{% else %}🛡️ Team-Admin{% endif %}
             </a>
             {% endif %}
-            <a href="#" onclick="logout()">Abmelden</a>
+            <a href="/api/auth/logout" onclick="logout(event)">Abmelden</a>
         </div>
     </div>
 
@@ -571,7 +571,11 @@
         window.open(url, '_blank');
     }
 
-    async function logout() { await fetch('/api/auth/logout', {method:'POST'}); window.location.href = '/api/portal/login'; }
+    async function logout(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        try { await fetch('/api/auth/logout', {method:'POST'}); } catch(err) {}
+        window.location.href = '/api/portal/login';
+    }
     </script>
 </body>
 </html>

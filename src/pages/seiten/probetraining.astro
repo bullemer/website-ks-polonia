@@ -29,7 +29,7 @@ if (entry) {
             <h2 style="margin-top: 2rem; margin-bottom: 1.5rem;">Probetraining anfragen</h2>
             <form
                 class="contact-form"
-                action="/api/contact.php"
+                action="/api/contact"
                 method="POST"
                 id="probetrainingForm"
             >
@@ -75,7 +75,14 @@ if (entry) {
                     <textarea id="message" name="message" rows="4" required placeholder="Ich habe früher bei Verein XY gespielt..."></textarea>
                 </div>
 
+                <div class="form-group captcha-group" style="background: #fdfdfd; padding: 1rem; border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <label for="captcha_answer" id="captcha_label">Sicherheitsfrage: Was ergibt 5 + 3? *</label>
+                    <input type="number" id="captcha_answer" name="captcha_answer" required placeholder="Ihr Ergebnis" style="max-width: 200px;" />
+                    <input type="hidden" id="captcha_expected" name="captcha_expected" value="8" />
+                </div>
+
                 <button type="submit" class="submit-btn" id="submitBtn">Anfrage senden</button>
+
 
                 <div id="formStatus" class="form-status" style="display: none;"></div>
 
@@ -201,6 +208,21 @@ if (entry) {
     const statusDiv = document.getElementById('formStatus');
     const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
 
+    function initCaptcha() {
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
+        const captchaLabel = document.getElementById('captcha_label');
+        const captchaExpected = document.getElementById('captcha_expected') as HTMLInputElement;
+        const captchaAnswer = document.getElementById('captcha_answer') as HTMLInputElement;
+        if (captchaLabel && captchaExpected) {
+            captchaLabel.textContent = `Sicherheitsfrage: Was ergibt ${num1} + ${num2}? *`;
+            captchaExpected.value = (num1 + num2).toString();
+            if (captchaAnswer) captchaAnswer.value = '';
+        }
+    }
+
+    initCaptcha();
+
     if (form && statusDiv && submitBtn) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -229,9 +251,11 @@ if (entry) {
                     statusDiv.className = 'form-status success';
                     statusDiv.textContent = result.message || 'Ihre Anfrage wurde erfolgreich gesendet!';
                     form.reset();
+                    initCaptcha();
                 } else {
                     statusDiv.className = 'form-status error';
                     statusDiv.textContent = result.error || 'Es gab ein Problem beim Senden Ihrer Anfrage.';
+                    initCaptcha();
                 }
             } catch (error) {
                 statusDiv.style.display = 'block';
@@ -244,3 +268,4 @@ if (entry) {
         });
     }
 </script>
+

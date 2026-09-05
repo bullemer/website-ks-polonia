@@ -84,8 +84,11 @@ class ContactForm(BaseModel):
     subject: str = "allgemein"
     message: str
     website_url: Optional[str] = ""  # Honeypot
-    captcha_answer: str
-    captcha_expected: str
+    captcha_answer: Optional[str] = None
+    captcha_expected: Optional[str] = None
+    sportart: Optional[str] = None
+    age: Optional[str] = None
+
 
 class ReserveSpotRequest(BaseModel):
     spot_id: int
@@ -202,15 +205,18 @@ async def wall_reserve_spot(req: ReserveSpotRequest):
 # ═══════════════════════════════════════
 
 @app.post("/contact")
+@app.post("/contact.php")
+@app.post("/probetraining")
 async def handle_contact(form: ContactForm):
-    if form.website_url.strip() != "":
+    if form.website_url and form.website_url.strip() != "":
         return JSONResponse({"success": True, "message": "Ihre Nachricht wurde erfolgreich gesendet!"})
 
-    try:
-        if int(form.captcha_answer.strip()) != int(form.captcha_expected.strip()):
-            return JSONResponse({"success": False, "error": "Die Sicherheitsfrage wurde falsch beantwortet."}, status_code=400)
-    except ValueError:
-        return JSONResponse({"success": False, "error": "Bitte geben Sie eine gültige Zahl als Antwort ein."}, status_code=400)
+    if form.captcha_answer is not None and form.captcha_expected is not None:
+        try:
+            if int(form.captcha_answer.strip()) != int(form.captcha_expected.strip()):
+                return JSONResponse({"success": False, "error": "Die Sicherheitsfrage wurde falsch beantwortet."}, status_code=400)
+        except ValueError:
+            return JSONResponse({"success": False, "error": "Bitte geben Sie eine gültige Zahl als Antwort ein."}, status_code=400)
 
     subject_map = {
         "probetraining": "Anfrage Probetraining",
@@ -218,13 +224,24 @@ async def handle_contact(form: ContactForm):
         "allgemein": "Allgemeine Anfrage",
     }
     subject_prefix = subject_map.get(form.subject, "Neue Nachricht über die Webseite")
+    if form.sportart:
+        subject_prefix += f" ({form.sportart})"
     email_subject = f"{subject_prefix} - von {form.name}"
 
+    details = [
+        f"Name: {form.name}",
+        f"E-Mail: {form.email}",
+    ]
+    if form.sportart:
+        details.append(f"Sportart: {form.sportart}")
+    if form.age:
+        details.append(f"Jahrgang / Alter: {form.age}")
+    details.append(f"Betreff: {subject_prefix}")
+
+    details_str = "\n".join(details)
     body = (
         f"Du hast eine neue Nachricht über das Kontaktformular der Website erhalten:\n\n"
-        f"Name: {form.name}\n"
-        f"E-Mail: {form.email}\n"
-        f"Betreff: {form.subject}\n\n"
+        f"{details_str}\n\n"
         f"Nachricht:\n"
         f"-------------------------------------------\n"
         f"{form.message}\n"
@@ -237,7 +254,8 @@ async def handle_contact(form: ContactForm):
     )
     if success:
         return JSONResponse({"success": True, "message": "Ihre Nachricht wurde erfolgreich gesendet!"})
-    return JSONResponse({"success": False, "error": "Fehler: " + error_msg}, status_code=500)
+    return JSONResponse({"success": False, "error": f"Fehler beim E-Mail-Versand: {error_msg or 'Unbekannter Fehler'}"}, status_code=500)
+
 
 
 # ═══════════════════════════════════════

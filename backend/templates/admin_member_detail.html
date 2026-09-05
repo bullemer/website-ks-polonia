@@ -68,6 +68,12 @@
                     </h1>
                     <p>{{ member.mitgliedsnummer or 'Keine Mitgliedsnr.' }} · {{ member.email }}</p>
                 </div>
+                <div style="margin-left: auto;">
+                    <a href="/api/admin/members/{{ member.id }}/certificate/pdf" target="_blank" 
+                       class="btn" style="background: var(--surface-hover); border: 1px solid var(--border); color: #fff; padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; font-weight: 600;">
+                        📄 Bescheinigung (PDF)
+                    </a>
+                </div>
             </div>
 
             <div class="section">

@@ -4,7 +4,7 @@ Full CRUD for members, divisions, teams, applications.
 """
 import os
 from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.templating import Jinja2Templates
 from typing import Optional
 
@@ -440,3 +440,38 @@ async def admin_delete_ticket_holder(request: Request, holder_id: int):
         await conn.execute("DELETE FROM season_tickets WHERE holder_id = $1", holder_id)
         await conn.execute("DELETE FROM season_ticket_holders WHERE id = $1", holder_id)
     return JSONResponse({"success": True, "message": "Dauerkarten-Inhaber gelöscht"})
+
+
+# ═══════════════════════════════════════
+#  MITGLIEDSBESCHEINIGUNG (PDF) - ADMIN
+# ═══════════════════════════════════════
+
+@router.get("/members/{member_id}/certificate/pdf")
+async def admin_download_membership_certificate(request: Request, member_id: int, purpose: str = ""):
+    """Generate and download official Mitgliedsbescheinigung as PDF for any member (Admin)."""
+    require_admin(request)
+    member = await member_service.get_member_by_id(member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+
+    divisions = await member_service.get_member_divisions(member_id)
+    from services.certificate_pdf import generate_membership_certificate
+    pdf_bytes = generate_membership_certificate(
+        member=member,
+        divisions=divisions,
+        purpose=purpose,
+        paid_current_year=True,
+    )
+
+    nachname = member.get("nachname", "Mitglied").strip()
+    vorname = member.get("vorname", "").strip()
+    raw_name = f"Mitgliedsbescheinigung_{nachname}_{vorname}.pdf"
+    clean_name = "".join(c for c in raw_name if c.isalnum() or c in "._-")
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="{clean_name}"',
+        },
+    )

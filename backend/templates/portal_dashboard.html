@@ -170,6 +170,23 @@
                     <div class="di"><div class="lb">Status</div><div class="vl" style="color:var(--ok)">✓ Aktiv</div></div>
                 </div>
             </div>
+
+            <!-- Mitgliedsbescheinigung Card -->
+            <div class="card" style="margin-top:.75rem;border: 1.5px solid rgba(220,20,60,0.25);background:linear-gradient(180deg,#fff 0%,#fff9fa 100%);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+                    <div>
+                        <h3 style="margin-bottom:0.15rem;color:var(--t);">📄 Mitgliedsbescheinigung (PDF)</h3>
+                        <p style="font-size:0.82rem;color:var(--tm);">Offizielle Bestätigung mit Vereinslogo & Unterschrift des 1. Vorsitzenden Manfred Wolny</p>
+                    </div>
+                </div>
+                <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;margin-top:0.65rem;">
+                    <input type="text" id="certPurpose" placeholder="Zweck (optional, z.B. Krankenkasse, Behörde)" 
+                           style="flex:1;min-width:180px;padding:0.65rem 0.85rem;border:1.5px solid var(--b);border-radius:10px;font-size:0.88rem;font-family:inherit;">
+                    <button class="btn btn-p" onclick="downloadCert()" style="display:inline-flex;align-items:center;gap:0.4rem;white-space:nowrap;">
+                        <span>⬇️</span> Bescheinigung laden
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- PROFIL -->
@@ -509,6 +526,13 @@
         } catch(err) { showGlobal('Verbindungsfehler.', 'error'); }
         finally { btn.disabled = false; btn.textContent = 'Hochladen'; }
     });
+
+    function downloadCert() {
+        const input = document.getElementById('certPurpose');
+        const purpose = input ? encodeURIComponent(input.value.trim()) : '';
+        const url = '/api/member/certificate/pdf' + (purpose ? '?purpose=' + purpose : '');
+        window.open(url, '_blank');
+    }
 
     async function logout() { await fetch('/api/auth/logout', {method:'POST'}); window.location.href = '/api/portal/login'; }
     </script>

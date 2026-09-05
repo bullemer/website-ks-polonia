@@ -5,7 +5,7 @@ Profile view/edit, bank account, password change, division/team info, document u
 import os
 import datetime
 from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from auth import get_current_member, verify_password, hash_password
 from models.member import MemberProfileUpdate, PasswordChange, BankAccountUpdate
@@ -233,4 +233,39 @@ async def get_payments(request: Request):
     payments = await member_service.get_member_payments(current["member_id"])
     summary = await member_service.get_payment_summary(current["member_id"])
     return {"payments": payments, "summary": summary}
+
+
+# ═══════════════════════════════════════
+#  MITGLIEDSBESCHEINIGUNG (PDF)
+# ═══════════════════════════════════════
+
+@router.get("/certificate/pdf")
+async def download_membership_certificate(request: Request, purpose: str = ""):
+    """Generate and download official Mitgliedsbescheinigung as PDF."""
+    current = get_current_member(request)
+    member = await member_service.get_member_by_id(current["member_id"])
+    if not member:
+        raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+
+    divisions = await member_service.get_member_divisions(current["member_id"])
+    from services.certificate_pdf import generate_membership_certificate
+    pdf_bytes = generate_membership_certificate(
+        member=member,
+        divisions=divisions,
+        purpose=purpose,
+        paid_current_year=True,
+    )
+
+    nachname = member.get("nachname", "Mitglied").strip()
+    vorname = member.get("vorname", "").strip()
+    raw_name = f"Mitgliedsbescheinigung_{nachname}_{vorname}.pdf"
+    clean_name = "".join(c for c in raw_name if c.isalnum() or c in "._-")
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="{clean_name}"',
+        },
+    )
 

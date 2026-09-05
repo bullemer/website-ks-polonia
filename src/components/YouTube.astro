@@ -2,13 +2,15 @@
 export interface Props {
     id: string;
     title?: string;
+    aspect?: '16:9' | '9:16' | 'short' | string;
 }
 
-const { id, title = 'YouTube Video' } = Astro.props;
+const { id, title = 'YouTube Video', aspect = '16:9' } = Astro.props;
+const isShort = aspect === '9:16' || aspect === 'short';
 const embedUrl = `https://www.youtube-nocookie.com/embed/${id}`;
 ---
 
-<div class="youtube-embed">
+<div class:list={['youtube-embed', { 'youtube-embed-short': isShort }]}>
     <iframe 
         src={embedUrl}
         title={title}
@@ -30,6 +32,13 @@ const embedUrl = `https://www.youtube-nocookie.com/embed/${id}`;
         border-radius: var(--radius, 8px);
         overflow: hidden;
         box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
+    }
+    .youtube-embed.youtube-embed-short {
+        max-width: 320px;
+        padding-bottom: 0;
+        aspect-ratio: 9 / 16;
+        margin-left: auto;
+        margin-right: auto;
     }
     .youtube-embed iframe {
         position: absolute;

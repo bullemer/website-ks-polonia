@@ -7,6 +7,7 @@ export default defineMarkdocConfig({
             attributes: {
                 id: { type: String, required: true },
                 title: { type: String },
+                aspect: { type: String },
             },
         },
     },

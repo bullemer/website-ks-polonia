@@ -51,8 +51,8 @@ jobs:
           HOST=$(echo "$SSH_HOST" | xargs)
           USER=$(echo "$SSH_USER" | xargs)
           echo "Deploying frontend to $USER@$HOST"
+          ssh -p 222 "$USER@$HOST" "cp /usr/home/trusteei/public_html/ks-polonia/.htaccess /usr/home/trusteei/public_html/ks-polonia/.htaccess.bak || true"
           rsync -avz --delete \
-            --exclude='.htaccess' \
             -e "ssh -p 222" \
             dist/ "$USER@$HOST:/usr/home/trusteei/public_html/ks-polonia/"
 

@@ -13,6 +13,42 @@ export async function getStaticPaths() {
 
 const { team } = Astro.props;
 const { Content } = await render(team);
+
+const teamName = team.data.title || team.data.teamName || 'KS Polonia Hamburg';
+const pageUrl = `https://www.ks-polonia.de/football/${team.id}`;
+const teamSchema = {
+    "@context": "https://schema.org",
+    "@type": "SportsTeam",
+    "name": `${teamName} – KS Polonia Hamburg`,
+    "sport": team.data.sport || "Fußball",
+    "url": pageUrl,
+    "parentOrganization": {
+        "@type": "SportsOrganization",
+        "name": "K.S. Polonia Hamburg e.V. 1988",
+        "url": "https://www.ks-polonia.de",
+        "logo": "https://www.ks-polonia.de/images/logo.png"
+    },
+    ...(team.data.coach ? {
+        "coach": {
+            "@type": "Person",
+            "name": team.data.coach
+        }
+    } : {}),
+    ...(team.data.logoUrl ? {
+        "logo": team.data.logoUrl.startsWith('http') ? team.data.logoUrl : `https://www.ks-polonia.de${team.data.logoUrl}`
+    } : {}),
+    "location": {
+        "@type": "Place",
+        "name": "Sportplatz Finkenau",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Finkenau 38",
+            "addressLocality": "Hamburg",
+            "postalCode": "22081",
+            "addressCountry": "DE"
+        }
+    }
+};
 ---
 
 <Layout 
@@ -20,6 +56,7 @@ const { Content } = await render(team);
     description={`${team.data.title || team.data.teamName} – Fußball ${team.data.spielklasse || ''} beim polnischen Sportverein KS Polonia Hamburg in Uhlenhorst. Spielplan, Ergebnisse und Kader.`}
     type="profile"
 >
+    <script type="application/ld+json" set:html={JSON.stringify(teamSchema)} />
     <div class="team-page-header">
         {team.data.logoUrl && (
             <div class="team-logo">

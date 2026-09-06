@@ -254,19 +254,6 @@ export default function WallOfHonor() {
   }, {} as Record<Category, DonorSpot[]>);
 
   // ── Render ──
-  if (loading) {
-    return (
-      <div className="woh-container">
-        <div className="woh-inner">
-          <div className="woh-loading">
-            <div className="woh-spinner" />
-            <p>{t.loading}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="woh-container">
       <div className="woh-inner">
@@ -296,8 +283,15 @@ export default function WallOfHonor() {
           <p>{t.heroSubtitle}</p>
         </div>
 
-        {/* Progress Bar */}
-        {stats && (
+        {loading ? (
+          <div className="woh-loading">
+            <div className="woh-spinner" />
+            <p>{t.loading}</p>
+          </div>
+        ) : (
+          <>
+            {/* Progress Bar */}
+            {stats && (
           <div className="woh-progress-section">
             <div className="woh-progress-label">
               <span className="woh-progress-title">{t.progressTitle}</span>
@@ -454,6 +448,8 @@ export default function WallOfHonor() {
             </div>
           </div>
         )}
+      </>
+    )}
       </div>
     </div>
   );

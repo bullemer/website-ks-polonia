@@ -22,8 +22,13 @@
   # 301 Redirects: Old WordPress URLs → New Astro URLs
   # ============================================
 
-  # Basketball pages
+  # Legacy duplicate /seiten/ redirects to primary pages
   RewriteRule ^seiten/basketball-jugend-u10/?$ /seiten/basketball-jugend-u12 [R=301,L]
+  RewriteRule ^seiten/galerie/?$ /galerie [R=301,L]
+  RewriteRule ^seiten/kontaktformular/?$ /kontakt [R=301,L]
+  RewriteRule ^seiten/impressum/?$ /seiten/impressum-2 [R=301,L]
+  RewriteRule ^seiten/home/?$ / [R=301,L]
+  RewriteRule ^seiten/mitglied-werden/?$ /mitgliedsantrag [R=301,L]
   RewriteRule ^basketball-fuer-kinder-in-hamburg-uhlenhorst/?$ /seiten/basketball-jugend-u12 [R=301,L]
   RewriteRule ^basketball-hamburg-herren-ue35/?$ /seiten/basketball-herren-ue35 [R=301,L]
 

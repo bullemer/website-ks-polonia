@@ -21,6 +21,8 @@ const {
     type = 'website'
 } = Astro.props;
 
+const pageTitle = /Polonia/i.test(title) ? title : `${title} | KS Polonia Hamburg`;
+
 // Generate BreadcrumbList
 const pathParts = pathname.split('/').filter(Boolean);
 const breadcrumbSchema = {
@@ -82,7 +84,7 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <meta name="generator" content={Astro.generator} />
     
     <!-- SEO and Meta Tags -->
-    <title>{title} | KS Polonia Hamburg</title>
+    <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <meta name="robots" content="index, follow" />
@@ -97,7 +99,7 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content={type} />
     <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:title" content={`${title} | KS Polonia Hamburg`} />
+    <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={image.startsWith('http') ? image : `${siteBase}${image}`} />
     <meta property="og:image:width" content="1200" />
@@ -108,7 +110,7 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content={canonicalUrl} />
-    <meta property="twitter:title" content={`${title} | KS Polonia Hamburg`} />
+    <meta property="twitter:title" content={pageTitle} />
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={image.startsWith('http') ? image : `${siteBase}${image}`} />
 

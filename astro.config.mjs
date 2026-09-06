@@ -15,35 +15,37 @@ const SITEMAP_EXCLUDE_PATTERNS = [
     '/seiten/elementor-',
     '/news/elementor-',
     // WooCommerce remnants (no shop on this site)
-    '/seiten/kasse/',
-    '/seiten/warenkorb/',
-    '/seiten/mein-konto/',
-    '/seiten/shop/',
-    '/seiten/rueckerstattung-rueckgaben/',
+    '/seiten/kasse',
+    '/seiten/warenkorb',
+    '/seiten/mein-konto',
+    '/seiten/shop',
+    '/seiten/rueckerstattung-rueckgaben',
     // Disabled / broken features
-    '/seiten/online-antrag-2/',
+    '/seiten/online-antrag-2',
     // Duplicate content (real versions exist elsewhere)
-    '/seiten/home/',          // duplicate of /
-    '/seiten/galerie/',       // duplicate of /galerie
-    '/seiten/impressum/',     // duplicate of /seiten/impressum-2/
-    '/seiten/kontaktformular/', // duplicate of /kontakt
+    '/seiten/home',          // duplicate of /
+    '/seiten/galerie',       // duplicate of /galerie
+    '/seiten/impressum$',    // exact match to exclude old impressum but keep /seiten/impressum-2
+    '/seiten/kontaktformular', // duplicate of /kontakt
+    '/seiten/mitglied-werden', // duplicate of /mitgliedsantrag
+    '/seiten/basketball-jugend-u10', // redirected to u12
     // Thin / low-value migrated pages
-    '/seiten/sachspende/',
-    '/seiten/beitraege/',
+    '/seiten/sachspende',
+    '/seiten/beitraege',
     // Empty / junk news articles
-    '/news/untitled/',
-    '/news/847/',
+    '/news/untitled',
+    '/news/847',
     // Internal utility pages
-    '/status/',
+    '/status',
     // Duplicate football team pages (shorter slug duplicates of full-name versions)
-    '/football/polonia-1-/',
-    '/football/polonia-2-/',
-    '/football/polonia-3-/',
-    '/football/polonia-4-/',
-    '/football/polonia-1--40/',
-    '/football/polonia-1-c--a1-/',
-    '/football/polonia-1-e--j1-/',
-    '/football/polonia-2-c--j1-/',
+    '/football/polonia-1-',
+    '/football/polonia-2-',
+    '/football/polonia-3-',
+    '/football/polonia-4-',
+    '/football/polonia-1--40',
+    '/football/polonia-1-c--a1-',
+    '/football/polonia-1-e--j1-',
+    '/football/polonia-2-c--j1-',
 ];
 
 // https://astro.build/config
@@ -52,6 +54,11 @@ export default defineConfig({
     trailingSlash: 'never',
     redirects: {
         '/seiten/basketball-jugend-u10': '/seiten/basketball-jugend-u12',
+        '/seiten/galerie': '/galerie',
+        '/seiten/kontaktformular': '/kontakt',
+        '/seiten/impressum': '/seiten/impressum-2',
+        '/seiten/home': '/',
+        '/seiten/mitglied-werden': '/mitgliedsantrag',
     },
     integrations: [
         react(),
@@ -60,7 +67,13 @@ export default defineConfig({
             changefreq: 'weekly',
             lastmod: new Date(),
             filter: (page) => {
-                return !SITEMAP_EXCLUDE_PATTERNS.some(pattern => page.includes(pattern));
+                const cleanUrl = page.replace(/\/+$/, '');
+                return !SITEMAP_EXCLUDE_PATTERNS.some(pattern => {
+                    if (pattern.endsWith('$')) {
+                        return cleanUrl.endsWith(pattern.slice(0, -1));
+                    }
+                    return cleanUrl.includes(pattern);
+                });
             },
             serialize: (item) => {
                 const url = item.url;

@@ -1,0 +1,58 @@
+---
+export interface Props {
+    src: string;
+    caption?: string;
+    poster?: string;
+}
+
+const { src, caption, poster } = Astro.props;
+---
+
+<figure class="video-container">
+    <div class="video-wrapper">
+        <video 
+            controls 
+            preload="metadata" 
+            poster={poster} 
+            playsinline
+            class="video-player"
+        >
+            <source src={src} type="video/mp4" />
+            Ihr Browser unterstützt dieses Video leider nicht.
+        </video>
+    </div>
+    {caption && <figcaption class="video-caption">{caption}</figcaption>}
+</figure>
+
+<style>
+    .video-container {
+        margin: 2rem 0;
+        text-align: center;
+    }
+
+    .video-wrapper {
+        position: relative;
+        max-width: 720px;
+        margin: 0 auto;
+        border-radius: var(--radius, 12px);
+        overflow: hidden;
+        background: #000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        border: 1px solid var(--color-border, #e5e7eb);
+    }
+
+    .video-player {
+        display: block;
+        width: 100%;
+        max-height: 520px;
+        margin: 0 auto;
+        border-radius: inherit;
+    }
+
+    .video-caption {
+        margin-top: 0.6rem;
+        font-size: 0.875rem;
+        color: var(--color-text-muted, #6b7280);
+        font-style: italic;
+    }
+</style>

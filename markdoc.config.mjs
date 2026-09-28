@@ -10,5 +10,13 @@ export default defineMarkdocConfig({
                 aspect: { type: String },
             },
         },
+        video: {
+            render: component('./src/components/Video.astro'),
+            attributes: {
+                src: { type: String, required: true },
+                caption: { type: String },
+                poster: { type: String },
+            },
+        },
     },
 });

@@ -63,6 +63,50 @@ const latestNews = sortedNews.slice(0, 6);
         </div>
     </section>
 
+    <!-- Latest News -->
+    <section class="section" id="news">
+        <div class="section-header">
+            <h2>Aktuelle Nachrichten</h2>
+            <a href="/news" class="view-all">Alle anzeigen →</a>
+        </div>
+        <div class="news-grid">
+            {latestNews.map((post) => {
+                const imgData = post.data.coverImage && typeof post.data.coverImage === 'object' && post.data.coverImage.src
+                    ? post.data.coverImage : null;
+                return (
+                    <a href={`/news/${post.id}`} class="news-card">
+                        <div class="news-card-image">
+                            {imgData ? (
+                                <Image src={imgData} alt={post.data.title || ''} width={400} height={267} />
+                            ) : (
+                                <div class="news-image-placeholder">
+                                    <svg viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" stroke-width="1.5" fill="none">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                                        <polyline points="21 15 16 10 5 21"/>
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
+                        <div class="news-card-body">
+                            <h3>{post.data.title}</h3>
+                            {post.data.date && (
+                                <time class="news-date">
+                                    {new Date(post.data.date).toLocaleDateString('de-DE', {
+                                        day: '2-digit', month: 'long', year: 'numeric'
+                                    })}
+                                </time>
+                            )}
+                            {post.data.category && (
+                                <span class="news-category">{post.data.category}</span>
+                            )}
+                        </div>
+                    </a>
+                );
+            })}
+        </div>
+    </section>
+
     <!-- U12 Basketball Teaser Banner: Keine Warteliste -->
     <section class="section u12-teaser-section" id="u12-basketball">
         <div class="u12-teaser-card">
@@ -115,50 +159,6 @@ const latestNews = sortedNews.slice(0, 6);
                     </a>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Latest News -->
-    <section class="section" id="news">
-        <div class="section-header">
-            <h2>Aktuelle Nachrichten</h2>
-            <a href="/news" class="view-all">Alle anzeigen →</a>
-        </div>
-        <div class="news-grid">
-            {latestNews.map((post) => {
-                const imgData = post.data.coverImage && typeof post.data.coverImage === 'object' && post.data.coverImage.src
-                    ? post.data.coverImage : null;
-                return (
-                    <a href={`/news/${post.id}`} class="news-card">
-                        <div class="news-card-image">
-                            {imgData ? (
-                                <Image src={imgData} alt={post.data.title || ''} width={400} height={267} />
-                            ) : (
-                                <div class="news-image-placeholder">
-                                    <svg viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" stroke-width="1.5" fill="none">
-                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                                        <polyline points="21 15 16 10 5 21"/>
-                                    </svg>
-                                </div>
-                            )}
-                        </div>
-                        <div class="news-card-body">
-                            <h3>{post.data.title}</h3>
-                            {post.data.date && (
-                                <time class="news-date">
-                                    {new Date(post.data.date).toLocaleDateString('de-DE', {
-                                        day: '2-digit', month: 'long', year: 'numeric'
-                                    })}
-                                </time>
-                            )}
-                            {post.data.category && (
-                                <span class="news-category">{post.data.category}</span>
-                            )}
-                        </div>
-                    </a>
-                );
-            })}
         </div>
     </section>
 

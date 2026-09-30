@@ -378,7 +378,16 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
                 </div>
             </div>
 
-            <div class="footer-divider"></div>
+            <div class="footer-media-bar">
+                <span class="media-bar-label">⚽ Spieltag-Grafiken (Polonia vs. Eilbek):</span>
+                <div class="media-bar-links">
+                    <a href="/images/matchday/polonia-vs-eilbek-youtube-1080p.png" target="_blank" download="polonia-vs-eilbek-1080p.png">1080p YouTube Preview (PNG)</a>
+                    <span class="sep">•</span>
+                    <a href="/images/matchday/polonia-vs-eilbek-youtube-720p.jpg" target="_blank" download="polonia-vs-eilbek-720p.jpg">720p YouTube Thumbnail (JPG)</a>
+                    <span class="sep">•</span>
+                    <a href="/images/matchday/polonia-vs-eilbek-hero.jpg" target="_blank" download="polonia-vs-eilbek-banner.jpg">Hero Banner (JPG)</a>
+                </div>
+            </div>
 
             <div class="footer-inner">
                 <div class="footer-left">
@@ -398,6 +407,7 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
                     <a href="/seiten/probetraining">Probetraining</a>
                 </div>
                 <div class="footer-links">
+                    <a href="/downloads">Downloads</a>
                     <a href="/seiten/impressum-2">Impressum</a>
                     <a href="/seiten/datenschutz">Datenschutz</a>
                     <a href="/status">System-Status</a>
@@ -928,6 +938,44 @@ const jugendTeams = uniquePoloniaTeams.filter(team => {
     .card-facebook:hover .card-icon-wrapper {
         background: #1877f2;
         color: #ffffff;
+    }
+
+    .footer-media-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        padding: 0.85rem 1.25rem;
+        background: linear-gradient(90deg, rgba(220, 20, 60, 0.08) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(34, 197, 94, 0.08) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        margin: 0.5rem 0 1.5rem 0;
+        font-size: 0.82rem;
+    }
+    .media-bar-label {
+        color: #f8fafc;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+    }
+    .media-bar-links {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+    }
+    .media-bar-links a {
+        color: #e2e8f0;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        transition: color 0.2s;
+        font-weight: 500;
+    }
+    .media-bar-links a:hover {
+        color: #ff4d6d;
+    }
+    .media-bar-links .sep {
+        color: #64748b;
     }
 
     .footer-divider {

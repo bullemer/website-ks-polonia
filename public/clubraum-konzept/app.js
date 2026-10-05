@@ -290,3 +290,5 @@ $('#print-operations').onclick=()=>{document.body.classList.add('print-operation
 for(const [button,cls] of [['#print-access','print-access'],['#print-drinks','print-drinks']]) $(button).onclick=()=>{document.body.classList.add(cls);try{window.print()}finally{document.body.classList.remove(cls)}};
 
 $('#print-network').onclick=()=>{document.body.classList.add('print-network');try{window.print()}finally{document.body.classList.remove('print-network')}};
+
+$('#print-planning-costs').onclick=()=>{document.body.classList.add('print-planning-costs');try{window.print()}finally{document.body.classList.remove('print-planning-costs')}};

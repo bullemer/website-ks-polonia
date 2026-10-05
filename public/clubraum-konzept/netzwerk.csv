@@ -1,0 +1,6 @@
+ID;Ziel;X_m;Y_Plan_m;Hoehe_m;Anzahl_Datenports;Hinweis
+D01–D02;TV / Streaming;7.1;11.02;1.8;2;"N01 → TV; kabelgebunden, TV im Vereins-/Mediennetz"
+D03–D04;Arbeitsplatz 1;0.08;3.21;0.9;2;"N01 → Arbeitsplatz; Vereinsnetz"
+D05–D06;Arbeitsplatz 2;0.08;3.39;0.9;2;"N01 → Arbeitsplatz; Vereinsnetz"
+D07;AP1 Mitglieder-WLAN;5.6;5;3.4;1;"N01 → AP1; Daten + PoE; Montage/Abdeckung vor Ort testen"
+D08;AP2 Reserve;8.8;8;3.4;1;"Kabelreserve, kein zweiter AP im Grundbudget; erst nach Messung aktivieren"

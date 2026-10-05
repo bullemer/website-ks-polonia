@@ -1,0 +1,194 @@
+[
+  [
+    "Aufmaß / Fachplanung / Prüfung",
+    "P0",
+    1,
+    700,
+    1600,
+    "Bestand, Lasten, Elektrik, Boden; Leistungsumfang anbieten lassen"
+  ],
+  [
+    "Elektrik + Licht + Daten",
+    "P1",
+    1,
+    3500,
+    6500,
+    "Inkl. vorgeschlagenem Basis-Lichtpaket und Datenleitungen; Zuleitung/Verteiler verwendbar angenommen; Angebot nötig"
+  ],
+  [
+    "Boden Hauptfläche",
+    "P1",
+    140,
+    18,
+    35,
+    "m²; Untergrundvorbereitung + einfaches kompatibles Beschichtungssystem"
+  ],
+  [
+    "Gummiboden Gym",
+    "P2",
+    8,
+    35,
+    65,
+    "m² inkl. Randprofil; Last/Brandverhalten/System klären"
+  ],
+  [
+    "Küche / Spüle / Arbeitsplatte",
+    "P1",
+    1,
+    900,
+    1800,
+    "Gebrauchte oder einfache neue Module; ohne Elektrogeräte"
+  ],
+  [
+    "Sanitäranschluss",
+    "P1",
+    1,
+    600,
+    1500,
+    "Wasser an Küchenwand bestätigt; Ablauf/Warmwasser und genaue Lage prüfen"
+  ],
+  [
+    "Kühlschränke",
+    "P1",
+    2,
+    200,
+    450,
+    "Zwei geeignete Unterbaugeräte; Lüftung, Zugriff und Getränkekapazität prüfen"
+  ],
+  [
+    "Kaffee + Mikrowelle + Geschirrspüler",
+    "P2",
+    1,
+    450,
+    1000,
+    "Filterkaffee priorisieren; Geschirrspüler nach Nutzung"
+  ],
+  [
+    "Stehtische zerlegbar",
+    "P2",
+    4,
+    50,
+    100,
+    "Vorhandene Stehtische nach Prüfung anrechnen"
+  ],
+  [
+    "Klapptische 180 × 80 cm",
+    "P1",
+    6,
+    80,
+    160,
+    "Stabile Veranstaltungsqualität; 4 Sitzplätze je Tisch"
+  ],
+  [
+    "Stapelstühle",
+    "P1",
+    24,
+    25,
+    55,
+    "Transportwagen und Stapelmaß separat abgleichen"
+  ],
+  [
+    "Transport / abschließbares Lager",
+    "P1",
+    1,
+    600,
+    1200,
+    "Tisch-/Stuhlwagen + getrennte Schränke für Sport und Verein"
+  ],
+  [
+    "TV 85 Zoll + Halter + Ton",
+    "P2",
+    1,
+    1100,
+    1800,
+    "Größe als Planungsannahme; Befestigung/Blendschutz prüfen"
+  ],
+  [
+    "Zwei Arbeitsplätze",
+    "P2",
+    1,
+    500,
+    1100,
+    "Gebrauchte Tische/Stühle; Computer nicht enthalten; Netzwerktechnik separat"
+  ],
+  [
+    "Säulen-Steckdosen / Aufputzzuleitung",
+    "P1",
+    1,
+    300,
+    600,
+    "Zwei Säulen mit je 4 Steckplätzen; eigener Mehrkostenansatz, Ausführung nach Elektroangebot"
+  ],
+  [
+    "WLAN / Router / Netzwerkschrank",
+    "P1",
+    1,
+    600,
+    1200,
+    "Eigener Hardwareansatz: belüfteter Schrank, Router, 16-Port-Switch mit PoE, Patchpanel, 1 AP; Datenverkabelung im Elektroansatz; Anschluss/Monatsgebühren und zweiter AP nicht enthalten"
+  ],
+  [
+    "Tresenschränke / Theke 120 × 75 cm",
+    "P2",
+    3,
+    300,
+    550,
+    "Ca. 50 cm Schranktiefe + 25 cm gastseitiger Überstand; reinigbare Böden und Schiebetüren"
+  ],
+  [
+    "Tresenecke + Personalzugang",
+    "P2",
+    1,
+    350,
+    750,
+    "Bündiger Küchenanschluss, angepasste Ecke und gesicherte Zugangsklappe; Beschläge/Auflager nach Aufmaß"
+  ],
+  [
+    "Zusätzliche Getränkekühlschränke",
+    "P2",
+    2,
+    250,
+    500,
+    "Zwei schmale Standgeräte mit Glastür; Typ/Kapazität und tatsächliche Maße offen"
+  ],
+  [
+    "Stapelbare Barhocker",
+    "P2",
+    4,
+    35,
+    75,
+    "Ca. 62 cm Sitzhöhe passend zu ca. 93 cm Thekenhöhe; gemeinsames Stapelmaß prüfen"
+  ],
+  [
+    "Kompakte Loungesessel",
+    "P2",
+    4,
+    80,
+    180,
+    "Weinrot als Ziel, Cognac alternativ; robuste reinigbare Bezüge, Gebrauchtkauf bemustern; Neubezug separat anbieten lassen"
+  ],
+  [
+    "Couchtisch",
+    "P2",
+    1,
+    50,
+    120,
+    "Leicht und mobil; ca. 90 × 65 cm"
+  ],
+  [
+    "Kompaktgym",
+    "P2",
+    1,
+    700,
+    1500,
+    "Klappbank, moderate Hanteln, Matten, Bänder, Stauraum"
+  ],
+  [
+    "Akustik / Blendschutz / Clubgrafik",
+    "P2",
+    1,
+    1000,
+    2500,
+    "Geeignete Absorber und Rollos; keine vollständige Deckenverkleidung"
+  ]
+]

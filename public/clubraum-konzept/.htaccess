@@ -1,0 +1,6 @@
+# Unlisted clubroom concept and downloadable assets.
+# This discourages indexing; it is not authentication.
+Options -Indexes
+<IfModule mod_headers.c>
+    Header always set X-Robots-Tag "noindex, nofollow, noarchive"
+</IfModule>

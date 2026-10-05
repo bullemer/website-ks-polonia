@@ -1,0 +1,515 @@
+{
+  "version": "0.6 · 05.10.2026",
+  "width": 11.55,
+  "depth": 11.1,
+  "alcoveWidth": 4.4,
+  "alcoveDepth": 4.44,
+  "height": 4.75,
+  "sourceArea": 147.79,
+  "columns": [
+    [
+      4.532,
+      5.6
+    ],
+    [
+      7.717,
+      5.6
+    ]
+  ],
+  "sockets": [
+    {
+      "id": "E01",
+      "name": "Kaffee",
+      "x": 4.32,
+      "z": 11.55,
+      "height": 1.15,
+      "count": 2,
+      "circuit": "K1",
+      "note": "Kaffeemaschine; eigener Lastbereich"
+    },
+    {
+      "id": "E02",
+      "name": "Arbeitsplatte",
+      "x": 4.32,
+      "z": 12.15,
+      "height": 1.15,
+      "count": 2,
+      "circuit": "K2",
+      "note": "Wasserkocher / Reserve; Abstand zur Spüle prüfen"
+    },
+    {
+      "id": "E03",
+      "name": "Mikrowelle",
+      "x": 4.32,
+      "z": 12.75,
+      "height": 1.15,
+      "count": 1,
+      "circuit": "K3",
+      "note": "Reheating; Gerätedaten prüfen"
+    },
+    {
+      "id": "E04",
+      "name": "Geschirrspüler",
+      "x": 4.32,
+      "z": 14.3,
+      "height": 0.45,
+      "count": 1,
+      "circuit": "K4",
+      "note": "Im zugänglichen Nachbarschrank, nicht hinter Gerät"
+    },
+    {
+      "id": "E05",
+      "name": "Warmwasser optional",
+      "x": 4.32,
+      "z": 13.45,
+      "height": 0.45,
+      "count": 1,
+      "circuit": "K5?",
+      "note": "Nur falls lokaler Kleinspeicher nötig; Leistung offen"
+    },
+    {
+      "id": "E06",
+      "name": "Kühlschrank Getränke",
+      "x": 4.32,
+      "z": 12.45,
+      "height": 1.15,
+      "count": 1,
+      "circuit": "F1",
+      "note": "Dauerstrom; zugänglicher Anschluss oberhalb Zeile; Kabelführung prüfen"
+    },
+    {
+      "id": "E07",
+      "name": "Kühlschrank Lebensmittel",
+      "x": 4.32,
+      "z": 13.05,
+      "height": 1.15,
+      "count": 1,
+      "circuit": "F2",
+      "note": "Zugänglicher Anschluss oberhalb Zeile; getrennt von Veranstaltungsabschaltung"
+    },
+    {
+      "id": "E08",
+      "name": "Arbeitsplatz 1",
+      "x": 0.08,
+      "z": 3.21,
+      "height": 0.9,
+      "count": 4,
+      "circuit": "A1",
+      "note": "Am massiven Fensterpfeiler gebündelt; Wandkanal + befestigte Tischversorgung, 2 × Daten"
+    },
+    {
+      "id": "E09",
+      "name": "Arbeitsplatz 2",
+      "x": 0.08,
+      "z": 3.39,
+      "height": 0.9,
+      "count": 4,
+      "circuit": "A1",
+      "note": "Am massiven Fensterpfeiler gebündelt; Wandkanal + befestigte Tischversorgung, 2 × Daten"
+    },
+    {
+      "id": "E10",
+      "name": "TV oben",
+      "x": 7.1,
+      "z": 11.02,
+      "height": 1.8,
+      "count": 4,
+      "circuit": "M1",
+      "note": "TV / Streaming / Audio; 2 × Daten + Leerrohr"
+    },
+    {
+      "id": "E11",
+      "name": "Medien unten",
+      "x": 7.1,
+      "z": 11.02,
+      "height": 0.35,
+      "count": 2,
+      "circuit": "M1",
+      "note": "Service / Zuspieler; Leerrohr zu E10"
+    },
+    {
+      "id": "E12",
+      "name": "Gym",
+      "x": 11.47,
+      "z": 2.7,
+      "height": 1.1,
+      "count": 2,
+      "circuit": "G1",
+      "note": "Reserve, Timer, Ladung; kein loses Kabel im Training"
+    },
+    {
+      "id": "E13",
+      "name": "Gym / Reinigung",
+      "x": 11.47,
+      "z": 5.9,
+      "height": 0.35,
+      "count": 2,
+      "circuit": "G1",
+      "note": "Randversorgung außerhalb Bewegungsfläche"
+    },
+    {
+      "id": "E14",
+      "name": "Veranstaltung rechts",
+      "x": 11.47,
+      "z": 8.4,
+      "height": 0.35,
+      "count": 2,
+      "circuit": "V1",
+      "note": "DJ / mobile Technik am Rand"
+    },
+    {
+      "id": "E15",
+      "name": "Veranstaltung links",
+      "x": 0.08,
+      "z": 9.3,
+      "height": 0.35,
+      "count": 2,
+      "circuit": "V2",
+      "note": "Flexible Nutzung; Heizkörperposition beachten"
+    },
+    {
+      "id": "E16",
+      "name": "Lager / Reinigung",
+      "x": 3.5,
+      "z": 0.08,
+      "height": 0.35,
+      "count": 2,
+      "circuit": "V2",
+      "note": "Lager an oberer Raumwand; außerhalb Fenster/Schacht"
+    },
+    {
+      "id": "E19",
+      "name": "Getränkekühlschrank 1",
+      "x": 0.08,
+      "z": 11.5,
+      "height": 1.15,
+      "count": 1,
+      "circuit": "F3",
+      "note": "Dauerstrom; Typ/Belüftung und Anschlussposition am Gerät prüfen"
+    },
+    {
+      "id": "E20",
+      "name": "Getränkekühlschrank 2",
+      "x": 0.08,
+      "z": 12.55,
+      "height": 1.15,
+      "count": 1,
+      "circuit": "F4",
+      "note": "Dauerstrom; nicht über Veranstaltungsszenen abschalten"
+    },
+    {
+      "id": "E18",
+      "name": "Bar / Kasse / Licht",
+      "x": 5.0,
+      "z": 11.02,
+      "height": 1.25,
+      "count": 2,
+      "circuit": "V3",
+      "note": "Feste Wandversorgung für L-Tresen; keine lose Stromleitung über Gehwege"
+    },
+    {
+      "id": "E21",
+      "name": "Säule 1 / Tische",
+      "x": 4.532,
+      "z": 5.6,
+      "height": 0.85,
+      "count": 4,
+      "circuit": "C1",
+      "note": "Je zwei Steckplätze an West-/Ostseite; oberhalb Tischkante; geschützte Aufputzführung, Holzbefestigung abstimmen"
+    },
+    {
+      "id": "E22",
+      "name": "Säule 2 / Tische",
+      "x": 7.717,
+      "z": 5.6,
+      "height": 0.85,
+      "count": 4,
+      "circuit": "C2",
+      "note": "Je zwei Steckplätze an West-/Ostseite; nur angedockte Tische direkt versorgen, keine Laufwegkabel"
+    },
+    {
+      "id": "E17",
+      "name": "IT / Netzwerk",
+      "x": 2.55,
+      "z": 0.08,
+      "height": 2.25,
+      "count": 2,
+      "circuit": "IT1",
+      "note": "Dauerstrom neben Wandschrank N01; geprüfte Schrank-PDU, keine Kaskade; AP über PoE"
+    }
+  ],
+  "confirmed": {
+    "mainEntrance": "Outside stairs, door in entrance alcove",
+    "kitchenWall": "Left wall of entrance photo; interpreted as alcove stair-enclosure wall, plan X=4.4",
+    "water": "User confirms water connection at kitchen wall; exact point, drainage and hot water unverified",
+    "service": "Occasional food/drink service or sale for outside use"
+  },
+  "hallWindows": [
+    {
+      "center": 3.9,
+      "width": 2.2,
+      "height": 2.05,
+      "sill": 0.925
+    }
+  ],
+  "interiorPalette": {
+    "default": "wine",
+    "lounge": "deep wine red",
+    "alternative": "cognac brown",
+    "diningChairs": "warm cream white",
+    "tops": "warm oak",
+    "cabinetry": "matte charcoal",
+    "logo": "original supplied artwork unchanged"
+  },
+  "heightReference": "Centre of device / grouped socket plate above finished floor; concept dimensions, not mandatory standard heights",
+  "network": {
+    "cabinet": {
+      "id": "N01",
+      "x": 2.1,
+      "z": 0.3,
+      "width": 0.6,
+      "depth": 0.45,
+      "height": 0.6,
+      "bottom": 2.1
+    },
+    "ap": {
+      "id": "AP1",
+      "x": 5.6,
+      "z": 5.0,
+      "height": 3.4
+    },
+    "apReserve": {
+      "id": "AP2",
+      "x": 8.8,
+      "z": 8.0,
+      "height": 3.4
+    },
+    "internetEntry": "Unconfirmed; existing building connection or new service to be checked"
+  },
+  "lights": [
+    {
+      "group": "L1A",
+      "type": "linear",
+      "x": 3.5,
+      "z": 2.2,
+      "height": 3.65,
+      "name": "Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm",
+      "kelvin": "3000–3500",
+      "control": "S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+    },
+    {
+      "group": "L1A",
+      "type": "linear",
+      "x": 3.5,
+      "z": 4.4,
+      "height": 3.65,
+      "name": "Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm",
+      "kelvin": "3000–3500",
+      "control": "S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+    },
+    {
+      "group": "L1B",
+      "type": "linear",
+      "x": 3.5,
+      "z": 6.6,
+      "height": 3.65,
+      "name": "Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm",
+      "kelvin": "3000–3500",
+      "control": "S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+    },
+    {
+      "group": "L1B",
+      "type": "linear",
+      "x": 3.5,
+      "z": 8.8,
+      "height": 3.65,
+      "name": "Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm",
+      "kelvin": "3000–3500",
+      "control": "S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+    },
+    {
+      "group": "L1A",
+      "type": "linear",
+      "x": 8.4,
+      "z": 2.2,
+      "height": 3.65,
+      "name": "Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm",
+      "kelvin": "3000–3500",
+      "control": "S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+    },
+    {
+      "group": "L1A",
+      "type": "linear",
+      "x": 8.4,
+      "z": 4.4,
+      "height": 3.65,
+      "name": "Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm",
+      "kelvin": "3000–3500",
+      "control": "S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+    },
+    {
+      "group": "L1B",
+      "type": "linear",
+      "x": 8.4,
+      "z": 6.6,
+      "height": 3.65,
+      "name": "Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm",
+      "kelvin": "3000–3500",
+      "control": "S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+    },
+    {
+      "group": "L1B",
+      "type": "linear",
+      "x": 8.4,
+      "z": 8.8,
+      "height": 3.65,
+      "name": "Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm",
+      "kelvin": "3000–3500",
+      "control": "S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+    },
+    {
+      "group": "L2K",
+      "type": "kitchenlight",
+      "x": 3.72,
+      "z": 12.15,
+      "height": 2.7,
+      "name": "Arbeitslicht Küche, reinigbar und entblendet, ca. 110 cm",
+      "kelvin": "3500–4000",
+      "control": "S3 Küche unabhängig"
+    },
+    {
+      "group": "L2K",
+      "type": "kitchenlight",
+      "x": 3.72,
+      "z": 14.0,
+      "height": 2.7,
+      "name": "Arbeitslicht Küche, reinigbar und entblendet, ca. 110 cm",
+      "kelvin": "3500–4000",
+      "control": "S3 Küche unabhängig"
+    },
+    {
+      "group": "L2A",
+      "type": "desk",
+      "x": 1.9,
+      "z": 2.85,
+      "height": 1.35,
+      "name": "Verstellbare blendgeschützte Arbeitsplatzleuchte",
+      "kelvin": "3500–4000",
+      "control": "Lokal am Arbeitsplatz"
+    },
+    {
+      "group": "L2A",
+      "type": "desk",
+      "x": 1.9,
+      "z": 4.25,
+      "height": 1.35,
+      "name": "Verstellbare blendgeschützte Arbeitsplatzleuchte",
+      "kelvin": "3500–4000",
+      "control": "Lokal am Arbeitsplatz"
+    },
+    {
+      "group": "L3",
+      "type": "pendant",
+      "x": 5.4,
+      "z": 9.475,
+      "height": 2.45,
+      "name": "Schwarze Industrial-Schirmleuchte, LED abgeschirmt, ca. Ø30 cm",
+      "kelvin": "2700–3000",
+      "control": "S4 Tresen dimmen"
+    },
+    {
+      "group": "L3",
+      "type": "pendant",
+      "x": 6.6,
+      "z": 9.475,
+      "height": 2.45,
+      "name": "Schwarze Industrial-Schirmleuchte, LED abgeschirmt, ca. Ø30 cm",
+      "kelvin": "2700–3000",
+      "control": "S4 Tresen dimmen"
+    },
+    {
+      "group": "L3",
+      "type": "pendant",
+      "x": 7.8,
+      "z": 9.475,
+      "height": 2.45,
+      "name": "Schwarze Industrial-Schirmleuchte, LED abgeschirmt, ca. Ø30 cm",
+      "kelvin": "2700–3000",
+      "control": "S4 Tresen dimmen"
+    },
+    {
+      "group": "L4",
+      "type": "accent",
+      "x": 5.48,
+      "z": 10.75,
+      "height": 2.95,
+      "name": "Kleiner Wandschwenkstrahler für Logo/Mauerwerk, nicht auf TV",
+      "kelvin": "2700–3000",
+      "control": "S4 Akzent separat dimmen"
+    },
+    {
+      "group": "L4",
+      "type": "accent",
+      "x": 8.95,
+      "z": 10.75,
+      "height": 2.95,
+      "name": "Kleiner Wandschwenkstrahler für Logo/Mauerwerk, nicht auf TV",
+      "kelvin": "2700–3000",
+      "control": "S4 Akzent separat dimmen"
+    },
+    {
+      "group": "L5",
+      "type": "entry",
+      "x": 0.12,
+      "z": 14.7,
+      "height": 2.3,
+      "name": "Abgeschirmte industrielle Wandleuchte am Zugang",
+      "kelvin": "3000",
+      "control": "S1 / S2; bei belegtem Raum an, keine Sicherheitsleuchte"
+    },
+    {
+      "group": "L5",
+      "type": "entry",
+      "x": 10.05,
+      "z": 11.02,
+      "height": 2.3,
+      "name": "Abgeschirmte industrielle Wandleuchte am Zugang",
+      "kelvin": "3000",
+      "control": "S1 / S2; bei belegtem Raum an, keine Sicherheitsleuchte"
+    }
+  ],
+  "switches": [
+    {
+      "id": "S1",
+      "x": 10.05,
+      "z": 11.02,
+      "height": 1.05,
+      "name": "Innere Treppentür",
+      "function": "Grundlicht L1A/L1B und Zugangslicht L5, parallel zu S2"
+    },
+    {
+      "id": "S2",
+      "x": 2.75,
+      "z": 15.46,
+      "height": 1.05,
+      "name": "Haupteingang",
+      "function": "Grundlicht L1A/L1B und Zugangslicht L5, parallel zu S1"
+    },
+    {
+      "id": "S3",
+      "x": 4.32,
+      "z": 14.95,
+      "height": 1.05,
+      "name": "Küche nahe Ausgabe",
+      "function": "L2K unabhängig; Abstand zu Wasser und Erreichbarkeit prüfen"
+    },
+    {
+      "id": "S4",
+      "x": 5.0,
+      "z": 11.02,
+      "height": 1.05,
+      "name": "Hinter dem Tresen",
+      "function": "L1A / L1B / L3 / L4 einzeln dimmen; kein App-Zwang"
+    }
+  ]
+}

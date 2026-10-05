@@ -1,0 +1,5 @@
+id;x;z;height;name;function
+S1;10.05;11.02;1.05;Innere Treppentür;Grundlicht L1A/L1B und Zugangslicht L5, parallel zu S2
+S2;2.75;15.46;1.05;Haupteingang;Grundlicht L1A/L1B und Zugangslicht L5, parallel zu S1
+S3;4.32;14.95;1.05;Küche nahe Ausgabe;"L2K unabhängig; Abstand zu Wasser und Erreichbarkeit prüfen"
+S4;5.0;11.02;1.05;Hinter dem Tresen;"L1A / L1B / L3 / L4 einzeln dimmen; kein App-Zwang"

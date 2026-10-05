@@ -37,6 +37,7 @@ const SITEMAP_EXCLUDE_PATTERNS = [
     '/news/847',
     // Internal utility pages
     '/status',
+    '/clubraum-konzept', // unlisted internal-review concept and any future routes
     // Duplicate football team pages (shorter slug duplicates of full-name versions)
     '/football/polonia-1-',
     '/football/polonia-2-',

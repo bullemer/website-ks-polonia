@@ -232,3 +232,20 @@ VITE_KEYSTATIC_GITHUB_CLIENT_ID=your_client_id_here
 ## License
 
 Private — K.S. Polonia Hamburg e.V. 1988
+
+
+## Clubroom concept (unlisted)
+
+The clubroom design is served at `https://www.ks-polonia.de/clubraum-konzept/`.
+Its standalone HTML/JavaScript, drawings, schedules and models live in
+`public/clubraum-konzept/` and deploy through the normal push-to-main workflow.
+No public navigation or content-page link is added. The path is explicitly
+excluded from the sitemap; the HTML has a robots noindex tag and its scoped
+`.htaccess` applies `X-Robots-Tag: noindex, nofollow, noarchive` to downloads too.
+Directory listing is disabled. This is unlisted public content, not an
+authenticated members area; anyone with the URL can view it, and this GitHub
+repository is public. Do not add confidential member data here.
+
+Concept sources are maintained locally in the adjacent `Poloniaroon` project.
+When refreshing the public folder, preserve the scoped `.htaccess` and check
+that no site navigation or sitemap references were introduced.

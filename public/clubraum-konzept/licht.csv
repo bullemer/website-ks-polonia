@@ -1,0 +1,20 @@
+group;type;x;z;height;name;kelvin;control
+L1A;linear;3.5;2.2;3.65;Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm;3000–3500;"S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+L1A;linear;3.5;4.4;3.65;Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm;3000–3500;"S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+L1B;linear;3.5;6.6;3.65;Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm;3000–3500;"S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+L1B;linear;3.5;8.8;3.65;Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm;3000–3500;"S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+L1A;linear;8.4;2.2;3.65;Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm;3000–3500;"S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+L1A;linear;8.4;4.4;3.65;Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm;3000–3500;"S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+L1B;linear;8.4;6.6;3.65;Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm;3000–3500;"S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+L1B;linear;8.4;8.8;3.65;Schwarze LED-Linienleuchte, diffus/entblendet, ca. 120 cm;3000–3500;"S1 / S2 Grundlicht; S4 gruppenweise dimmen"
+L2K;kitchenlight;3.72;12.15;2.7;Arbeitslicht Küche, reinigbar und entblendet, ca. 110 cm;3500–4000;S3 Küche unabhängig
+L2K;kitchenlight;3.72;14.0;2.7;Arbeitslicht Küche, reinigbar und entblendet, ca. 110 cm;3500–4000;S3 Küche unabhängig
+L2A;desk;1.9;2.85;1.35;Verstellbare blendgeschützte Arbeitsplatzleuchte;3500–4000;Lokal am Arbeitsplatz
+L2A;desk;1.9;4.25;1.35;Verstellbare blendgeschützte Arbeitsplatzleuchte;3500–4000;Lokal am Arbeitsplatz
+L3;pendant;5.4;9.475;2.45;Schwarze Industrial-Schirmleuchte, LED abgeschirmt, ca. Ø30 cm;2700–3000;S4 Tresen dimmen
+L3;pendant;6.6;9.475;2.45;Schwarze Industrial-Schirmleuchte, LED abgeschirmt, ca. Ø30 cm;2700–3000;S4 Tresen dimmen
+L3;pendant;7.8;9.475;2.45;Schwarze Industrial-Schirmleuchte, LED abgeschirmt, ca. Ø30 cm;2700–3000;S4 Tresen dimmen
+L4;accent;5.48;10.75;2.95;Kleiner Wandschwenkstrahler für Logo/Mauerwerk, nicht auf TV;2700–3000;S4 Akzent separat dimmen
+L4;accent;8.95;10.75;2.95;Kleiner Wandschwenkstrahler für Logo/Mauerwerk, nicht auf TV;2700–3000;S4 Akzent separat dimmen
+L5;entry;0.12;14.7;2.3;Abgeschirmte industrielle Wandleuchte am Zugang;3000;"S1 / S2; bei belegtem Raum an, keine Sicherheitsleuchte"
+L5;entry;10.05;11.02;2.3;Abgeschirmte industrielle Wandleuchte am Zugang;3000;"S1 / S2; bei belegtem Raum an, keine Sicherheitsleuchte"

@@ -1,0 +1,23 @@
+ID;Nutzung;X_m;Y_Plan_m;Hoehe_ueber_Fertigboden_m;Anzahl_Einzelsteckplaetze;Funktionsgruppe_keine_festgelegte_Sicherung;Hinweis
+E01;Kaffee;4.32;11.55;1.15;2;K1;"Kaffeemaschine; eigener Lastbereich"
+E02;Arbeitsplatte;4.32;12.15;1.15;2;K2;"Wasserkocher / Reserve; Abstand zur Spüle prüfen"
+E03;Mikrowelle;4.32;12.75;1.15;1;K3;"Reheating; Gerätedaten prüfen"
+E04;Geschirrspüler;4.32;14.3;0.45;1;K4;Im zugänglichen Nachbarschrank, nicht hinter Gerät
+E05;Warmwasser optional;4.32;13.45;0.45;1;K5?;"Nur falls lokaler Kleinspeicher nötig; Leistung offen"
+E06;Kühlschrank Getränke;4.32;12.45;1.15;1;F1;"Dauerstrom; zugänglicher Anschluss oberhalb Zeile; Kabelführung prüfen"
+E07;Kühlschrank Lebensmittel;4.32;13.05;1.15;1;F2;"Zugänglicher Anschluss oberhalb Zeile; getrennt von Veranstaltungsabschaltung"
+E08;Arbeitsplatz 1;0.08;3.21;0.9;4;A1;"Am massiven Fensterpfeiler gebündelt; Wandkanal + befestigte Tischversorgung, 2 × Daten"
+E09;Arbeitsplatz 2;0.08;3.39;0.9;4;A1;"Am massiven Fensterpfeiler gebündelt; Wandkanal + befestigte Tischversorgung, 2 × Daten"
+E10;TV oben;7.1;11.02;1.8;4;M1;"TV / Streaming / Audio; 2 × Daten + Leerrohr"
+E11;Medien unten;7.1;11.02;0.35;2;M1;"Service / Zuspieler; Leerrohr zu E10"
+E12;Gym;11.47;2.7;1.1;2;G1;"Reserve, Timer, Ladung; kein loses Kabel im Training"
+E13;Gym / Reinigung;11.47;5.9;0.35;2;G1;Randversorgung außerhalb Bewegungsfläche
+E14;Veranstaltung rechts;11.47;8.4;0.35;2;V1;DJ / mobile Technik am Rand
+E15;Veranstaltung links;0.08;9.3;0.35;2;V2;"Flexible Nutzung; Heizkörperposition beachten"
+E16;Lager / Reinigung;3.5;0.08;0.35;2;V2;"Lager an oberer Raumwand; außerhalb Fenster/Schacht"
+E19;Getränkekühlschrank 1;0.08;11.5;1.15;1;F3;"Dauerstrom; Typ/Belüftung und Anschlussposition am Gerät prüfen"
+E20;Getränkekühlschrank 2;0.08;12.55;1.15;1;F4;"Dauerstrom; nicht über Veranstaltungsszenen abschalten"
+E18;Bar / Kasse / Licht;5.0;11.02;1.25;2;V3;"Feste Wandversorgung für L-Tresen; keine lose Stromleitung über Gehwege"
+E21;Säule 1 / Tische;4.532;5.6;0.85;4;C1;"Je zwei Steckplätze an West-/Ostseite; oberhalb Tischkante; geschützte Aufputzführung, Holzbefestigung abstimmen"
+E22;Säule 2 / Tische;7.717;5.6;0.85;4;C2;"Je zwei Steckplätze an West-/Ostseite; nur angedockte Tische direkt versorgen, keine Laufwegkabel"
+E17;IT / Netzwerk;2.55;0.08;2.25;2;IT1;"Dauerstrom neben Wandschrank N01; geprüfte Schrank-PDU, keine Kaskade; AP über PoE"

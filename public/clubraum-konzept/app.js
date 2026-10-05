@@ -286,3 +286,7 @@ try{
 }catch(e){console.error(e);$('#model-error').hidden=false;$('#export').disabled=true;}
 
 $('#print-operations').onclick=()=>{document.body.classList.add('print-operations');try{window.print()}finally{document.body.classList.remove('print-operations')}};
+
+for(const [button,cls] of [['#print-access','print-access'],['#print-drinks','print-drinks']]) $(button).onclick=()=>{document.body.classList.add(cls);try{window.print()}finally{document.body.classList.remove(cls)}};
+
+$('#print-network').onclick=()=>{document.body.classList.add('print-network');try{window.print()}finally{document.body.classList.remove('print-network')}};

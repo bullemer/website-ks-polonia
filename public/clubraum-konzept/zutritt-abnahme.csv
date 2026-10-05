@@ -1,0 +1,14 @@
+﻿Pruefpunkt;Test;Erwartetes_Ergebnis;Ist_Ergebnis_eintragen;Datum_eintragen;Pruefende_Rolle;Offener_Mangel
+Türbestand;Z1, Z2 und vorgelagerte Türen aufnehmen;Zugangsrechte und geeignete Beschläge bestätigt;;;;
+Fluchtrichtung;Öffnen von innen ohne Handy / Transponder / Internet testen;Vorgesehene Rettungswegfunktion durch Fachbetrieb bestätigt;;;;
+Gültiger Schlüssel;Einlass im erlaubten Zeitfenster;Nur berechtigte Türen öffnen;;;;
+Abgelaufenes Recht;Zugang nach Ende der Berechtigung versuchen;Kein regulärer Einlass;;;;
+Schlüssel sperren;"Verlust melden; Recht entziehen; Übernahme am Schloss prüfen";Wirksame Sperrung nachgewiesen;;;;
+Anlage offline;Internet-/Gatewayausfall unter Betreuung simulieren;Dokumentierter Offline-Betrieb und bekannte Grenzen des Widerrufs;;;;
+Handy leer / verloren;Alternativen mit zugeordnetem Transponder oder zuständiger Stelle testen;Abgestimmtes Verfahren ohne geteilte Zugangsdaten;;;;
+Batterie / Strom;Warnung und Störungsbetrieb nach Herstellerverfahren prüfen;"Betrieb und Fluchtfunktion wie freigegeben; keine improvisierte Verriegelung";;;;
+Telefonwechsel;"Altes Medium entziehen; neues nach Identitätsprüfung aktivieren";"Altes Medium unwirksam; neuer Zugang getestet";;;;
+Kamera optional;Nutzung über Z1/Z2 und Reinigung simulieren;Vorgesehene Leerraum-Aufzeichnung während Nutzung aus;;;;
+Kamera optional;Abschaltung / Löschung / Sichtfeld / Zugriffsrechte prüfen;Nur bei positiver Datenschutzprüfung in Betrieb;;;;
+Getränkebuchung;Doppelklick, Wiederholung, Abbruch und Netzausfall;"Keine doppelte Buchung; bestätigter Status eindeutig";;;;
+Abrechnung;Storno, Zahlung, Inventur und Wiederherstellung testen;Nachvollziehbare Konten und abstimmbare Bestände;;;;

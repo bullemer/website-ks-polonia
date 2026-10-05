@@ -1,0 +1,12 @@
+﻿Pruefpunkt;Pruefung;Datum;Ergebnis;Geraeteanzahl_und_Messwerte;Verantwortliche_Rolle;Nacharbeit
+Internet;Übergabepunkt, Freigabe, Vertrag und gemessene Up-/Downloadwerte dokumentieren;;;;;
+Kabel;D01–D08 plus beauftragte Zusatzstrecken beschriften und messtechnisch prüfen;;;;;
+PoE;Leistungsbedarf aller gleichzeitig versorgten Geräte mit Switchbudget abgleichen;;;;;
+Funk;"Abdeckung Küche, Tresen, Lounge, Gym und Arbeitsplätze; AP1 allein und ggf. mit AP2 messen";;;;;
+Last;TV, zwei Arbeitsplätze und dokumentierte Zahl gleichzeitig aktiver Handys testen;;;;;
+Gästeisolation;Gäste dürfen andere Gäste auch über verschiedene APs nicht erreichen;;;;;
+Netztrennung;"Gäste/TV erreichen weder Vereinsgeräte noch Zutritt/Kameras/Management; IPv4 und IPv6 prüfen";;;;;
+Buchung;"Mitglieder-Web-App über HTTPS erreichbar; Anmeldung, Bestätigung und Netzausfall testen";;;;;
+Tür offline;"Gateway/Internetstörung; vereinbarter Offline-Zutritt und Grenzen der Sperrung testen";;;;;
+Wiederherstellung;Konfigurationssicherung und Wiederanlauf nach Geräte-/Stromausfall prüfen;;;;;
+Betrieb;Vereinseigene Konten, Stellvertretung, Updates und Dokumentationsort festlegen;;;;;

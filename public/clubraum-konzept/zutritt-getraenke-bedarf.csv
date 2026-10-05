@@ -1,0 +1,11 @@
+﻿ID;Leistung;Umfang_Vorschlag;Rolle;Menge_freigeben;Einmalpreis_EUR_Angebot;Jahreskosten_EUR_Angebot;Status
+Z01;Türprüfung und Beschläge;"Z1 und Z2; weitere Gebäudetüren aufnehmen";Türfachbetrieb / Eigentümer;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"
+Z02;Mobiler Zutritt mit Transponderalternative;Anzahl kontrollierter Türen nach Aufmaß;Zutritts-Errichter;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"
+Z03;Gateway / Technikreserve;"Abschließbarer Technikbereich N01; Versorgung nach System";Elektro / IT;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"
+Z04;Türkontakte / Leitungswege;"Z1 und gegebenenfalls Z2; Systemkompatibilität prüfen";Elektro / Errichter;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"
+Z05;Lizenz / Wartung / Support;Einrichtung und drei Jahre Betrieb gesondert;Einkauf;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"
+V01;Kamera nur nach Prüfung;"Enger Sichtbereich; zunächst nur Leitungsreserve erwägen";Datenschutz / Eigentümer / Errichter;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"
+G01;Getränke-Web-App / Einrichtung;Anmeldung, Artikel, Journal, Abrechnung, Inventur;IT / Kasse;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"
+G02;QR-Schilder / Buchung am Tresen;"QR nur als Link; persönliche Anmeldung";Getränkewart;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"
+G03;Kühlschrank-Zutritt optional;"Zwei Getränkekühlschränke; keine Mengenmessung durch Schloss";Geräteanbieter / Errichter;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"
+G04;Laufende Kosten;Hosting, Support, Lizenz und ggf. Zahlungsgebühren;Kasse / IT;offen;;;"Nicht im bisherigen Raum-Budget; Angebot offen"

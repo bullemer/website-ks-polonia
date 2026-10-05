@@ -1,0 +1,7 @@
+﻿Rolle_Vorschlag;Raumzugang;Verwaltungsrecht;Befristung;Freigabestelle_offen;Status
+Zwei Zutrittsadministratoren;Mit Betreiber abgestimmte Zeiten;"Rechte verwalten; getrennte Konten; MFA";"Nach Rolle; regelmäßig prüfen";Vorstand;Vorschlag
+Raum-/Veranstaltungsverantwortliche;Buchung plus Auf-/Abbau;"Gäste betreuen; keine freien Unterfreigaben";Ende der Buchung;Benannte Vergabestelle;Vorschlag
+Freigegebene Mitglieder;Bestätigte Zeitfenster nach Einweisung;Nur eigene Berechtigung;Festzulegen;Benannte Vergabestelle;Nutzungsmodell offen
+Reinigung / Fachbetrieb;"Auftragszeit; ggf. begleitet";Keine Verwaltungsrechte;Auftragsende;Benannte Vergabestelle;Vorschlag
+Gäste / übrige Mitglieder;Einlass durch Raumverantwortliche;Keine dauerhaften Schlüssel;Veranstaltung;Veranstaltungsleitung;Vorschlag
+Eigentümer / Notfallzugang;Gesondertes gebäudegeeignetes Verfahren;Betreiberzuständigkeit;Abgestimmt;Eigentümer / Betreiber;Verfahren offen

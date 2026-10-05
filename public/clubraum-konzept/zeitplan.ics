@@ -1,0 +1,159 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//KS Polonia Konzept//Rahmenterminplan//DE
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Polonia Clubraum – vorläufiger Ausbauplan
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w01@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261012
+DTEND;VALUE=DATE:20261017
+SUMMARY:[Vorschlag] Aufmaß & gemeinsame Bestandsaufnahme
+DESCRIPTION:Rolle: Projektleitung + Eigentümer + Fachbetriebe\nBoden\, T
+ üren\, Fluchtwege\, Elektro\, Wasser/Abwasser\, Lüftung und Internet e
+ rfassen\; zulässige Nutzung klären.\nVoraussetzung: Starttermin mit Be
+ teiligten bestätigen\nErgebnis: Bestandsprotokoll\; Maße\; offene Frag
+ en mit Zuständigkeit\nUnbestätigter Rahmenterminplan\; keine Beauftrag
+ ung oder Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w02@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261019
+DTEND;VALUE=DATE:20261024
+SUMMARY:[Vorschlag] Detailplanung & Vereinsentscheidungen
+DESCRIPTION:Rolle: Projektleitung + Fachplanung + Vorstand\nSteckdosen\,
+  Licht\, LAN/APs\, Türsystem\, Akustik und Küche koordinieren. Selbstb
+ edienung\, Zahlungsmodell und Kamerabedarf entscheiden.\nVoraussetzung:
+  W01\; bei fehlenden Daten nur Vorplanung\nErgebnis: Abgestimmte Pläne\
+ , Gerätemengen\, Leistungsdaten und Beschaffungsfreigabe\nUnbestätigte
+ r Rahmenterminplan\; keine Beauftragung oder Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w03@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261026
+DTEND;VALUE=DATE:20261031
+SUMMARY:[Vorschlag] Angebote\, Vergabe & Liefertermine
+DESCRIPTION:Rolle: Vorstand/Kasse + Einkauf + Fachbetriebe\nLeistungsumf
+ änge vergleichen\, Budget freigeben\, Fachbetriebe und Lieferungen verb
+ indlich terminieren.\nVoraussetzung: W02\; Budget\, Eigentümerzustimmun
+ g und nötige Planungsfreigaben\nErgebnis: Beauftragte Leistungen und be
+ stätigte Termine\; sonst Folgetermine neu planen\nUnbestätigter Rahmen
+ terminplan\; keine Beauftragung oder Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w04@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261102
+DTEND;VALUE=DATE:20261107
+SUMMARY:[Vorschlag] Rohinstallation Elektro\, Wasser & Daten
+DESCRIPTION:Rolle: Elektro + Sanitär + IT/Zutritts-Errichter\nAufputztra
+ ssen\, Leitungen\, D01–D08 und beauftragte Reserven\; Wasser/Abwasser.
+  Türsystem vorbereiten.\nVoraussetzung: W03\; koordinierte Pläne und n
+ utzbarer Bestand\nErgebnis: Dokumentierte Rohinstallation\, Prüfungen d
+ er verdeckten/überbauten Teile\nUnbestätigter Rahmenterminplan\; keine
+  Beauftragung oder Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w05@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261109
+DTEND;VALUE=DATE:20261114
+SUMMARY:[Vorschlag] Arbeiten über Kopf & Untergrundvorbereitung
+DESCRIPTION:Rolle: Ausbau + Elektro + Bodenfachbetrieb\nFreigegebene Deck
+ en-/Wandarbeiten und Leuchtenbefestigungen\; Akustik-/Lüftungsmaßnahme
+ n soweit beauftragt\; staubige Arbeiten abschließen.\nVoraussetzung: W0
+ 4\; Akustik/Lüftung abgestimmt\; nötige Umbauten fertig planbar\nErgeb
+ nis: Technik-/Schmutzarbeiten abgeschlossen\; Untergrund und Bodensystem
+  freigegeben\nUnbestätigter Rahmenterminplan\; keine Beauftragung oder
+  Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w06@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261116
+DTEND;VALUE=DATE:20261121
+SUMMARY:[Vorschlag] Boden: Einbau- und Trocknungsfenster
+DESCRIPTION:Rolle: Bodenfachbetrieb\nGeeigneten Bodenaufbau ausführen un
+ d schützen. Belastbarkeit richtet sich nach System\, Klima und schriftl
+ icher Freigabe.\nVoraussetzung: W05\; Untergrund geeignet und freigegebe
+ n\nErgebnis: Freigabetermin für Begehen\, Montage und Möbellasten vom
+  Fachbetrieb\nUnbestätigter Rahmenterminplan\; keine Beauftragung oder
+  Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w07@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261123
+DTEND;VALUE=DATE:20261128
+SUMMARY:[Vorschlag] Küche\, Tresen & technische Endmontage
+DESCRIPTION:Rolle: Möbel/Küche + Sanitär + Elektro + IT\nGelieferte M
+ öbel/Schränke montieren\; Geräte\, Steckdosen\, Licht\, Router/Switch
+ /AP1 und Zutritt montieren.\nVoraussetzung: W06 belastbar freigegeben\;
+  Geräte und maßgefertigte Teile geliefert\nErgebnis: Montierte Anlagen
+ \; keine Betriebsfreigabe allein durch Montage\nUnbestätigter Rahmenter
+ minplan\; keine Beauftragung oder Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w08@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261205
+SUMMARY:[Vorschlag] Prüfung\, Einrichtung & Funktionstests
+DESCRIPTION:Rolle: Fachbetriebe + Projektleitung + Kasse/IT\nElektro-/San
+ itärprüfung\, Tür-/Offline-Tests\, WLAN-Lasttest\, TV-Sichtprobe\, L
+ üftungsbedienung\, Getränkebuchung/Storno/Zahlung testen.\nVoraussetzu
+ ng: W07 vollständig\; Betriebs- und Datenschutzvoraussetzungen erfüllt
+ \nErgebnis: Prüfunterlagen\, Einweisungen und geschlossene betriebsrele
+ vante Mängel\nUnbestätigter Rahmenterminplan\; keine Beauftragung oder
+  Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w09@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261207
+DTEND;VALUE=DATE:20261212
+SUMMARY:[Vorschlag] Kleiner interner Probebetrieb
+DESCRIPTION:Rolle: Raumverantwortliche + Bewirtung + IT/Kasse\nMit kleine
+ m Teilnehmerkreis Abläufe\, Reinigung\, Lagerwechsel und Getränkeinven
+ tur erproben\; Probeabrechnung erstellen.\nVoraussetzung: W08\; Betreibe
+ r-/Nutzungsfreigabe für diesen Umfang\nErgebnis: Pilotprotokoll\, Korre
+ kturen und Freigabeempfehlung\nUnbestätigter Rahmenterminplan\; keine B
+ eauftragung oder Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:polonia-clubraum-20261012-w10@concept.ks-polonia.de
+DTSTAMP:20261005T210358Z
+DTSTART;VALUE=DATE:20261214
+DTEND;VALUE=DATE:20261219
+SUMMARY:[Vorschlag] Nacharbeiten\, Reserve & Übergabe
+DESCRIPTION:Rolle: Projektleitung + zuständige Betriebe + Vorstand\nRest
+ mängel schließen\, Dokumentation und Rollen übergeben\; Eröffnung nu
+ r bei erfüllten Voraussetzungen festlegen.\nVoraussetzung: Pilot abgesc
+ hlossen\; nötige Freigaben und Nachweise liegen vor\nErgebnis: Ziel: be
+ triebsbereiter Clubraum\; kein zugesagter Eröffnungstermin\nUnbestätig
+ ter Rahmenterminplan\; keine Beauftragung oder Einladung.
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

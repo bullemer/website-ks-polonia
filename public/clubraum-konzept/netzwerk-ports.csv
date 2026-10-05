@@ -1,0 +1,17 @@
+﻿Switchport_Vorschlag;Leitungsbezug;Ziel;Netzbereich;Verbindungsart;PoE_Bedarf;Status;Kabellänge_nach_Aufmass_m;Portprofil_nach_Planung;Messprotokoll
+1;D01;TV;Medien;Raumleitung;Nein;Geplant;;;
+2;D02;Zuspieler / Reserve TV;Medien;Raumleitung;Nein;Geplant;;;
+3;D03;Arbeitsplatz 1;Verein;Raumleitung;Nein;Geplant;;;
+4;D04;Reserve Arbeitsplatz 1;Verein;Raumleitung;Nein;Geplant;;;
+5;D05;Arbeitsplatz 2;Verein;Raumleitung;Nein;Geplant;;;
+6;D06;Reserve Arbeitsplatz 2;Verein;Raumleitung;Nein;Geplant;;;
+7;D07;AP1 X5.60 Y5.00 H3.40m;WLAN-Netze / Management;Raumleitung;Nach AP-Datenblatt;Geplant;;;
+8;D08;AP2 X8.80 Y8.00 H3.40m;WLAN-Netze / Management;Raumleitung;Bei zweitem AP nach Datenblatt;"Kabelreserve; zweiter AP separat";;;
+9;lokal;Zutritts-Gateway;Zutritt;Patchkabel im Technikbereich;Systemabhängig;Optional nach Systemwahl;;;
+10;neu optional;Kamera;Kamera;Neue Raumleitung nach Freigabe;Nach Gerätedatenblatt;"Reserve; Kamera nicht freigegeben";;;
+11;neu optional;Thekenterminal;Verein / Kasse;Neue Raumleitung nach Aufmaß;Systemabhängig;Optional;;;
+12;lokal;Recorder;Kamera;Patchkabel im Technikbereich;Systemabhängig;Optional nach Kamerafreigabe;;;
+13;lokal;Controller;Management;Patchkabel im Technikbereich;Systemabhängig;Entfällt bei integrierter Verwaltung;;;
+14;frei;Erweiterungsreserve;Kein Netz;Keine festgelegte Strecke;Aus;Deaktiviert;;;
+15;frei;Erweiterungsreserve;Kein Netz;Keine festgelegte Strecke;Aus;Deaktiviert;;;
+16;Uplink;Router;Definierte Netze;Patchkabel im Technikbereich;Nein;Geplant;;;

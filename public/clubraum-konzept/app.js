@@ -110,7 +110,17 @@ function svgPlan(electrical=false,lightingOnly=false){
 function refresh(){const[badge,title,copy]=modes[mode];$('#mode-tag').textContent=badge;$('#mode-title').textContent=title;$('#mode-copy').textContent=copy;$$('[data-mode]').forEach(b=>{b.classList.toggle('active',b.dataset.mode===mode);b.setAttribute('aria-pressed',b.dataset.mode===mode)});$('#floorplan').innerHTML=svgPlan();$('#electric-plan').innerHTML=svgPlan(true);$('#lighting-plan').innerHTML=svgPlan(true,true);redraw3D()}
 $('#lounge-tone').onchange=e=>{loungeTone=e.target.value;$('.palette-chair').style.background=loungeFinishes[loungeTone].seat;refresh()};
 $$('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;refresh()});
-$$('[data-tab]').forEach(b=>b.onclick=()=>{$$('[data-tab]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',x===b)});$$('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab));window.dispatchEvent(new Event('resize'))});
+function activateTab(id,updateUrl=true){
+ if(!$$('[data-tab]').some(b=>b.dataset.tab===id))return;
+ $$('[data-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.tab===id);b.setAttribute('aria-pressed',b.dataset.tab===id)});
+ $$('.panel').forEach(panel=>panel.classList.toggle('active',panel.id===id));
+ if(updateUrl)history.replaceState(null,'','#'+id);
+ window.dispatchEvent(new Event('resize'));
+}
+$$('[data-tab]').forEach(b=>b.onclick=()=>activateTab(b.dataset.tab));
+window.addEventListener('hashchange',()=>activateTab(location.hash.slice(1)||'model',false));
+activateTab(location.hash.slice(1)||'model',false);
+$('#print-project').onclick=()=>{document.body.classList.add('print-project');try{window.print()}finally{document.body.classList.remove('print-project')}};
 $$('.print').forEach(b=>b.onclick=()=>window.print());
 $('#socket-rows').innerHTML=data.sockets.map(p=>`<tr><td>${p.id} · ${p.name}</td><td>${p.x.toFixed(2)} / ${p.z.toFixed(2)}</td><td>${p.height.toFixed(2)}</td><td>${p.count}</td><td>${p.circuit}<small>${p.note}</small></td></tr>`).join('')+`<tr><td>Summe</td><td colspan="4">${data.sockets.reduce((s,p)=>s+p.count,0)} Einzelsteckplätze an ${data.sockets.length} Positionen; Netzwerk, Schalter und Leuchten zusätzlich.</td></tr>`;
 $('#budget-rows').innerHTML=budget.map(([name,phase,q,lo,hi,note])=>`<tr><td>${name}</td><td>${phase}</td><td>${q}</td><td>${euro(q*lo)}–${euro(q*hi)}</td><td>${note}</td></tr>`).join('');

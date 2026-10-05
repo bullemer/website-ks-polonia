@@ -1,0 +1,10 @@
+﻿Zone;Standort_Vorschlag;Inhalt;Pruefung;Innenmass_BxTxH_eintragen;Nutzbare_Menge_eintragen;Name_eintragen;Status
+T1;Tresen nahe Küche;Gläser / Tassen / Ausgabe;Kisten- und Stapelmaße sowie Innenfächer messen;;;;offen
+T2;Mittlerer Tresenschrank;Teller unten / Besteck / Servietten;Fachlasten und Einsätze prüfen;;;;offen
+T3;Äußerer Tresenschrank;Geschirrreserve / trockene Verbrauchsartikel;Restmenge nach Szenario und Innenmaß;;;;offen
+K1;Feste Küche;Lebensmittel / Zubereitung;Lebensmittelkühlung und Reinigungsmittel trennen;;;;offen
+K2;Gegenüber Küche;Getränkekühlung;Flaschenstellplätze und Nachkühlleistung prüfen;;;;offen
+L1;Vereinslager / Wagenplätze;24 Stühle / 6 Klapptische / 4 Hocker / 4 Stehtische;Stapelmaße aller drei Raumzustände und Wagenabmessungen prüfen;;;;offen
+L2;Standort offen;Garderobe / Taschen;"Aufmaß; außerhalb der Durchgänge";;;;offen
+L3;Standort offen;Putzschrank;"Separat abschließbar; nicht mit Lebensmittelvorräten";;;;offen
+L4;Standort offen;Leergut / Rückgabe / Abfall;Wege und Ausgabe nicht blockieren;;;;offen

@@ -1,0 +1,13 @@
+﻿Gaeste_Szenario;Position;Planmenge;Einheit;Annahme;Status
+60;Trinkgefäße;75;Stück;1 pro Gast + 25 Prozent Reserve;"Vorschlag; keine Belegungsfreigabe"
+60;Kaffeetassen;23;Stück;30 Prozent Kaffeegäste + 25 Prozent Reserve;"Vorschlag; keine Belegungsfreigabe"
+60;Snackgeschirr und passende Bestecksets;45;Sets;60 Prozent Snackgäste + 25 Prozent Reserve;"Vorschlag; keine Belegungsfreigabe"
+60;Gekühlte Getränke zum Start;120;Einheiten à 0,33 l;"2 pro Gast; keine Abend-Verbrauchsprognose";"Vorschlag; keine Belegungsfreigabe"
+60;Reiner Getränkeinhalt;39,6;Liter;"Ohne Verpackung und Luftzwischenräume; keine Kühlschrankgröße";"Vorschlag; keine Belegungsfreigabe"
+60;Helfer Hauptausgabe;3;Personen;"1 Ausgabe/Kasse, 1 Getränke/Küche, 1 Rückgabe/Nachfüllen; Probelauf";"Vorschlag; keine Belegungsfreigabe"
+80;Trinkgefäße;100;Stück;1 pro Gast + 25 Prozent Reserve;"Vorschlag; keine Belegungsfreigabe"
+80;Kaffeetassen;30;Stück;30 Prozent Kaffeegäste + 25 Prozent Reserve;"Vorschlag; keine Belegungsfreigabe"
+80;Snackgeschirr und passende Bestecksets;60;Sets;60 Prozent Snackgäste + 25 Prozent Reserve;"Vorschlag; keine Belegungsfreigabe"
+80;Gekühlte Getränke zum Start;160;Einheiten à 0,33 l;"2 pro Gast; keine Abend-Verbrauchsprognose";"Vorschlag; keine Belegungsfreigabe"
+80;Reiner Getränkeinhalt;52,8;Liter;"Ohne Verpackung und Luftzwischenräume; keine Kühlschrankgröße";"Vorschlag; keine Belegungsfreigabe"
+80;Helfer Hauptausgabe;3;Personen;"1 Ausgabe/Kasse, 1 Getränke/Küche, 1 Rückgabe/Nachfüllen; Probelauf";"Vorschlag; keine Belegungsfreigabe"

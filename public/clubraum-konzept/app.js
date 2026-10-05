@@ -284,3 +284,5 @@ try{
  renderer.setAnimationLoop(()=>{if($('#model').classList.contains('active')&&!document.hidden){controls.update();renderer.render(scene,camera)}});
  window.polonia={lights,data,furniture,escapeRects,svgPlan,model,scene,camera,renderer,controls,setMode:m=>{mode=m;refresh()}};
 }catch(e){console.error(e);$('#model-error').hidden=false;$('#export').disabled=true;}
+
+$('#print-operations').onclick=()=>{document.body.classList.add('print-operations');try{window.print()}finally{document.body.classList.remove('print-operations')}};

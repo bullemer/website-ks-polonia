@@ -1,5 +1,5 @@
 // Alternative B – Clubraum in drei Bereichen (Croatia | Polonia | gemeinsam).
-// Maße identisch mit scripts/build_grundriss_3bereiche.py (Grundriss B-01):
+// Maße identisch mit scripts/build_grundriss_3bereiche.py (Grundriss B-02):
 // Ursprung linke obere Innenecke, x nach rechts, z plan-abwärts, y nach oben, Meter.
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
@@ -47,7 +47,7 @@ scene.add(sun, sun.target);
 
 const model = new THREE.Group();
 model.name = 'Clubraum_Alternative_B_drei_Bereiche';
-model.userData = { status: 'Konzept, Aufmaß erforderlich', units: 'metres', plan: 'Grundriss B-01 01.11.2026' };
+model.userData = { status: 'Konzept, Aufmaß erforderlich', units: 'metres', plan: 'Grundriss B-02 01.11.2026' };
 scene.add(model);
 const groups = {};
 for (const n of ['base', 'zones', 'routes', 'shared', 'croatia', 'polonia', 'divider', 'lights', 'roof', 'labels']) {
@@ -194,15 +194,11 @@ block(B, 'Steigschacht Verkleidung', 1.6, 0, 2.2, 0.45, 2.4, 1.2, '#d8d6cc');
 
 // ---------------------------------------------------------------- Bodenzonen + Wege
 const Z = groups.zones;
-block(Z, 'Zone Croatia', 0, 0, MID, ZONE, 0, 0.006, '#c9d4ea');
+block(Z, 'Zone Croatia (leer)', 0, 0, MID, ZONE, 0, 0.006, '#dddbd4');
 block(Z, 'Zone Polonia', MID, 0, W, ZONE, 0, 0.006, '#ecd0d4');
 block(Z, 'Zone gemeinsam', 0, ZONE, W, D, 0, 0.004, '#d8d3c6');
 block(Z, 'Zone gemeinsam Nische', 0, D, AW, D + AD, 0, 0.004, '#d8d3c6');
 block(Z, 'Bereichsgrenze (Bodenmarkierung)', 0, ZONE - 0.03, W, ZONE + 0.03, 0, 0.009, '#4b5650');
-// Bodenlogos: Schachbrett (Croatia) / Vereinswappen (Polonia) – dezent im Lauf
-const floorChecker = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 1.0), new THREE.MeshStandardMaterial({ map: checker(5, 5), transparent: true, opacity: 0.55 }));
-floorChecker.rotation.x = -Math.PI / 2; floorChecker.position.set(3.0, 0.011, 6.75); floorChecker.name = 'Bodenmarke Croatia';
-Z.add(floorChecker);
 const R = groups.routes;
 const routeMat = new THREE.MeshBasicMaterial({ color: '#4fae7a', transparent: true, opacity: 0.38 });
 block(R, 'Querweg 1,20 m', 0.75, ZONE, W, ZONE + 1.2, 0, 0.015, routeMat);
@@ -288,7 +284,7 @@ function clubArea(side) {
   block(g, 'Teppich Lounge', r0, 1.95, r1, 4.05, 0.006, 0.012, side === 'croatia' ? '#8fa2c9' : '#c99aa2');
   void accent;
 }
-clubArea('croatia');
+// Croatia-Bereich bleibt leer und neutral – Einrichtung durch Croatia.
 clubArea('polonia');
 logo(groups.polonia, 8.55, 0.012, 6.75, 0.9, 0).rotation.set(-Math.PI / 2, 0, 0);
 groups.polonia.children.at(-1).name = 'Bodenmarke Polonia';
@@ -300,8 +296,6 @@ const S = groups.shared;
 block(S, 'Theke Croatia Korpus', BAR_X0, BAR_Z0, MID, BAR_Z1, 0, TOP - 0.05, C.charcoal);
 block(S, 'Theke Polonia Korpus', MID, BAR_Z0, BAR_X1, BAR_Z1, 0, TOP - 0.05, C.charcoal);
 block(S, 'Thekenplatte Eiche', BAR_X0 - 0.03, BAR_Z0 - 0.06, BAR_X1 + 0.03, BAR_Z1, TOP - 0.05, 0.05, C.oak);
-plane(S, 'Front Croatia Schachbrett', checker(16, 5), (BAR_X0 + MID) / 2, 0.5, BAR_Z0 - 0.005, MID - BAR_X0 - 0.04, 0.62, Math.PI, false);
-plane(S, 'Front Croatia Schriftzug', textTex([['CROATIA', 150]], '#ffffff', C.croBlue), (BAR_X0 + MID) / 2, 0.08 + 0.06, BAR_Z0 - 0.006, 1.0, 0.18, Math.PI);
 plane(S, 'Front Polonia Vereinsrot', textTex([['', 10]], C.polRed, '#fff', 64, 64), (MID + BAR_X1) / 2, 0.45, BAR_Z0 - 0.005, BAR_X1 - MID - 0.04, 0.8, Math.PI, false);
 logo(S, (MID + BAR_X1) / 2, 0.5, BAR_Z0 - 0.01, 0.42, Math.PI);
 block(S, 'Fuge Thekenmitte', MID - 0.01, BAR_Z0 - 0.02, MID + 0.01, BAR_Z1, 0, TOP - 0.05, '#e6e2d6');
@@ -321,7 +315,7 @@ for (const [x0, name] of [[4.40, 'UK-C Untertheken-Kühlschrank Croatia'], [6.55
 }
 // Barhocker 3 je Hälfte
 for (const x of [4.25, 4.85, 5.45, 6.10, 6.70, 7.30]) {
-  cyl(S, 'Barhocker Sitz', x, 0.63, 9.08, 0.19, 0.05, x < MID ? '#2c477f' : C.wine);
+  cyl(S, 'Barhocker Sitz', x, 0.63, 9.08, 0.19, 0.05, x < MID ? C.charcoal : C.wine);
   cyl(S, 'Barhocker Säule', x, 0.32, 9.08, 0.03, 0.6, C.steel);
   cyl(S, 'Barhocker Fuß', x, 0.01, 9.08, 0.2, 0.02, C.steel);
   const ring = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.012, 8, 24), mat(C.steel));
@@ -340,10 +334,10 @@ block(S, 'Spritzschutz', 4.36, D + 0.15, 4.4, D + 3.75, TOP, 0.62, '#e2dfd6');
 for (const z0 of [11.40, 11.98]) block(S, 'Unterbau-Kühlschrank Küche', 3.70, z0, 3.72, z0 + 0.56, 0.06, 0.78, '#9aa49f');
 block(S, 'Geschirrspüler Front', 3.70, 13.50, 3.72, 14.08, 0.06, 0.78, '#cfd3d4');
 // Getränkekühlschränke K1 Croatia / K2 Polonia (Glastür nach Osten)
-for (const [z0, name, c] of [[11.50, 'K1 Croatia', C.croBlue], [12.18, 'K2 Polonia', C.polRed]]) {
+for (const [z0, name, c] of [[11.50, 'K1 Croatia', null], [12.18, 'K2 Polonia', C.polRed]]) {
   block(S, 'Getränkekühlschrank ' + name, 0.08, z0, 0.70, z0 + 0.6, 0, 1.85, '#e9ecec');
   block(S, name + ' Glastür', 0.70, z0 + 0.04, 0.72, z0 + 0.56, 0.12, 1.55, glass);
-  plane(S, name + ' Schild', textTex([[name.split(' ')[1].toUpperCase(), 120]], c, '#fff', 512, 160), 0.725, 1.76, z0 + 0.3, 0.5, 0.15, Math.PI / 2);
+  if (c) plane(S, name + ' Schild', textTex([[name.split(' ')[1].toUpperCase(), 120]], c, '#fff', 512, 160), 0.725, 1.76, z0 + 0.3, 0.5, 0.15, Math.PI / 2);
   for (let i = 0; i < 4; i++) block(S, 'Flaschenreihe', 0.15, z0 + 0.08, 0.66, z0 + 0.52, 0.25 + i * 0.36, 0.22, i % 2 ? '#7b5b2a' : '#3d6b3a');
 }
 block(S, 'RWA-Taster 1 (freihalten)', 0, 13.0, 0.06, 13.22, 1.2, 0.22, '#c8102e');
@@ -354,7 +348,6 @@ const dividerModes = {};
 function panel(g, z0, idx) {
   const z1 = z0 + 1.18;
   block(g, `Stellwand ${idx} Akustikfilz`, MID - 0.04, z0, MID + 0.04, z1, 0.12, 1.9, C.felt);
-  block(g, `Stellwand ${idx} Band Croatia`, MID - 0.045, z0, MID - 0.04, z1, 1.82, 0.12, C.croBlue);
   block(g, `Stellwand ${idx} Band Polonia`, MID + 0.04, z0, MID + 0.045, z1, 1.82, 0.12, C.polRed);
   for (const z of [z0 + 0.12, z1 - 0.12]) {
     block(g, 'Fuß', MID - 0.22, z - 0.03, MID + 0.22, z + 0.03, 0.04, 0.04, C.steel);
@@ -400,10 +393,10 @@ for (const mode of ['walls', 'plants', 'mix', 'open']) {
   }
 }
 const dividerNotes = {
-  walls: '6 freistehende Akustik-Stellwände à 1,20 m, ca. 2,0 m hoch, auf Rollen mit Bremse. Beidseitig Filz, oben je ein Band in Vereinsfarbe.',
+  walls: '6 freistehende Akustik-Stellwände à 1,20 m, ca. 2,0 m hoch, auf Rollen mit Bremse. Beidseitig Filz, Polonia-Seite mit Band in Vereinsrot.',
   plants: '6 Pflanzkübel auf Rollen à 1,20 × 0,45 m im selben Raster. Durchlässiger, wohnlicher – weniger Sicht- und Schallschutz, Pflege nötig.',
   mix: '4 Stellwände im Lounge-/TV-Bereich (Sicht- und Schallschutz), 2 Pflanzkübel zur Theke hin – offener Übergang zum gemeinsamen Bereich.',
-  open: 'Gemeinsames Event: Stellwände an der Nordwand zusammengeschoben – ein großer Raum, beide TVs sichtbar.',
+  open: 'Gemeinsames Event: Stellwände an der Nordwand zusammengeschoben – ein großer, offener Raum.',
 };
 function setDivider(mode) {
   for (const [k, g] of Object.entries(dividerModes)) g.visible = k === mode;
@@ -437,7 +430,7 @@ for (let x = 0.3; x < W; x += 0.3) box(RF, 'Trapezblech', x, 4.9, D / 2, 0.065, 
 box(RF, 'Oberlicht', 7.75, 4.95, 7.95, 0.6, 0.02, 1.3, glass);
 
 // ---------------------------------------------------------------- Beschriftung
-label('CROATIA', 'Vereinsbereich · 43,9 m²', C.croBlue, 2.9, 3.4, 4.2);
+label('CROATIA', 'Bereich frei · 43,9 m²', '#6b736d', 2.9, 3.4, 4.2);
 label('POLONIA', 'Vereinsbereich · 43,9 m²', C.polRed, 8.65, 3.4, 4.2);
 label('GEMEINSAM', 'Theke · Küche · Eingang · 60 m²', '#5d5446', 9.4, 2.6, 9.6, 0.85);
 
@@ -496,5 +489,5 @@ resize();
 setDivider('walls');
 setView('overview');
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
-status.textContent = 'Konzeptmodell · Maße lt. Grundriss B-01 · vor Ort prüfen';
+status.textContent = 'Konzeptmodell · Maße lt. Grundriss B-02 · vor Ort prüfen';
 window.alternativeB = { scene, model, camera, controls, renderer, setView, setDivider, groups, ready: true };

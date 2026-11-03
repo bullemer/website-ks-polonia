@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+const teams = (await getCollection('teams'))
+    .filter(team => (team.data.title || team.data.teamName || '').toLowerCase().includes('polonia'))
+    .sort((a, b) => (a.data.title || a.data.teamName || '').localeCompare(b.data.title || b.data.teamName || '', 'de'));
+const seen = new Set();
+const uniqueTeams = teams.filter(team => {
+    const key = team.data.externalUrl || team.id;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+});
+---
+<Layout title="Fußball & Mannschaften" description="Die Fußballmannschaften von KS Polonia Hamburg: Jugend, Herren und Senioren.">
+    <section class="football-overview">
+        <h1>Fußball bei KS Polonia</h1>
+        <p>Entdecke unsere Mannschaften für Jugend und Erwachsene an der Finkenau.</p>
+        <p class="quick-links"><a href="/trainingszeiten">Trainingszeiten</a> · <a href="/spieltermine">Spieltermine</a> · <a href="/seiten/probetraining">Probetraining anfragen</a></p>
+        <h2>Unsere Mannschaften</h2>
+        <ul class="team-grid">
+            {uniqueTeams.map(team => <li><a href={`/football/${team.id}`}>{team.data.title || team.data.teamName}</a></li>)}
+        </ul>
+    </section>
+</Layout>
+<style>
+    .football-overview { max-width: 960px; margin: 0 auto 3rem; }
+    h1 { font-size: clamp(2rem, 5vw, 2.8rem); margin-bottom: .75rem; }
+    h2 { margin: 2.5rem 0 1rem; }
+    .quick-links { margin-top: 1.25rem; line-height: 2; }
+    .team-grid { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: .75rem; }
+    .team-grid a { display: block; padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); font-weight: 600; }
+    .team-grid a:hover, .team-grid a:focus-visible { color: var(--color-primary); border-color: var(--color-primary); }
+</style>

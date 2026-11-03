@@ -11,9 +11,9 @@ _SECRET_FILE = Path(os.getenv("KS_POLONIA_SECRET_FILE", "/usr/home/trusteei/.con
 _private = json.loads(_SECRET_FILE.read_text()) if _SECRET_FILE.exists() else {}
 
 # --- Database ---
-DATABASE_URL = os.getenv(
+DATABASE_URL = _private.get("DATABASE_URL") or os.getenv(
     "DATABASE_URL",
-    _private.get("DATABASE_URL") or "postgresql://trusteei_0:k6%25KkhF%3B%29FY4@kwnz.your-database.de:5432/kspolonia",
+    "postgresql://trusteei_0:k6%25KkhF%3B%29FY4@kwnz.your-database.de:5432/kspolonia",
 )
 
 # --- JWT Auth ---

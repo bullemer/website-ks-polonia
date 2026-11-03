@@ -56,7 +56,7 @@ import Layout from '../layouts/Layout.astro';
 
         <button type="submit" class="submit-btn" id="submitBtn">Nachricht senden</button>
 
-        <div id="formStatus" class="form-status" style="display: none;"></div>
+        <div id="formStatus" role="status" aria-live="polite" class="form-status" style="display: none;"></div>
 
         <p class="form-note">
             * Pflichtfelder. Ihre Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.
@@ -69,15 +69,19 @@ import Layout from '../layouts/Layout.astro';
         const statusDiv = document.getElementById('formStatus');
         const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
 
-        // Initialize Dynamic Math CAPTCHA
-        const num1 = Math.floor(Math.random() * 10) + 1;
-        const num2 = Math.floor(Math.random() * 10) + 1;
-        const captchaLabel = document.getElementById('captcha_label');
-        const captchaExpected = document.getElementById('captcha_expected') as HTMLInputElement;
-        if(captchaLabel && captchaExpected) {
-            captchaLabel.textContent = `Sicherheitsfrage: Was ergibt ${num1} + ${num2}? *`;
-            captchaExpected.value = (num1 + num2).toString();
+        function initCaptcha() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            const captchaLabel = document.getElementById('captcha_label');
+            const captchaExpected = document.getElementById('captcha_expected') as HTMLInputElement;
+            const captchaAnswer = document.getElementById('captcha_answer') as HTMLInputElement;
+            if (captchaLabel && captchaExpected) {
+                captchaLabel.textContent = `Sicherheitsfrage: Was ergibt ${num1} + ${num2}? *`;
+                captchaExpected.value = (num1 + num2).toString();
+                if (captchaAnswer) captchaAnswer.value = '';
+            }
         }
+        initCaptcha();
 
         if (form && statusDiv && submitBtn) {
             form.addEventListener('submit', async (e) => {
@@ -109,9 +113,10 @@ import Layout from '../layouts/Layout.astro';
                         statusDiv.className = 'form-status success';
                         statusDiv.textContent = result.message || 'Ihre Nachricht wurde erfolgreich gesendet!';
                         form.reset();
+                        initCaptcha();
                     } else {
                         statusDiv.className = 'form-status error';
-                        statusDiv.textContent = result.error || 'Es gab ein Problem beim Senden Ihrer Nachricht.';
+                        statusDiv.textContent = result.error || 'Bitte prüfen Sie Ihre Eingaben und versuchen Sie es erneut.';
                     }
                 } catch (error) {
                     statusDiv.style.display = 'block';

@@ -11,7 +11,7 @@ v2.0 – Membership Management System
 from fastapi import FastAPI, Request, HTTPException, Form
 from fastapi.responses import JSONResponse, HTMLResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ValidationError
 from typing import Optional
 import os
 import datetime
@@ -207,16 +207,43 @@ async def wall_reserve_spot(req: ReserveSpotRequest):
 @app.post("/contact")
 @app.post("/contact.php")
 @app.post("/probetraining")
-async def handle_contact(form: ContactForm):
+async def handle_contact(request: Request):
+    # JavaScript sends JSON; ordinary browser submissions send form fields.
+    is_json = request.headers.get("content-type", "").split(";", 1)[0].strip().lower() == "application/json"
+
+    def respond(payload, status_code=200):
+        if is_json:
+            return JSONResponse(payload, status_code=status_code)
+        message = payload.get("message") or payload.get("error", "Die Anfrage konnte nicht verarbeitet werden.")
+        from html import escape
+        return HTMLResponse(
+            '<!doctype html><html lang="de"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1">'
+            '<title>Kontakt – KS Polonia</title></head><body>'
+            f'<main><h1>Kontakt</h1><p>{escape(message)}</p>'
+            '<p><a href="javascript:history.back()">Zurück zum Formular</a> · '
+            '<a href="/kontakt">Kontaktseite</a></p></main></body></html>',
+            status_code=status_code,
+        )
+
+    try:
+        data = await request.json() if is_json else dict(await request.form())
+        form = ContactForm.model_validate(data)
+    except (ValidationError, ValueError):
+        return respond({"success": False, "error": "Bitte prüfen Sie Name, E-Mail-Adresse und Nachricht."}, 422)
+
+    if not form.name.strip() or not form.message.strip():
+        return respond({"success": False, "error": "Bitte geben Sie Ihren Namen und eine Nachricht ein."}, 422)
+
     if form.website_url and form.website_url.strip() != "":
-        return JSONResponse({"success": True, "message": "Ihre Nachricht wurde erfolgreich gesendet!"})
+        return respond({"success": True, "message": "Ihre Nachricht wurde erfolgreich gesendet!"})
 
     if form.captcha_answer is not None and form.captcha_expected is not None:
         try:
             if int(form.captcha_answer.strip()) != int(form.captcha_expected.strip()):
-                return JSONResponse({"success": False, "error": "Die Sicherheitsfrage wurde falsch beantwortet."}, status_code=400)
+                return respond({"success": False, "error": "Die Sicherheitsfrage wurde falsch beantwortet."}, 400)
         except ValueError:
-            return JSONResponse({"success": False, "error": "Bitte geben Sie eine gültige Zahl als Antwort ein."}, status_code=400)
+            return respond({"success": False, "error": "Bitte geben Sie eine gültige Zahl als Antwort ein."}, 400)
 
     subject_map = {
         "probetraining": "Anfrage Probetraining",
@@ -253,8 +280,8 @@ async def handle_contact(form: ContactForm):
         reply_to_email=form.email, reply_to_name=form.name,
     )
     if success:
-        return JSONResponse({"success": True, "message": "Ihre Nachricht wurde erfolgreich gesendet!"})
-    return JSONResponse({"success": False, "error": f"Fehler beim E-Mail-Versand: {error_msg or 'Unbekannter Fehler'}"}, status_code=500)
+        return respond({"success": True, "message": "Ihre Nachricht wurde erfolgreich gesendet!"})
+    return respond({"success": False, "error": "Der Versand ist fehlgeschlagen. Bitte versuchen Sie es später erneut oder schreiben Sie an info@ks-polonia.de."}, 500)
 
 
 

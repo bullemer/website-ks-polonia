@@ -24,7 +24,10 @@ async def main():
         await conn.close()
         return
 
-    hashed = hash_password("Polonia2026!")
+    password = os.getenv("KS_POLONIA_BOOTSTRAP_PASSWORD", "")
+    if len(password) < 16:
+        raise SystemExit("Set KS_POLONIA_BOOTSTRAP_PASSWORD to a unique password of at least 16 characters")
+    hashed = hash_password(password)
     member_id = await conn.fetchval(
         "INSERT INTO members (mitgliedsnummer, vorname, nachname, email, password_hash, "
         "is_admin, is_active, email_verified, membership_level) "
@@ -34,7 +37,7 @@ async def main():
 
     print(f"Admin created! ID: {member_id}")
     print(f"Email: info@ks-polonia.de")
-    print(f"Password: Polonia2026!")
+    print("Use the password supplied in KS_POLONIA_BOOTSTRAP_PASSWORD.")
     await conn.close()
 
 

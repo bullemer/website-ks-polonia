@@ -510,15 +510,22 @@ async def admin_download_membership_certificate(request: Request, member_id: int
     )
 
 # Cash donations: only superadmins can prepare and retrieve certificates.
+def require_donation_feature():
+    from config import DONATION_CERTIFICATES_ENABLED
+    if not DONATION_CERTIFICATES_ENABLED:
+        raise HTTPException(status_code=503, detail='Spendenbescheinigungen sind bis zur Absicherung des Datenbankzugangs deaktiviert.')
+
 @router.get('/donations/certificate')
 async def donation_certificate_form(request: Request):
     admin = require_superadmin(request)
+    require_donation_feature()
     return templates.TemplateResponse(request, 'admin_donation_certificate.html', {'admin': admin})
 
 
 @router.post('/donations/certificate')
 async def donation_certificate_create(request: Request):
     require_superadmin(request)
+    require_donation_feature()
     from decimal import Decimal, InvalidOperation
     from datetime import date
     from pathlib import Path
@@ -578,6 +585,7 @@ async def donation_certificate_archive(request: Request):
     import datetime
     from config import UPLOAD_DIR
     admin = require_superadmin(request)
+    require_donation_feature()
     directory = Path(UPLOAD_DIR) / 'donation_certificates'
     files = sorted(directory.glob('*.pdf'), key=lambda p: p.stat().st_mtime, reverse=True) if directory.exists() else []
     return templates.TemplateResponse(request, 'admin_donation_archive.html', {
@@ -590,6 +598,7 @@ async def donation_certificate_archived_pdf(request: Request, receipt_id: str):
     from pathlib import Path
     from config import UPLOAD_DIR
     require_superadmin(request)
+    require_donation_feature()
     if len(receipt_id) != 32 or any(c not in '0123456789abcdef' for c in receipt_id):
         raise HTTPException(status_code=404)
     path = Path(UPLOAD_DIR) / 'donation_certificates' / (receipt_id + '.pdf')

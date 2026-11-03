@@ -3,21 +3,26 @@ KS Polonia – Central Configuration
 All settings in one place. Reads from environment variables with sensible defaults.
 """
 import os
+import json
+from pathlib import Path
+
+# This file lives outside the deployed tree and is never committed.
+_SECRET_FILE = Path(os.getenv("KS_POLONIA_SECRET_FILE", "/usr/home/trusteei/.config/kspolonia/secrets.json"))
+_private = json.loads(_SECRET_FILE.read_text()) if _SECRET_FILE.exists() else {}
 
 # --- Database ---
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://trusteei_0:k6%25KkhF%3B%29FY4@kwnz.your-database.de:5432/kspolonia",
+    _private.get("DATABASE_URL") or "postgresql://trusteei_0:k6%25KkhF%3B%29FY4@kwnz.your-database.de:5432/kspolonia",
 )
 
 # --- JWT Auth ---
-JWT_SECRET = os.getenv("JWT_SECRET", "ks-polonia-jwt-secret-change-in-production-2026")
+JWT_SECRET = os.getenv("JWT_SECRET") or _private.get("JWT_SECRET")
+if not JWT_SECRET or len(JWT_SECRET) < 32:
+    raise RuntimeError("Set a private JWT_SECRET of at least 32 characters before starting the API")
+DONATION_CERTIFICATES_ENABLED = _private.get("DONATION_CERTIFICATES_ENABLED") is True
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "24"))
-
-# --- Admin bootstrap ---
-ADMIN_USER = os.getenv("ADMIN_USER", "admin")
-ADMIN_PASS = os.getenv("ADMIN_PASS", "polonia2026")
 
 # --- SMTP / Email ---
 SMTP_HOST = os.getenv("SMTP_HOST", "mail.your-server.de")

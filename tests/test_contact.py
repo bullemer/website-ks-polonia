@@ -4,6 +4,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import os
+os.environ.setdefault("JWT_SECRET", "local-tests-only-not-a-production-secret-12345")
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'backend'))
 from fastapi.testclient import TestClient
 from app import app

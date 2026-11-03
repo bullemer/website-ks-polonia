@@ -7,6 +7,9 @@ from unittest.mock import patch
 from datetime import date
 from decimal import Decimal
 
+import os
+os.environ.setdefault("JWT_SECRET", "local-tests-only-not-a-production-secret-12345")
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'backend'))
 from fastapi.testclient import TestClient
 from pypdf import PdfReader
@@ -21,6 +24,9 @@ DATA = dict(donor_name='Max Beispiel', address='Musterstraße 1', postal_city='1
 class DonationTests(unittest.TestCase):
     def setUp(self):
         self.client = TestClient(app)
+        self.feature = patch('config.DONATION_CERTIFICATES_ENABLED', True)
+        self.feature.start()
+        self.addCleanup(self.feature.stop)
     def login_as(self, role):
         self.client.cookies.set('session_token', create_access_token(1, 'test@example.org', role=role))
     def test_only_superadmin_can_access_and_create(self):
@@ -49,6 +55,16 @@ class DonationTests(unittest.TestCase):
         for changes in ({'amount':'-3'}, {'amount':'1.001'}, {'confirmed':''}, {'donor_name':''}, {'donation_date':'2999-01-01'}):
             self.assertEqual(self.client.post('/admin/donations/certificate',data={**DATA, **changes}).status_code,422)
         self.assertEqual(self.client.post('/admin/donations/certificate',data=DATA,headers={'Origin':'https://evil.example'}).status_code,403)
+    def test_disabled_feature_stays_unavailable(self):
+        self.login_as('superadmin')
+        with patch('config.DONATION_CERTIFICATES_ENABLED', False):
+            self.assertEqual(self.client.get('/admin/donations/certificate').status_code, 503)
+            self.assertEqual(self.client.post('/admin/donations/certificate', data=DATA).status_code, 503)
+
+    def test_legacy_cookie_does_not_authorize(self):
+        self.client.cookies.set('admin_session', 'authorized')
+        self.assertEqual(self.client.get('/admin-legacy').status_code, 401)
+
     def test_amount_words(self):
         self.assertEqual(amount_in_words(Decimal('21.03')), 'einundzwanzig Euro und drei Cent')
         self.assertEqual(amount_in_words(Decimal('1000.01')), 'eintausend Euro und ein Cent')

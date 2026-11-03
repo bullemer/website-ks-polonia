@@ -22,9 +22,10 @@ from fastapi.templating import Jinja2Templates
 
 from config import (
     DATABASE_URL, API_VERSION, UPLOAD_DIR,
-    ADMIN_USER, ADMIN_PASS, CORS_ORIGINS,
+    CORS_ORIGINS,
 )
 from database import get_pool, close_pool
+from auth import require_superadmin
 from mailer import send_email
 from services import member_service
 
@@ -471,47 +472,12 @@ async def _load_teams_and_players(team_id=None):
     return teams, players
 
 
-@app.get("/admin-legacy")
-async def admin_legacy_get(request: Request, team_id: Optional[str] = None):
-    try:
-        if request.cookies.get("admin_session") != "authorized":
-            return _render("admin.html", {"request": request, "authenticated": False})
-        teams, players = await _load_teams_and_players(team_id)
-        return _render("admin.html", {
-            "request": request, "authenticated": True,
-            "teams": teams, "players": players,
-            "selected_team_id": team_id or "",
-        })
-    except Exception:
-        return PlainTextResponse("Error:\n" + traceback.format_exc(), status_code=500)
-
-
-@app.post("/admin-legacy")
-async def admin_legacy_post(
-    request: Request,
-    username: Optional[str] = Form(None),
-    password: Optional[str] = Form(None),
-    team_id: Optional[str] = Form(None),
-):
-    try:
-        is_authenticated = request.cookies.get("admin_session") == "authorized"
-        if username and password:
-            if secrets.compare_digest(username, ADMIN_USER) and secrets.compare_digest(password, ADMIN_PASS):
-                is_authenticated = True
-            else:
-                return _render("admin.html", {
-                    "request": request, "authenticated": False,
-                    "error": "Falscher Benutzername oder Passwort",
-                })
-        if not is_authenticated:
-            return _render("admin.html", {"request": request, "authenticated": False})
-        teams, players = await _load_teams_and_players(team_id)
-        response = _render("admin.html", {
-            "request": request, "authenticated": True,
-            "teams": teams, "players": players,
-            "selected_team_id": team_id or "",
-        })
-        response.set_cookie(key="admin_session", value="authorized", max_age=86400, httponly=True, secure=True)
-        return response
-    except Exception:
-        return PlainTextResponse("Error:\n" + traceback.format_exc(), status_code=500)
+@app.api_route("/admin-legacy", methods=["GET", "POST"])
+async def admin_legacy(request: Request, team_id: Optional[str] = None):
+    # The former cookie was a constant and allowed anyone to bypass login.
+    require_superadmin(request)
+    teams, players = await _load_teams_and_players(team_id)
+    return _render("admin.html", {
+        "request": request, "authenticated": True,
+        "teams": teams, "players": players, "selected_team_id": team_id or "",
+    })

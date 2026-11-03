@@ -1,0 +1,4 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Spendenbescheinigungen – Archiv</title>
+<style>body{font-family:system-ui,sans-serif;background:#0f1117;color:#e4e4e7;margin:0;padding:1.5rem}main{max-width:740px;margin:auto}a{color:#fb8298}li{margin:1rem 0;overflow-wrap:anywhere}</style></head><body><main>
+<p><a href="/api/admin/donations/certificate">← Spendenbescheinigung erstellen</a></p><h1>PDF-Archiv</h1><p>Hier liegen die erzeugten, noch nicht unterschriebenen PDFs. Das unterschriebene Exemplar muss zusätzlich nach den Regeln des Vereins aufbewahrt werden.</p>
+<ul>{% for file in files %}<li>{{ file.date }} – <a href="/api/admin/donations/certificates/{{ file.id }}" target="_blank">{{ file.id }}.pdf</a></li>{% else %}<li>Keine Bescheinigungen vorhanden.</li>{% endfor %}</ul></main></body></html>

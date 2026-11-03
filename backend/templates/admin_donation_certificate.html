@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spendenbescheinigung – KS Polonia</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#0f1117;color:#e4e4e7;margin:0;padding:1.25rem}main{max-width:740px;margin:auto}a{color:#fb8298}h1{font-size:1.8rem}p{line-height:1.5}.notice{background:#31291b;border:1px solid #a16207;border-radius:8px;padding:1rem}form{background:#1a1d27;border:1px solid #2a2d3a;border-radius:10px;padding:1.25rem}label{display:block;font-weight:600;margin-top:1rem}input{display:block;width:100%;box-sizing:border-box;margin-top:.35rem;padding:.7rem;border-radius:6px;border:1px solid #626676;background:#10121b;color:white;font:inherit}input[type=checkbox]{display:inline;width:auto;margin-right:.5rem}button{margin-top:1.25rem;padding:.8rem 1rem;background:#dc143c;border:0;border-radius:6px;color:white;font:inherit;font-weight:700;cursor:pointer}small{color:#c3c5cc}
+</style></head><body><main>
+<p><a href="/api/admin/dashboard">← Zurück zum Dashboard</a> · <a href="/api/admin/donations/certificates">PDF-Archiv</a></p>
+<h1>Spendenbescheinigung</h1>
+<p>Für einzelne Geldspenden. Alle Angaben zum Freistellungsbescheid bitte dem aktuellen Bescheid des Vereins entnehmen.</p>
+<p class="notice">Nur tatsächlich eingegangene Geldspenden bestätigen. Das PDF enthält keine automatische Unterschrift: Bitte prüfen, durch eine berechtigte Person unterschreiben lassen und das unterschriebene Exemplar nach den Aufbewahrungsregeln des Vereins sichern. Für Aufwandsspenden, Sachspenden oder einen Bescheid nach § 60a AO dieses Formular nicht verwenden.</p>
+<form action="/api/admin/donations/certificate" method="post" target="_blank">
+<label>Name der spendenden Person <input name="donor_name" maxlength="100" required></label>
+<label>Straße und Hausnummer <input name="address" maxlength="100" required></label>
+<label>PLZ und Ort <input name="postal_city" maxlength="100" required></label>
+<label>Spendenbetrag in Euro <input name="amount" type="number" min="0.01" max="999999.99" step="0.01" required></label>
+<label>Tag des Spendeneingangs <input name="donation_date" type="date" required></label>
+<h2>Angaben aus dem Freistellungsbescheid</h2>
+<label>Begünstigter Zweck (wie im Bescheid) <input name="purpose" maxlength="120" required></label>
+<label>Finanzamt <input name="tax_office" maxlength="100" required></label>
+<label>Steuernummer <input name="tax_number" maxlength="50" required></label>
+<label>Datum des Freistellungsbescheids <input name="notice_date" type="date" required></label>
+<label>Letzter Veranlagungszeitraum <input name="tax_period" maxlength="40" required placeholder="z. B. 2024"></label>
+<label><input type="checkbox" name="confirmed" value="yes" required> Ich habe den Spendeneingang und die Angaben anhand der Vereinsunterlagen geprüft.</label>
+<p><small>Eine PDF-Kopie wird im geschützten Upload-Verzeichnis auf dem Server abgelegt. Das PDF öffnet sich in einem neuen Tab.</small></p>
+<button type="submit">PDF erstellen</button>
+</form></main></body></html>

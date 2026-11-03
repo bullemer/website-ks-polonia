@@ -508,3 +508,92 @@ async def admin_download_membership_certificate(request: Request, member_id: int
             "Expires": "0",
         },
     )
+
+# Cash donations: only superadmins can prepare and retrieve certificates.
+@router.get('/donations/certificate')
+async def donation_certificate_form(request: Request):
+    admin = require_superadmin(request)
+    return templates.TemplateResponse(request, 'admin_donation_certificate.html', {'admin': admin})
+
+
+@router.post('/donations/certificate')
+async def donation_certificate_create(request: Request):
+    require_superadmin(request)
+    from decimal import Decimal, InvalidOperation
+    from datetime import date
+    from pathlib import Path
+    from uuid import uuid4
+    from config import UPLOAD_DIR
+    from services.donation_pdf import generate_donation_pdf
+    # A browser POST must originate from this site (the authentication is cookie based).
+    origin = request.headers.get('origin')
+    from config import CORS_ORIGINS
+    if origin and origin.rstrip('/') not in [url.rstrip('/') for url in CORS_ORIGINS if url.startswith('https://')]:
+        raise HTTPException(status_code=403, detail='Ungültige Anfragequelle')
+    form = await request.form()
+    def field(key, limit=100):
+        val = str(form.get(key, '')).strip()
+        if not val or len(val) > limit or any(ord(c) < 32 for c in val):
+            raise HTTPException(status_code=422, detail=f'Ungültige Angabe: {key}')
+        return val
+    try:
+        raw_amount = field('amount', 12).replace(',', '.')
+        amount = Decimal(raw_amount)
+        if not amount.is_finite() or amount <= 0 or amount >= 1000000 or amount.as_tuple().exponent < -2:
+            raise ValueError()
+        donation_date = date.fromisoformat(field('donation_date', 10))
+        notice_date = date.fromisoformat(field('notice_date', 10))
+        today = date.today()
+        if donation_date > today or notice_date > today: raise ValueError()
+        # The BMF template states a five-year limit for a Freistellungsbescheid.
+        try: oldest = today.replace(year=today.year - 5)
+        except ValueError: oldest = today.replace(year=today.year - 5, day=28)
+        if notice_date < oldest: raise ValueError()
+    except (ValueError, InvalidOperation):
+        raise HTTPException(status_code=422, detail='Betrag oder Datum ist ungültig.')
+    if form.get('confirmed') != 'yes':
+        raise HTTPException(status_code=422, detail='Bitte den Spendeneingang und die Angaben bestätigen.')
+    data = {'donor_name':field('donor_name'), 'address':field('address'),
+            'postal_city':field('postal_city'), 'amount':amount, 'donation_date':donation_date,
+            'notice_date':notice_date, 'purpose':field('purpose', 120),
+            'tax_office':field('tax_office'), 'tax_number':field('tax_number', 50),
+            'tax_period':field('tax_period', 40)}
+    pdf = generate_donation_pdf(data)
+    # Keep a duplicate outside the public document root. The signed original must
+    # also be retained by the association according to its recordkeeping process.
+    directory = Path(UPLOAD_DIR) / 'donation_certificates'
+    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    receipt_id = uuid4().hex
+    path = directory / (receipt_id + '.pdf')
+    fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, 'wb') as file: file.write(pdf)
+    return Response(pdf, media_type='application/pdf', headers={
+        'Content-Disposition': f'inline; filename="Spendenbestaetigung_{receipt_id}.pdf"',
+        'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'})
+
+
+@router.get('/donations/certificates')
+async def donation_certificate_archive(request: Request):
+    from pathlib import Path
+    import datetime
+    from config import UPLOAD_DIR
+    admin = require_superadmin(request)
+    directory = Path(UPLOAD_DIR) / 'donation_certificates'
+    files = sorted(directory.glob('*.pdf'), key=lambda p: p.stat().st_mtime, reverse=True) if directory.exists() else []
+    return templates.TemplateResponse(request, 'admin_donation_archive.html', {
+        'admin': admin, 'files': [{'id': p.stem, 'date': datetime.datetime.fromtimestamp(p.stat().st_mtime).strftime('%d.%m.%Y %H:%M')} for p in files if len(p.stem) == 32 and all(c in '0123456789abcdef' for c in p.stem)]
+    })
+
+
+@router.get('/donations/certificates/{receipt_id}')
+async def donation_certificate_archived_pdf(request: Request, receipt_id: str):
+    from pathlib import Path
+    from config import UPLOAD_DIR
+    require_superadmin(request)
+    if len(receipt_id) != 32 or any(c not in '0123456789abcdef' for c in receipt_id):
+        raise HTTPException(status_code=404)
+    path = Path(UPLOAD_DIR) / 'donation_certificates' / (receipt_id + '.pdf')
+    if not path.is_file(): raise HTTPException(status_code=404)
+    return Response(path.read_bytes(), media_type='application/pdf', headers={
+        'Content-Disposition': f'inline; filename="Spendenbestaetigung_{receipt_id}.pdf"',
+        'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'})

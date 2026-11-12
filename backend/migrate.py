@@ -27,18 +27,43 @@ CREATE TABLE IF NOT EXISTS _migrations (
     applied_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Ensure non-idempotent migrations that already ran are marked as applied
+-- Seed all pre-existing migrations as applied.
+-- These were run before the tracking system existed.
+-- We detect this by checking if the 'teams' table exists (from migration 001).
 INSERT INTO _migrations (filename)
-VALUES ('001_membership_system.sql'), ('004_team_roles.sql'), ('006_roles_and_team_management.sql')
+SELECT unnest(ARRAY[
+    '001_membership_system.sql',
+    '002_payments.sql',
+    '003_season_tickets.sql',
+    '004_team_roles.sql',
+    '005_passive_members_division.sql',
+    '006_roles_and_team_management.sql',
+    '007_team_web_sync.sql',
+    '008_basketball_u12.sql',
+    '009_dedup_teams.sql',
+    '010_player_fields.sql',
+    '011_import_e_junioren.sql',
+    '012_import_2c_junioren.sql'
+])
+WHERE EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'teams'
+)
 ON CONFLICT (filename) DO NOTHING;
 
--- Remove tracking entries for idempotent migrations that were mistakenly
--- seeded but may never have actually run on this database.
-DELETE FROM _migrations WHERE filename IN (
-    '002_payments.sql', '003_season_tickets.sql', '005_passive_members_division.sql',
-    '007_team_web_sync.sql', '008_basketball_u12.sql', '009_dedup_teams.sql',
-    '010_player_fields.sql', '011_import_e_junioren.sql', '012_import_2c_junioren.sql'
-);
+-- But if critical columns are missing, remove those entries so the migration re-runs.
+-- dfb_team_id (from 012) is needed by 013+
+DELETE FROM _migrations WHERE filename = '012_import_2c_junioren.sql'
+  AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'teams' AND column_name = 'dfb_team_id'
+  );
+-- nationality (from 010) is needed by 011+
+DELETE FROM _migrations WHERE filename IN ('010_player_fields.sql', '011_import_e_junioren.sql')
+  AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'members' AND column_name = 'nationality'
+  );
 """
 
 

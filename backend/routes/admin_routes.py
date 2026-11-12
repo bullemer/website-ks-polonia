@@ -533,7 +533,10 @@ async def admin_review_application(request: Request, app_id: int, data: Applicat
 # --- Beiträge (membership fees overview) ---
 
 @router.get("/beitraege")
-async def admin_beitraege(request: Request, year: Optional[int] = None, division_id: Optional[int] = None, team_id: Optional[int] = None):
+async def admin_beitraege(request: Request, year: Optional[int] = None, division_id: Optional[str] = None, team_id: Optional[str] = None):
+    # Parse optional int params (empty string from form selects)
+    division_id = int(division_id) if division_id and division_id.strip() else None
+    team_id = int(team_id) if team_id and team_id.strip() else None
     """Monthly payment overview matrix for all active members."""
     admin = require_admin(request)
     import datetime

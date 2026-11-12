@@ -95,6 +95,7 @@
             <option value="{{ t.id }}" {% if team_id == t.id %}selected{% endif %}>{{ t.div_icon or '⚽' }} {{ t.mannschaftsname }}</option>
             {% endfor %}
         </select>
+        <a href="/api/admin/beitraege/settings" class="btn btn-primary btn-sm" style="text-decoration:none; margin-left: auto;">⚙️ Einstellungen</a>
     </form>
 
     <!-- Summary Cards -->
@@ -134,15 +135,16 @@
                 <tr>
                     <td class="name-cell">
                         <a href="/api/admin/members/{{ member.id }}"><strong>{{ member.nachname }}</strong>, {{ member.vorname }}</a>
+                        <br><span style="font-size: 0.7rem; color: var(--text-muted);">{{ "%.2f"|format(member.monthly_fee) }} €/Monat</span>
                     </td>
                     {% for m in range(1, 13) %}
                     {% set mkey = "%02d"|format(m) %}
                     {% set payments = member.months[mkey] %}
-                    {% set month_total = payments | selectattr("status", "equalto", "received") | map(attribute="amount") | sum %}
-                    <td class="month-cell {% if month_total > 0 %}month-paid{% elif m > current_month and year == current_year %}month-future{% else %}month-unpaid{% endif %}"
-                        onclick="openPaymentModal({{ member.id }}, '{{ member.vorname }}', '{{ member.nachname }}', '{{ mkey }}', {{ year }}, {{ payments | tojson | e }})"
+                    {% set is_covered = m in member.covered_months %}
+                    <td class="month-cell {% if is_covered %}month-paid{% elif m > current_month and year == current_year %}month-future{% else %}month-unpaid{% endif %}"
+                        onclick="openPaymentModal({{ member.id }}, '{{ member.vorname }}', '{{ member.nachname }}', '{{ mkey }}', {{ year }}, {{ payments | tojson | e }}, {{ member.monthly_fee }})"
                         title="{{ member.vorname }} {{ member.nachname }} – {{ month_names[m-1] }} {{ year }}">
-                        {% if month_total > 0 %}
+                        {% if is_covered %}
                             ✅
                         {% elif m > current_month and year == current_year %}
                             ·
@@ -215,14 +217,14 @@ const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','Aug
 const CURRENT_MONTH = {{ current_month }};
 const CURRENT_YEAR = {{ current_year }};
 
-function openPaymentModal(memberId, vorname, nachname, month, year, existingPayments) {
+function openPaymentModal(memberId, vorname, nachname, month, year, existingPayments, monthlyFee) {
     document.getElementById('modalMemberName').textContent = vorname + ' ' + nachname;
     document.getElementById('modalMonthName').textContent = MONTH_NAMES[parseInt(month, 10) - 1] + ' ' + year;
     document.getElementById('modalMemberId').value = memberId;
     document.getElementById('modalPeriod').value = month + '/' + year;
     document.getElementById('modalDate').value = new Date().toISOString().slice(0, 10);
     document.getElementById('modalNotes').value = '';
-    document.getElementById('modalAmount').value = '15.00';
+    document.getElementById('modalAmount').value = (monthlyFee || 15.00).toFixed(2);
 
     // Show existing payments
     var container = document.getElementById('existingPayments');

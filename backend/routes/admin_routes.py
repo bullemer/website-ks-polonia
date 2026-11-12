@@ -625,6 +625,88 @@ async def admin_delete_payment(request: Request, member_id: int, payment_id: int
     return JSONResponse({"success": True, "message": "Zahlung gelöscht"})
 
 
+# --- Fee Settings (Beitragseinstellungen) ---
+
+class FeeSettingCreate(BaseModel):
+    division_id: Optional[int] = None
+    team_id: Optional[int] = None
+    monthly_amount: float
+    description: str = ""
+
+class FeeSettingUpdate(BaseModel):
+    monthly_amount: float
+    description: str = ""
+
+
+@router.get("/beitraege/settings")
+async def admin_fee_settings_page(request: Request):
+    """Render the fee settings page."""
+    admin = require_admin(request)
+    fee_settings = await member_service.get_fee_settings()
+
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        div_rows = await conn.fetch(
+            "SELECT id, name, icon FROM divisions WHERE is_active = TRUE ORDER BY sort_order"
+        )
+        divisions = [dict(r) for r in div_rows]
+        team_rows = await conn.fetch(
+            "SELECT t.id, t.mannschaftsname, d.icon as div_icon FROM teams t LEFT JOIN divisions d ON d.id = t.division_id WHERE t.is_active = TRUE ORDER BY d.sort_order, t.sort_order, t.mannschaftsname"
+        )
+        teams = [dict(r) for r in team_rows]
+
+    return templates.TemplateResponse(request, "admin_fee_settings.html", {
+        "admin": admin,
+        "fee_settings": fee_settings,
+        "divisions": divisions,
+        "teams": teams,
+    })
+
+
+@router.post("/beitraege/settings")
+async def admin_create_fee_setting(request: Request, data: FeeSettingCreate):
+    """Create a new fee setting."""
+    require_admin(request)
+    if data.monthly_amount <= 0:
+        raise HTTPException(status_code=400, detail="Ungültiger Betrag")
+    if not data.division_id and not data.team_id:
+        raise HTTPException(status_code=400, detail="Abteilung oder Team erforderlich")
+    try:
+        new_id = await member_service.create_fee_setting(
+            division_id=data.division_id,
+            team_id=data.team_id,
+            monthly_amount=data.monthly_amount,
+            description=data.description,
+        )
+        return JSONResponse({"success": True, "id": new_id, "message": "Beitragssatz erstellt"})
+    except Exception as e:
+        if "unique" in str(e).lower() or "duplicate" in str(e).lower():
+            raise HTTPException(status_code=409, detail="Dieser Beitragssatz existiert bereits")
+        raise
+
+
+@router.put("/beitraege/settings/{setting_id}")
+async def admin_update_fee_setting(request: Request, setting_id: int, data: FeeSettingUpdate):
+    """Update an existing fee setting."""
+    require_admin(request)
+    if data.monthly_amount <= 0:
+        raise HTTPException(status_code=400, detail="Ungültiger Betrag")
+    ok = await member_service.update_fee_setting(setting_id, data.monthly_amount, data.description)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Beitragssatz nicht gefunden")
+    return JSONResponse({"success": True, "message": "Beitragssatz aktualisiert"})
+
+
+@router.delete("/beitraege/settings/{setting_id}")
+async def admin_delete_fee_setting(request: Request, setting_id: int):
+    """Delete a fee setting."""
+    require_admin(request)
+    ok = await member_service.delete_fee_setting(setting_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Beitragssatz nicht gefunden")
+    return JSONResponse({"success": True, "message": "Beitragssatz gelöscht"})
+
+
 # --- Season Ticket Holder Delete ---
 
 @router.delete("/ticket-holders/{holder_id}")

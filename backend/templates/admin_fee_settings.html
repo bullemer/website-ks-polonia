@@ -1,0 +1,284 @@
+{% extends "admin_base.html" %}
+
+{% set active_nav = 'beitraege' %}
+
+{% block title %}Beitragseinstellungen – KS Polonia Admin{% endblock %}
+
+{% block extra_style %}
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+        .btn-cancel { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-cancel:hover { color: var(--text); border-color: var(--text-muted); }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { opacity: 0.85; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { opacity: 0.85; }
+        a.back-link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+        a.back-link:hover { color: var(--primary); }
+
+        /* Table */
+        .fee-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 2rem; }
+        table { width: 100%; border-collapse: collapse; background: var(--surface); }
+        th { text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); }
+        td { padding: 0.7rem 1rem; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: var(--surface-hover); }
+        .amount-cell { font-weight: 700; color: var(--success); cursor: pointer; }
+        .amount-cell:hover { text-decoration: underline; }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+        .badge-div { background: rgba(59,130,246,0.15); color: var(--info); }
+        .badge-team { background: rgba(34,197,94,0.15); color: var(--success); }
+        .actions-cell { white-space: nowrap; }
+        .actions-cell button { margin-left: 0.3rem; }
+
+        /* Add form */
+        .add-form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+        .add-form-card h3 { font-size: 1.05rem; margin-bottom: 1rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 0.75rem; align-items: end; }
+        .form-group label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.3rem; }
+        .form-group input, .form-group select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.88rem; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+
+        /* Inline edit */
+        .inline-edit { display: inline-flex; gap: 0.4rem; align-items: center; }
+        .inline-edit input { width: 80px; background: var(--bg); border: 1px solid var(--primary); color: var(--text); padding: 0.3rem 0.5rem; border-radius: 6px; font-size: 0.88rem; font-weight: 700; }
+        .inline-edit-desc { width: 140px !important; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--success); color: #fff; padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; z-index: 3000; opacity: 0; transform: translateY(20px); transition: all 0.3s; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { background: var(--danger); }
+
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>⚙️ Beitragseinstellungen</h1>
+        <a href="/api/admin/beitraege" class="back-link">← Zurück zur Übersicht</a>
+    </div>
+
+    <!-- Fee settings table -->
+    <div class="fee-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Bereich</th>
+                    <th>Monatsbeitrag (€)</th>
+                    <th>Beschreibung</th>
+                    <th>Gültig ab</th>
+                    <th>Aktion</th>
+                </tr>
+            </thead>
+            <tbody id="feeTableBody">
+                {% for fs in fee_settings %}
+                <tr id="row-{{ fs.id }}">
+                    <td>
+                        {% if fs.team_id %}
+                            <span class="badge badge-team">Team</span>
+                            {{ fs.team_name or '–' }}
+                        {% elif fs.division_id %}
+                            <span class="badge badge-div">Abteilung</span>
+                            {{ fs.division_icon or '' }} {{ fs.division_name or '–' }}
+                        {% else %}
+                            <span class="badge badge-div">Standard</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="amount-cell" id="amount-display-{{ fs.id }}"
+                              onclick="startInlineEdit({{ fs.id }}, {{ fs.monthly_amount }}, '{{ fs.description|e }}')"
+                              title="Klicken zum Bearbeiten">
+                            {{ "%.2f"|format(fs.monthly_amount) }} €
+                        </span>
+                        <span class="inline-edit" id="amount-edit-{{ fs.id }}" style="display:none;">
+                            <input type="number" step="0.01" min="0" id="edit-amount-{{ fs.id }}" value="{{ "%.2f"|format(fs.monthly_amount) }}">
+                            <input type="text" class="inline-edit-desc" id="edit-desc-{{ fs.id }}" value="{{ fs.description or '' }}" placeholder="Beschreibung">
+                            <button class="btn btn-success btn-sm" onclick="saveInlineEdit({{ fs.id }})">✓</button>
+                            <button class="btn btn-cancel btn-sm" onclick="cancelInlineEdit({{ fs.id }})">✕</button>
+                        </span>
+                    </td>
+                    <td>{{ fs.description or '–' }}</td>
+                    <td>{{ fs.valid_from or '–' }}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-danger btn-sm" onclick="deleteSetting({{ fs.id }})" title="Löschen">🗑️</button>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not fee_settings %}
+                <tr>
+                    <td colspan="5" style="text-align:center; color: var(--text-muted); padding: 2rem;">
+                        Keine Beitragseinstellungen vorhanden.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add fee form -->
+    <div class="add-form-card">
+        <h3>➕ Neuen Beitragssatz anlegen</h3>
+        <form id="addFeeForm" onsubmit="addFeeSetting(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="feeType">Typ</label>
+                    <select id="feeType" onchange="updateTargetDropdown()">
+                        <option value="division">Abteilung</option>
+                        <option value="team">Team</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="feeTarget">Abteilung / Team</label>
+                    <select id="feeTarget">
+                        {% for d in divisions %}
+                        <option value="div-{{ d.id }}">{{ d.icon }} {{ d.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="feeAmount">Betrag (€)</label>
+                    <input type="number" id="feeAmount" step="0.01" min="0.01" value="15.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="feeDesc">Beschreibung</label>
+                    <input type="text" id="feeDesc" placeholder="z.B. Fußball Erwachsene">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const DIVISIONS = {{ divisions | tojson }};
+const TEAMS = {{ teams | tojson }};
+
+function updateTargetDropdown() {
+    var type = document.getElementById('feeType').value;
+    var target = document.getElementById('feeTarget');
+    target.innerHTML = '';
+    if (type === 'division') {
+        DIVISIONS.forEach(function(d) {
+            var opt = document.createElement('option');
+            opt.value = 'div-' + d.id;
+            opt.textContent = (d.icon || '') + ' ' + d.name;
+            target.appendChild(opt);
+        });
+    } else {
+        TEAMS.forEach(function(t) {
+            var opt = document.createElement('option');
+            opt.value = 'team-' + t.id;
+            opt.textContent = (t.div_icon || '⚽') + ' ' + t.mannschaftsname;
+            target.appendChild(opt);
+        });
+    }
+}
+
+function showToast(msg, isError) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+function startInlineEdit(id, amount, desc) {
+    document.getElementById('amount-display-' + id).style.display = 'none';
+    document.getElementById('amount-edit-' + id).style.display = 'inline-flex';
+    document.getElementById('edit-amount-' + id).value = amount.toFixed(2);
+    document.getElementById('edit-desc-' + id).value = desc;
+    document.getElementById('edit-amount-' + id).focus();
+}
+
+function cancelInlineEdit(id) {
+    document.getElementById('amount-display-' + id).style.display = '';
+    document.getElementById('amount-edit-' + id).style.display = 'none';
+}
+
+async function saveInlineEdit(id) {
+    var amount = parseFloat(document.getElementById('edit-amount-' + id).value);
+    var desc = document.getElementById('edit-desc-' + id).value;
+    if (isNaN(amount) || amount <= 0) {
+        showToast('Ungültiger Betrag', true);
+        return;
+    }
+    try {
+        var resp = await fetch('/api/admin/beitraege/settings/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ monthly_amount: amount, description: desc })
+        });
+        var data = await resp.json();
+        if (data.success) {
+            showToast('✅ Beitrag aktualisiert');
+            setTimeout(function() { location.reload(); }, 600);
+        } else {
+            showToast('Fehler: ' + (data.detail || 'Unbekannt'), true);
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler', true);
+    }
+}
+
+async function deleteSetting(id) {
+    if (!confirm('Diesen Beitragssatz wirklich löschen?')) return;
+    try {
+        var resp = await fetch('/api/admin/beitraege/settings/' + id, {
+            method: 'DELETE'
+        });
+        var data = await resp.json();
+        if (data.success) {
+            showToast('Beitragssatz gelöscht');
+            setTimeout(function() { location.reload(); }, 600);
+        } else {
+            showToast('Fehler beim Löschen', true);
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler', true);
+    }
+}
+
+async function addFeeSetting(e) {
+    e.preventDefault();
+    var type = document.getElementById('feeType').value;
+    var target = document.getElementById('feeTarget').value;
+    var amount = parseFloat(document.getElementById('feeAmount').value);
+    var desc = document.getElementById('feeDesc').value;
+
+    var body = { monthly_amount: amount, description: desc };
+    if (type === 'division') {
+        body.division_id = parseInt(target.replace('div-', ''));
+    } else {
+        body.team_id = parseInt(target.replace('team-', ''));
+    }
+
+    try {
+        var resp = await fetch('/api/admin/beitraege/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        var data = await resp.json();
+        if (data.success) {
+            showToast('✅ Beitragssatz angelegt');
+            setTimeout(function() { location.reload(); }, 600);
+        } else {
+            showToast('Fehler: ' + (data.detail || data.message || 'Unbekannt'), true);
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler', true);
+    }
+}
+</script>
+{% endblock %}

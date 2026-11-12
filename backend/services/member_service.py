@@ -740,7 +740,14 @@ async def get_beitraege_matrix(year: int, division_id: int | None = None, team_i
                 month_str = "00"
             payments_by_member[d["member_id"]][month_str].append(d)
 
-        # Build result
+        # Determine monthly fee for each member
+        import math
+        member_fees: dict[int, float] = {}
+        for r in member_rows:
+            mid = r["id"]
+            member_fees[mid] = await get_member_monthly_fee(mid)
+
+        # Build result with smart month coverage
         total_collected = 0.0
         members_with_arrears = 0
         fully_paid = 0
@@ -749,19 +756,41 @@ async def get_beitraege_matrix(year: int, division_id: int | None = None, team_i
         members = []
         for r in member_rows:
             mid = r["id"]
+            monthly_fee = member_fees[mid]
             months = {}
             member_total = 0.0
-            months_paid = 0
+
+            # Collect all received payments for this member, grouped by month
             for m in range(1, 13):
                 mkey = f"{m:02d}"
                 plist = payments_by_member[mid].get(mkey, [])
                 months[mkey] = plist
                 month_sum = sum(p["amount"] for p in plist if p.get("status") == "received")
                 member_total += month_sum
-                if month_sum > 0:
-                    months_paid += 1
 
             total_collected += member_total
+
+            # Smart month coverage: spread bulk payments across consecutive months
+            covered_months: set[int] = set()
+            # Process payments sorted by period month
+            all_payments_sorted: list[tuple[int, float]] = []
+            for m in range(1, 13):
+                mkey = f"{m:02d}"
+                for p in months[mkey]:
+                    if p.get("status") == "received":
+                        all_payments_sorted.append((m, p["amount"]))
+
+            for start_month, amount in all_payments_sorted:
+                if monthly_fee > 0:
+                    months_covered = int(math.floor(amount / monthly_fee))
+                else:
+                    months_covered = 1
+                for offset in range(months_covered):
+                    cover_month = start_month + offset
+                    if 1 <= cover_month <= 12:
+                        covered_months.add(cover_month)
+
+            months_paid = len(covered_months)
 
             if months_paid >= current_month:
                 fully_paid += 1
@@ -776,6 +805,8 @@ async def get_beitraege_matrix(year: int, division_id: int | None = None, team_i
                 "divisions": r["divisions"] or "",
                 "months": months,
                 "total_paid": member_total,
+                "monthly_fee": monthly_fee,
+                "covered_months": sorted(covered_months),
             })
 
         return {
@@ -788,6 +819,149 @@ async def get_beitraege_matrix(year: int, division_id: int | None = None, team_i
                 "total_members": len(members),
             },
         }
+
+
+# --- Fee Settings ---
+
+async def get_fee_settings() -> list[dict]:
+    """List all fee settings with division/team names joined."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT fs.id, fs.division_id, fs.team_id, fs.monthly_amount,
+                   fs.description, fs.valid_from, fs.created_at, fs.updated_at,
+                   d.name AS division_name, d.icon AS division_icon,
+                   t.mannschaftsname AS team_name
+            FROM fee_settings fs
+            LEFT JOIN divisions d ON d.id = fs.division_id
+            LEFT JOIN teams t ON t.id = fs.team_id
+            ORDER BY d.name NULLS LAST, t.mannschaftsname NULLS LAST
+            """
+        )
+        result = []
+        for r in rows:
+            item = dict(r)
+            item["monthly_amount"] = float(item["monthly_amount"])
+            for key in ("valid_from", "created_at", "updated_at"):
+                if item.get(key):
+                    item[key] = str(item[key])
+            result.append(item)
+        return result
+
+
+async def get_fee_for_team(team_id: int) -> float | None:
+    """Get fee override for a specific team. Returns None if no team-level fee."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchval(
+            "SELECT monthly_amount FROM fee_settings WHERE team_id = $1",
+            team_id,
+        )
+        return float(row) if row is not None else None
+
+
+async def get_fee_for_division(division_id: int) -> float | None:
+    """Get fee for a division. Returns None if no division-level fee."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchval(
+            "SELECT monthly_amount FROM fee_settings WHERE division_id = $1 AND team_id IS NULL",
+            division_id,
+        )
+        return float(row) if row is not None else None
+
+
+async def get_member_monthly_fee(member_id: int) -> float:
+    """
+    Determine monthly fee for a member.
+    Priority: team-specific fee > division fee > default 15.00€
+    """
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        # Check team-level fees first
+        team_fee = await conn.fetchval(
+            """
+            SELECT fs.monthly_amount
+            FROM fee_settings fs
+            JOIN member_teams mt ON mt.team_id = fs.team_id AND mt.status = 'active'
+            WHERE mt.member_id = $1 AND fs.team_id IS NOT NULL
+            ORDER BY fs.monthly_amount DESC
+            LIMIT 1
+            """,
+            member_id,
+        )
+        if team_fee is not None:
+            return float(team_fee)
+
+        # Check division-level fees
+        div_fee = await conn.fetchval(
+            """
+            SELECT fs.monthly_amount
+            FROM fee_settings fs
+            JOIN member_divisions md ON md.division_id = fs.division_id AND md.status = 'active'
+            WHERE md.member_id = $1 AND fs.team_id IS NULL
+            ORDER BY fs.monthly_amount DESC
+            LIMIT 1
+            """,
+            member_id,
+        )
+        if div_fee is not None:
+            return float(div_fee)
+
+        return 15.00
+
+
+async def create_fee_setting(
+    division_id: int | None,
+    team_id: int | None,
+    monthly_amount: float,
+    description: str = "",
+    valid_from: str = "2024-01-01",
+) -> int:
+    """Create a fee setting. Returns the new ID."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        new_id = await conn.fetchval(
+            """
+            INSERT INTO fee_settings (division_id, team_id, monthly_amount, description, valid_from)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id
+            """,
+            division_id,
+            team_id,
+            monthly_amount,
+            description,
+            _parse_date(valid_from) if valid_from else None,
+        )
+        return new_id
+
+
+async def update_fee_setting(setting_id: int, monthly_amount: float, description: str = "") -> bool:
+    """Update an existing fee setting."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        result = await conn.execute(
+            """
+            UPDATE fee_settings
+            SET monthly_amount = $1, description = $2, updated_at = NOW()
+            WHERE id = $3
+            """,
+            monthly_amount,
+            description,
+            setting_id,
+        )
+        return "UPDATE 1" in result
+
+
+async def delete_fee_setting(setting_id: int) -> bool:
+    """Delete a fee setting."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        result = await conn.execute(
+            "DELETE FROM fee_settings WHERE id = $1", setting_id
+        )
+        return "DELETE 1" in result
 
 
 # --- Helpers ---

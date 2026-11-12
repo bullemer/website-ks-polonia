@@ -99,8 +99,12 @@ async def admin_list_members(
 
 
 @router.get("/members/{member_id}")
-async def admin_get_member(request: Request, member_id: int):
+async def admin_get_member(request: Request, member_id: int, year: Optional[int] = None):
     require_admin(request)
+    import datetime
+    current_year = datetime.datetime.now().year
+    selected_year = year or current_year
+
     member = await member_service.get_member_by_id(member_id)
     if not member:
         raise HTTPException(status_code=404)
@@ -109,6 +113,40 @@ async def admin_get_member(request: Request, member_id: int):
     bank = await member_service.get_bank_account(member_id)
     all_divisions = await member_service.get_all_divisions()
     all_teams = await member_service.get_all_teams()
+
+    # Payment matrix for this member
+    monthly_fee = await member_service.get_member_monthly_fee(member_id)
+    payments = await member_service.get_member_payments(member_id, limit=500)
+    # Build month data for selected year
+    import math
+    month_payments = {f"{m:02d}": [] for m in range(1, 13)}
+    total_paid = 0.0
+    for p in payments:
+        period = p.get("period", "")
+        if f"/{selected_year}" in period and "/" in period:
+            mkey = period.split("/")[0]
+            if mkey in month_payments:
+                month_payments[mkey].append(p)
+                if p.get("status") == "received":
+                    total_paid += float(p.get("amount", 0))
+
+    # Smart coverage
+    covered_months = set()
+    month_covering_payments = {m: [] for m in range(1, 13)}
+    for m in range(1, 13):
+        mkey = f"{m:02d}"
+        for p in month_payments[mkey]:
+            if p.get("status") == "received":
+                amt = float(p.get("amount", 0))
+                months_covered = int(math.floor(amt / monthly_fee)) if monthly_fee > 0 else 1
+                for offset in range(months_covered):
+                    cm = m + offset
+                    if 1 <= cm <= 12:
+                        covered_months.add(cm)
+                        month_covering_payments[cm].append(p)
+
+    current_month = datetime.datetime.now().month if selected_year == current_year else 12
+
     for key in ("geburtsdatum", "eintrittsdatum", "created_at", "updated_at"):
         if member.get(key):
             member[key] = str(member[key])
@@ -117,6 +155,15 @@ async def admin_get_member(request: Request, member_id: int):
         "teams": teams, "bank": bank,
         "all_divisions": all_divisions,
         "all_teams": all_teams,
+        "payment_year": selected_year,
+        "current_year": current_year,
+        "current_month": current_month,
+        "monthly_fee": monthly_fee,
+        "month_payments": month_payments,
+        "month_covering_payments": {f"{m:02d}": month_covering_payments[m] for m in range(1, 13)},
+        "covered_months": sorted(covered_months),
+        "total_paid": total_paid,
+        "month_names": ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
     })
 
 

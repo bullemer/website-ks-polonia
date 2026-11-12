@@ -5,7 +5,7 @@ Full CRUD for members, divisions, teams, applications.
 import os
 import re
 from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from typing import Optional
 from pydantic import BaseModel
@@ -24,6 +24,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "..", "templates"))
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+
+@router.get("/")
+@router.get("")
+async def admin_root():
+    """Redirect /admin/ → /admin/dashboard."""
+    return RedirectResponse(url="/api/admin/dashboard", status_code=302)
+
 
 # Column whitelists for dynamic SQL updates
 DIVISION_ALLOWED_COLUMNS = {'name', 'description', 'icon'}

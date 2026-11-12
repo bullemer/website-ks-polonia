@@ -67,9 +67,10 @@ async def get_managed_teams(member_id: int, is_superadmin: bool = False) -> List
                          CASE mt_admin.role
                              WHEN 'trainer' THEN 1
                              WHEN 'co-trainer' THEN 2
-                             WHEN 'manager' THEN 3
-                             WHEN 'captain' THEN 4
-                             ELSE 5
+                             WHEN 'teamoffizieller' THEN 3
+                             WHEN 'manager' THEN 4
+                             WHEN 'captain' THEN 5
+                             ELSE 6
                          END
             """, member_id)
             # Re-sort by division/team sort_order after DISTINCT ON
@@ -109,9 +110,10 @@ async def get_team_members(team_id: int) -> List[Dict[str, Any]]:
                 CASE mt.role 
                     WHEN 'trainer' THEN 1 
                     WHEN 'co-trainer' THEN 2 
-                    WHEN 'manager' THEN 3 
-                    WHEN 'captain' THEN 4
-                    ELSE 5 
+                    WHEN 'teamoffizieller' THEN 3
+                    WHEN 'manager' THEN 4 
+                    WHEN 'captain' THEN 5
+                    ELSE 6 
                 END,
                 mt.jersey_number NULLS LAST,
                 m.nachname, m.vorname

@@ -121,12 +121,12 @@ async def require_team_admin(request: Request, team_id: int) -> dict:
     async with pool.acquire() as conn:
         team_rolle = await conn.fetchval(
             """
-            SELECT rolle FROM member_teams
+            SELECT role FROM member_teams
             WHERE member_id = $1 AND team_id = $2 AND status = 'active'
             """,
             member["member_id"], team_id,
         )
-        if team_rolle and team_rolle in ('trainer', 'manager'):
+        if team_rolle and team_rolle in ('trainer', 'manager', 'teamoffizieller'):
             return member
 
     raise HTTPException(status_code=403, detail="Keine Administrator-Berechtigung für dieses Team")

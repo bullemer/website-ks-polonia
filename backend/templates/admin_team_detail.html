@@ -43,6 +43,7 @@
         .role-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
         .role-trainer { background: rgba(245,158,11,0.15); color: var(--warning); }
         .role-co-trainer { background: rgba(59,130,246,0.15); color: #3b82f6; }
+        .role-teamoffizieller { background: rgba(16,185,129,0.15); color: #10b981; }
         .role-manager { background: rgba(168,85,247,0.15); color: #a855f7; }
         .role-captain { background: rgba(234,179,8,0.15); color: #eab308; }
         .role-player { background: rgba(34,197,94,0.08); color: var(--success); }
@@ -174,6 +175,7 @@
                                     <span class="role-badge role-{{ m.role }}">
                                         {% if m.role == 'trainer' %}🏋️ Trainer
                                         {% elif m.role == 'co-trainer' %}🏋️ Co-Trainer
+                                        {% elif m.role == 'teamoffizieller' %}🛡️ Teamoffizieller
                                         {% elif m.role == 'manager' %}📋 Manager
                                         {% elif m.role == 'captain' %}⭐ Kapitän
                                         {% else %}⚽ Spieler{% endif %}
@@ -225,6 +227,7 @@
                             <option value="captain">⭐ Kapitän</option>
                             <option value="trainer">🏋️ Trainer</option>
                             <option value="co-trainer">🏋️ Co-Trainer</option>
+                            <option value="teamoffizieller">🛡️ Teamoffizieller</option>
                             <option value="manager">📋 Manager</option>
                         </select>
                         <input type="text" id="addPosition" placeholder="Position (z.B. Torwart)" style="width:140px">

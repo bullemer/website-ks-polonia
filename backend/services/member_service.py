@@ -664,8 +664,7 @@ async def get_beitraege_matrix(year: int, division_id: int | None = None, team_i
                 JOIN member_teams mt ON mt.member_id = m.id AND mt.status = 'active'
                 LEFT JOIN member_divisions md ON md.member_id = m.id AND md.status = 'active'
                 LEFT JOIN divisions d ON d.id = md.division_id
-                WHERE m.is_active = TRUE
-                  AND mt.team_id = $1
+                WHERE mt.team_id = $1
                 GROUP BY m.id
                 ORDER BY m.nachname, m.vorname
                 """,

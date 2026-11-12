@@ -1,0 +1,317 @@
+{% extends "admin_base.html" %}
+
+{% set active_nav = 'beitraege' %}
+
+{% block title %}Beiträge – KS Polonia Admin{% endblock %}
+
+{% block extra_style %}
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; }
+        .toolbar { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem; background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); }
+        .toolbar select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.88rem; }
+        .toolbar select:focus { outline: none; border-color: var(--primary); }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+
+        /* Summary cards */
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; text-align: center; }
+        .summary-card .value { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .summary-card .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .summary-card.collected .value { color: var(--success); }
+        .summary-card.arrears .value { color: var(--warning); }
+        .summary-card.paid .value { color: var(--info); }
+
+        /* Matrix table */
+        .matrix-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; background: var(--surface); min-width: 900px; }
+        th { text-align: center; padding: 0.7rem 0.5rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        th.name-col { text-align: left; min-width: 180px; position: sticky; left: 0; background: var(--surface); z-index: 2; }
+        td { padding: 0.55rem 0.5rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); text-align: center; }
+        td.name-cell { text-align: left; position: sticky; left: 0; background: var(--surface); z-index: 1; white-space: nowrap; }
+        tr:hover td { background: var(--surface-hover); }
+        tr:hover td.name-cell { background: var(--surface-hover); }
+        td.total-cell { font-weight: 700; color: var(--text); background: rgba(0,0,0,0.1); }
+        .month-cell { cursor: pointer; transition: all 0.15s; border-radius: 4px; min-width: 44px; }
+        .month-cell:hover { background: rgba(220,20,60,0.15); }
+        .month-paid { color: var(--success); font-weight: 600; }
+        .month-unpaid { color: var(--text-muted); opacity: 0.5; }
+        .month-future { color: var(--text-muted); opacity: 0.3; }
+        a { color: var(--text); text-decoration: none; }
+        a:hover { color: var(--primary); }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; width: 90%; max-width: 460px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        .modal h3 { margin-bottom: 1.25rem; font-size: 1.15rem; }
+        .modal label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.3rem; margin-top: 0.8rem; }
+        .modal input, .modal select, .modal textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.9rem; }
+        .modal input:focus, .modal select:focus, .modal textarea:focus { outline: none; border-color: var(--primary); }
+        .modal textarea { resize: vertical; min-height: 60px; }
+        .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; justify-content: flex-end; }
+        .btn-cancel { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-cancel:hover { color: var(--text); border-color: var(--text-muted); }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { opacity: 0.85; }
+        .member-name-modal { font-weight: 700; color: var(--primary); }
+        .month-name-modal { font-weight: 600; }
+        .existing-payments { margin-top: 0.75rem; }
+        .existing-payment { display: flex; justify-content: space-between; align-items: center; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); border-radius: 8px; padding: 0.5rem 0.75rem; margin-bottom: 0.4rem; font-size: 0.85rem; }
+        .existing-payment .ep-amount { font-weight: 600; color: var(--success); }
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--success); color: #fff; padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; z-index: 3000; opacity: 0; transform: translateY(20px); transition: all 0.3s; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { background: var(--danger); }
+
+        @media (max-width: 768px) {
+            .summary-cards { grid-template-columns: repeat(2, 1fr); }
+            .modal { width: 95%; padding: 1.25rem; }
+        }
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>💰 Beiträge <span style="font-weight: 400; font-size: 1rem; color: var(--text-muted);">Übersicht {{ year }}</span></h1>
+    </div>
+
+    <!-- Toolbar: Year + Division filter -->
+    <form class="toolbar" method="GET" action="">
+        <select name="year" onchange="this.form.submit()">
+            {% for y in range(current_year - 3, current_year + 2) %}
+            <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
+        <select name="division_id" onchange="this.form.submit()">
+            <option value="">Alle Abteilungen</option>
+            {% for d in divisions %}
+            <option value="{{ d.id }}" {% if division_id == d.id %}selected{% endif %}>{{ d.icon }} {{ d.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="summary-card collected">
+            <div class="value">{{ "%.2f"|format(matrix.summary.total_collected) }} €</div>
+            <div class="label">Einnahmen {{ year }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="value">{{ matrix.summary.total_members }}</div>
+            <div class="label">Aktive Mitglieder</div>
+        </div>
+        <div class="summary-card paid">
+            <div class="value">{{ matrix.summary.fully_paid }}</div>
+            <div class="label">Vollständig bezahlt</div>
+        </div>
+        <div class="summary-card arrears">
+            <div class="value">{{ matrix.summary.members_with_arrears }}</div>
+            <div class="label">Rückstände</div>
+        </div>
+    </div>
+
+    <!-- Payment Matrix -->
+    {% if matrix.members %}
+    <div class="matrix-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th class="name-col">Mitglied</th>
+                    <th>Jan</th><th>Feb</th><th>Mär</th><th>Apr</th><th>Mai</th><th>Jun</th>
+                    <th>Jul</th><th>Aug</th><th>Sep</th><th>Okt</th><th>Nov</th><th>Dez</th>
+                    <th>Gesamt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in matrix.members %}
+                <tr>
+                    <td class="name-cell">
+                        <a href="/api/admin/members/{{ member.id }}"><strong>{{ member.nachname }}</strong>, {{ member.vorname }}</a>
+                    </td>
+                    {% for m in range(1, 13) %}
+                    {% set mkey = "%02d"|format(m) %}
+                    {% set payments = member.months[mkey] %}
+                    {% set month_total = payments | selectattr("status", "equalto", "received") | map(attribute="amount") | sum %}
+                    <td class="month-cell {% if month_total > 0 %}month-paid{% elif m > current_month and year == current_year %}month-future{% else %}month-unpaid{% endif %}"
+                        onclick="openPaymentModal({{ member.id }}, '{{ member.vorname }}', '{{ member.nachname }}', '{{ mkey }}', {{ year }}, {{ payments | tojson | e }})"
+                        title="{{ member.vorname }} {{ member.nachname }} – {{ month_names[m-1] }} {{ year }}">
+                        {% if month_total > 0 %}
+                            ✅
+                        {% elif m > current_month and year == current_year %}
+                            ·
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td class="total-cell">{{ "%.2f"|format(member.total_paid) }} €</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-muted); background: var(--surface); border-radius: 12px; border: 1px solid var(--border);">
+        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Keine aktiven Mitglieder gefunden.</p>
+        <p style="font-size: 0.85rem;">Prüfen Sie die Filtereinstellungen.</p>
+    </div>
+    {% endif %}
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal">
+            <h3>💰 Beitrag erfassen</h3>
+            <p>
+                <span class="member-name-modal" id="modalMemberName"></span> –
+                <span class="month-name-modal" id="modalMonthName"></span>
+            </p>
+
+            <div class="existing-payments" id="existingPayments"></div>
+
+            <form id="paymentForm" onsubmit="submitPayment(event)">
+                <input type="hidden" id="modalMemberId">
+                <input type="hidden" id="modalPeriod">
+
+                <label for="modalAmount">Betrag (€)</label>
+                <input type="number" id="modalAmount" step="0.01" min="0.01" value="15.00" required>
+
+                <label for="modalMethod">Zahlungsart</label>
+                <select id="modalMethod">
+                    <option value="Überweisung">Überweisung</option>
+                    <option value="Bar">Bar</option>
+                    <option value="SEPA">SEPA-Lastschrift</option>
+                </select>
+
+                <label for="modalDate">Zahlungsdatum</label>
+                <input type="date" id="modalDate">
+
+                <label for="modalNotes">Notizen (optional)</label>
+                <textarea id="modalNotes" rows="2" placeholder="z.B. Quittungsnr., Verwendungszweck..."></textarea>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal()">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Zahlung erfassen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+// Expose current_month from server for JS
+const CURRENT_MONTH = {{ current_month }};
+const CURRENT_YEAR = {{ current_year }};
+
+function openPaymentModal(memberId, vorname, nachname, month, year, existingPayments) {
+    document.getElementById('modalMemberName').textContent = vorname + ' ' + nachname;
+    document.getElementById('modalMonthName').textContent = MONTH_NAMES[parseInt(month, 10) - 1] + ' ' + year;
+    document.getElementById('modalMemberId').value = memberId;
+    document.getElementById('modalPeriod').value = month + '/' + year;
+    document.getElementById('modalDate').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('modalNotes').value = '';
+    document.getElementById('modalAmount').value = '15.00';
+
+    // Show existing payments
+    var container = document.getElementById('existingPayments');
+    container.innerHTML = '';
+    if (existingPayments && existingPayments.length > 0) {
+        existingPayments.forEach(function(p) {
+            var div = document.createElement('div');
+            div.className = 'existing-payment';
+            div.innerHTML = '<span>' + (p.payment_method || '') + ' – ' + (p.payment_date || '') +
+                            (p.status === 'received' ? '' : ' <em>(' + p.status + ')</em>') + '</span>' +
+                            '<span class="ep-amount">' + parseFloat(p.amount).toFixed(2) + ' €</span>' +
+                            '<button type="button" class="btn btn-danger btn-sm" onclick="deletePayment(' + p.id + ', ' + memberId + ')" title="Löschen">✕</button>';
+            container.appendChild(div);
+        });
+    }
+
+    document.getElementById('paymentModal').classList.add('active');
+    document.getElementById('modalAmount').focus();
+}
+
+function closeModal() {
+    document.getElementById('paymentModal').classList.remove('active');
+}
+
+// Close on overlay click
+document.getElementById('paymentModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
+
+function showToast(msg, isError) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+async function submitPayment(e) {
+    e.preventDefault();
+    var memberId = document.getElementById('modalMemberId').value;
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+        var resp = await fetch('/api/admin/members/' + memberId + '/payments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: parseFloat(document.getElementById('modalAmount').value),
+                description: 'Mitgliedsbeitrag',
+                period: document.getElementById('modalPeriod').value,
+                payment_method: document.getElementById('modalMethod').value,
+                status: 'received',
+                notes: document.getElementById('modalNotes').value
+            })
+        });
+        var data = await resp.json();
+        if (data.success) {
+            showToast('✅ Zahlung erfasst!');
+            closeModal();
+            setTimeout(function() { location.reload(); }, 600);
+        } else {
+            showToast('Fehler: ' + (data.detail || 'Unbekannt'), true);
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler', true);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Zahlung erfassen';
+    }
+}
+
+async function deletePayment(paymentId, memberId) {
+    if (!confirm('Diese Zahlung wirklich löschen?')) return;
+    try {
+        var resp = await fetch('/api/admin/members/' + memberId + '/payments/' + paymentId, {
+            method: 'DELETE'
+        });
+        var data = await resp.json();
+        if (data.success) {
+            showToast('Zahlung gelöscht');
+            closeModal();
+            setTimeout(function() { location.reload(); }, 600);
+        } else {
+            showToast('Fehler beim Löschen', true);
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler', true);
+    }
+}
+</script>
+{% endblock %}

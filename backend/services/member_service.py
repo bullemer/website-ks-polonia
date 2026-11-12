@@ -638,6 +638,143 @@ async def delete_payment(payment_id: int) -> bool:
         return "DELETE 1" in result
 
 
+async def get_beitraege_matrix(year: int, division_id: int | None = None) -> dict:
+    """
+    Build the monthly payment overview matrix for the Beiträge page.
+
+    Returns:
+        {
+            "members": [ { id, vorname, nachname, mitgliedsnummer, divisions,
+                           months: { "01": [payment, ...], ... "12": [...] },
+                           total_paid: float } ],
+            "year": int,
+            "summary": { "total_collected": float, "members_with_arrears": int,
+                         "fully_paid": int, "total_members": int }
+        }
+    """
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        # Build member query with optional division filter
+        if division_id:
+            member_rows = await conn.fetch(
+                """
+                SELECT DISTINCT m.id, m.vorname, m.nachname, m.mitgliedsnummer,
+                       STRING_AGG(DISTINCT d.name, ', ' ORDER BY d.name) as divisions
+                FROM members m
+                JOIN member_divisions md ON md.member_id = m.id AND md.status = 'active'
+                JOIN divisions d ON d.id = md.division_id
+                WHERE m.is_active = TRUE
+                  AND md.division_id = $1
+                GROUP BY m.id
+                ORDER BY m.nachname, m.vorname
+                """,
+                division_id,
+            )
+        else:
+            member_rows = await conn.fetch(
+                """
+                SELECT m.id, m.vorname, m.nachname, m.mitgliedsnummer,
+                       STRING_AGG(DISTINCT d.name, ', ' ORDER BY d.name) as divisions
+                FROM members m
+                LEFT JOIN member_divisions md ON md.member_id = m.id AND md.status = 'active'
+                LEFT JOIN divisions d ON d.id = md.division_id
+                WHERE m.is_active = TRUE
+                GROUP BY m.id
+                ORDER BY m.nachname, m.vorname
+                """
+            )
+
+        member_ids = [r["id"] for r in member_rows]
+        if not member_ids:
+            return {
+                "members": [],
+                "year": year,
+                "summary": {"total_collected": 0.0, "members_with_arrears": 0,
+                             "fully_paid": 0, "total_members": 0},
+            }
+
+        # Fetch all payments for these members in the given year
+        # period format: MM/YYYY
+        payment_rows = await conn.fetch(
+            """
+            SELECT id, member_id, amount, description, period, payment_date,
+                   payment_method, status, notes, created_at
+            FROM member_payments
+            WHERE member_id = ANY($1)
+              AND period LIKE $2
+            ORDER BY payment_date DESC
+            """,
+            member_ids,
+            f"%/{year}",
+        )
+
+        # Index payments by member_id → month
+        from collections import defaultdict
+        payments_by_member: dict[int, dict[str, list]] = defaultdict(lambda: defaultdict(list))
+        for r in payment_rows:
+            d = dict(r)
+            for key in ("payment_date", "created_at"):
+                if d.get(key):
+                    d[key] = str(d[key])
+            d["amount"] = float(d["amount"])
+            period = d.get("period", "")
+            # Extract month from MM/YYYY
+            if "/" in period:
+                month_str = period.split("/")[0]
+            else:
+                month_str = "00"
+            payments_by_member[d["member_id"]][month_str].append(d)
+
+        # Build result
+        total_collected = 0.0
+        members_with_arrears = 0
+        fully_paid = 0
+        current_month = datetime.datetime.now().month if year == datetime.datetime.now().year else 12
+
+        members = []
+        for r in member_rows:
+            mid = r["id"]
+            months = {}
+            member_total = 0.0
+            months_paid = 0
+            for m in range(1, 13):
+                mkey = f"{m:02d}"
+                plist = payments_by_member[mid].get(mkey, [])
+                months[mkey] = plist
+                month_sum = sum(p["amount"] for p in plist if p.get("status") == "received")
+                member_total += month_sum
+                if month_sum > 0:
+                    months_paid += 1
+
+            total_collected += member_total
+
+            if months_paid >= current_month:
+                fully_paid += 1
+            else:
+                members_with_arrears += 1
+
+            members.append({
+                "id": mid,
+                "vorname": r["vorname"],
+                "nachname": r["nachname"],
+                "mitgliedsnummer": r["mitgliedsnummer"],
+                "divisions": r["divisions"] or "",
+                "months": months,
+                "total_paid": member_total,
+            })
+
+        return {
+            "members": members,
+            "year": year,
+            "summary": {
+                "total_collected": total_collected,
+                "members_with_arrears": members_with_arrears,
+                "fully_paid": fully_paid,
+                "total_members": len(members),
+            },
+        }
+
+
 # --- Helpers ---
 
 def _parse_date(date_str: str):

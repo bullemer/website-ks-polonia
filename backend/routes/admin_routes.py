@@ -530,6 +530,40 @@ async def admin_review_application(request: Request, app_id: int, data: Applicat
     raise HTTPException(status_code=400, detail="Status: 'approved' oder 'rejected'")
 
 
+# --- Beiträge (membership fees overview) ---
+
+@router.get("/beitraege")
+async def admin_beitraege(request: Request, year: Optional[int] = None, division_id: Optional[int] = None):
+    """Monthly payment overview matrix for all active members."""
+    admin = require_admin(request)
+    import datetime
+    current_year = datetime.datetime.now().year
+    selected_year = year or current_year
+
+    matrix = await member_service.get_beitraege_matrix(selected_year, division_id)
+
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        div_rows = await conn.fetch(
+            "SELECT id, name, icon FROM divisions WHERE is_active = TRUE ORDER BY sort_order"
+        )
+        divisions = [dict(r) for r in div_rows]
+
+    current_month = datetime.datetime.now().month if selected_year == current_year else 12
+    month_names = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+
+    return templates.TemplateResponse(request, "admin_beitraege.html", {
+        "admin": admin,
+        "matrix": matrix,
+        "year": selected_year,
+        "current_year": current_year,
+        "current_month": current_month,
+        "month_names": month_names,
+        "division_id": division_id,
+        "divisions": divisions,
+    })
+
+
 # --- Payments (admin) ---
 
 @router.get("/members/{member_id}/payments")

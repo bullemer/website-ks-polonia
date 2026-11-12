@@ -318,14 +318,16 @@ async def handle_membership(request: Request):
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
     if id_front and hasattr(id_front, "filename") and id_front.filename:
-        front_filename = f"{nachname}_{vorname}_Front_{timestamp}.jpg"
+        ext = os.path.splitext(id_front.filename)[1].lower() or ".bin"
+        front_filename = f"{nachname}_{vorname}_Front_{timestamp}{ext}"
         front_path = os.path.join(UPLOAD_DIR, front_filename)
         with open(front_path, "wb") as f:
             f.write(await id_front.read())
         attachments.append(front_path)
 
     if id_back and hasattr(id_back, "filename") and id_back.filename:
-        back_filename = f"{nachname}_{vorname}_Back_{timestamp}.jpg"
+        ext = os.path.splitext(id_back.filename)[1].lower() or ".bin"
+        back_filename = f"{nachname}_{vorname}_Back_{timestamp}{ext}"
         back_path = os.path.join(UPLOAD_DIR, back_filename)
         with open(back_path, "wb") as f:
             f.write(await id_back.read())

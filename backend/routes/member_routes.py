@@ -216,14 +216,16 @@ async def upload_documents(request: Request):
     updates = {}
 
     if has_front:
-        front_filename = f"{nachname}_{vorname}_Front_{timestamp}.jpg"
+        ext = os.path.splitext(id_front.filename)[1].lower() or ".bin"
+        front_filename = f"{nachname}_{vorname}_Front_{timestamp}{ext}"
         front_path = os.path.join(UPLOAD_DIR, front_filename)
         with open(front_path, "wb") as f:
             f.write(await id_front.read())
         updates["id_front_path"] = front_path
 
     if has_back:
-        back_filename = f"{nachname}_{vorname}_Back_{timestamp}.jpg"
+        ext = os.path.splitext(id_back.filename)[1].lower() or ".bin"
+        back_filename = f"{nachname}_{vorname}_Back_{timestamp}{ext}"
         back_path = os.path.join(UPLOAD_DIR, back_filename)
         with open(back_path, "wb") as f:
             f.write(await id_back.read())

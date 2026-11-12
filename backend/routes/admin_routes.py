@@ -184,12 +184,28 @@ async def admin_download_document(request: Request, member_id: int, side: str):
     p = Path(file_path)
     if not p.is_file():
         raise HTTPException(status_code=404, detail="Datei nicht gefunden")
-    # Determine content type from extension
-    ext = p.suffix.lower()
-    content_types = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".pdf": "application/pdf", ".webp": "image/webp"}
-    ct = content_types.get(ext, "application/octet-stream")
-    return Response(p.read_bytes(), media_type=ct, headers={
-        "Content-Disposition": f'inline; filename="{p.name}"',
+    data = p.read_bytes()
+    # Detect real content type from magic bytes, don't trust the extension
+    if data[:4] == b'%PDF':
+        ct = "application/pdf"
+        real_ext = ".pdf"
+    elif data[:3] == b'\xff\xd8\xff':
+        ct = "image/jpeg"
+        real_ext = ".jpg"
+    elif data[:8] == b'\x89PNG\r\n\x1a\n':
+        ct = "image/png"
+        real_ext = ".png"
+    elif data[:4] == b'RIFF' and data[8:12] == b'WEBP':
+        ct = "image/webp"
+        real_ext = ".webp"
+    else:
+        ct = "application/octet-stream"
+        real_ext = p.suffix or ".bin"
+    safe_name = f"{member.get('nachname', 'Dokument')}_{member.get('vorname', '')}_{side}{real_ext}"
+    # ?dl=1 query param forces download instead of inline display
+    disposition = "attachment" if request.query_params.get("dl") else "inline"
+    return Response(data, media_type=ct, headers={
+        "Content-Disposition": f'{disposition}; filename="{safe_name}"',
         "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
     })
 

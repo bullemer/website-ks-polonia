@@ -206,19 +206,31 @@
                     {% if member.id_front_path %}
                     <div style="flex: 1; min-width: 200px;">
                         <div class="label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.5rem;">Vorderseite</div>
-                        <a href="/api/admin/members/{{ member.id }}/document/front" target="_blank"
-                           style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: var(--surface-hover); border: 1px solid var(--border); border-radius: 8px; color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: border-color 0.2s;">
-                            🖼️ Vorderseite anzeigen
-                        </a>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <a href="/api/admin/members/{{ member.id }}/document/front" target="_blank"
+                               style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: var(--surface-hover); border: 1px solid var(--border); border-radius: 8px; color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 500;">
+                                🔎 Anzeigen
+                            </a>
+                            <a href="/api/admin/members/{{ member.id }}/document/front?dl=1"
+                               style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: var(--surface-hover); border: 1px solid var(--border); border-radius: 8px; color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 500;">
+                                ⬇️ Download
+                            </a>
+                        </div>
                     </div>
                     {% endif %}
                     {% if member.id_back_path %}
                     <div style="flex: 1; min-width: 200px;">
                         <div class="label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.5rem;">Rückseite</div>
-                        <a href="/api/admin/members/{{ member.id }}/document/back" target="_blank"
-                           style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: var(--surface-hover); border: 1px solid var(--border); border-radius: 8px; color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: border-color 0.2s;">
-                            🖼️ Rückseite anzeigen
-                        </a>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <a href="/api/admin/members/{{ member.id }}/document/back" target="_blank"
+                               style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: var(--surface-hover); border: 1px solid var(--border); border-radius: 8px; color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 500;">
+                                🔎 Anzeigen
+                            </a>
+                            <a href="/api/admin/members/{{ member.id }}/document/back?dl=1"
+                               style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: var(--surface-hover); border: 1px solid var(--border); border-radius: 8px; color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 500;">
+                                ⬇️ Download
+                            </a>
+                        </div>
                     </div>
                     {% endif %}
                 </div>

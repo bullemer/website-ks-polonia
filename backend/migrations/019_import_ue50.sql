@@ -11,7 +11,7 @@ DECLARE
     v_member_id INT;
     v_token     TEXT;
 BEGIN
-    SELECT id INTO v_div_id FROM divisions WHERE slug = 'fussball';
+    SELECT id INTO v_div_id FROM divisions WHERE name = 'Fußball' AND is_active = TRUE LIMIT 1;
     IF v_div_id IS NULL THEN RAISE EXCEPTION 'Division fussball not found'; END IF;
 
     -- ═══════════════════════════════════════

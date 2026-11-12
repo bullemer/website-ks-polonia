@@ -105,11 +105,11 @@ jobs:
         run: |
           HOST=$(echo "$SSH_HOST" | xargs)
           USER=$(echo "$SSH_USER" | xargs)
-          ssh -p 222 "$USER@$HOST" << 'ENDSSH'
+          ssh -p 222 "$USER@$HOST" <<'ENDSSH'
+            set -e
             source /usr/home/trusteei/virtualenvs/kspolonia/bin/activate
             cd /usr/home/trusteei/flaskprojects/kspolonia/backend
-            python3 migrate.py 2>&1 | tail -30
-            echo "Migration step complete"
+            python3 migrate.py
           ENDSSH
 
       # ═══════════════════════════════════════

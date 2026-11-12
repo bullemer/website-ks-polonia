@@ -343,12 +343,13 @@ async def admin_team_detail(request: Request, team_id: int):
         # Get team members with their roles
         team_members = await conn.fetch("""
             SELECT mt.id as assignment_id, mt.role, mt.position, mt.jersey_number, mt.status,
-                   m.id as member_id, m.vorname, m.nachname, m.email, m.mitgliedsnummer
+                   m.id as member_id, m.vorname, m.nachname, m.email, m.mitgliedsnummer,
+                   m.claim_token, m.telefon
             FROM member_teams mt
             JOIN members m ON m.id = mt.member_id
             WHERE mt.team_id = $1 AND mt.status = 'active'
             ORDER BY
-                CASE mt.role WHEN 'trainer' THEN 1 WHEN 'co-trainer' THEN 2 WHEN 'manager' THEN 3 ELSE 4 END,
+                CASE mt.role WHEN 'trainer' THEN 1 WHEN 'co-trainer' THEN 2 WHEN 'teamoffizieller' THEN 3 WHEN 'manager' THEN 4 ELSE 5 END,
                 mt.jersey_number NULLS LAST,
                 m.nachname
         """, team_id)

@@ -140,9 +140,10 @@
                     {% for m in range(1, 13) %}
                     {% set mkey = "%02d"|format(m) %}
                     {% set payments = member.months[mkey] %}
+                    {% set covering = member.month_covering_payments[mkey] %}
                     {% set is_covered = m in member.covered_months %}
                     <td class="month-cell {% if is_covered %}month-paid{% elif m > current_month and year == current_year %}month-future{% else %}month-unpaid{% endif %}"
-                        onclick="openPaymentModal({{ member.id }}, '{{ member.vorname }}', '{{ member.nachname }}', '{{ mkey }}', {{ year }}, {{ payments | tojson | e }}, {{ member.monthly_fee }})"
+                        onclick="openPaymentModal({{ member.id }}, '{{ member.vorname }}', '{{ member.nachname }}', '{{ mkey }}', {{ year }}, {{ covering | tojson }}, {{ member.monthly_fee }})"
                         title="{{ member.vorname }} {{ member.nachname }} – {{ month_names[m-1] }} {{ year }}">
                         {% if is_covered %}
                             ✅

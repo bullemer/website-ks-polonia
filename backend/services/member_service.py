@@ -772,15 +772,19 @@ async def get_beitraege_matrix(year: int, division_id: int | None = None, team_i
 
             # Smart month coverage: spread bulk payments across consecutive months
             covered_months: set[int] = set()
+            # Track which payment covers which month for delete functionality
+            month_covering_payments: dict[int, list] = {m: [] for m in range(1, 13)}
+
             # Process payments sorted by period month
-            all_payments_sorted: list[tuple[int, float]] = []
+            all_payments_sorted: list[tuple[int, dict]] = []
             for m in range(1, 13):
                 mkey = f"{m:02d}"
                 for p in months[mkey]:
                     if p.get("status") == "received":
-                        all_payments_sorted.append((m, p["amount"]))
+                        all_payments_sorted.append((m, p))
 
-            for start_month, amount in all_payments_sorted:
+            for start_month, payment in all_payments_sorted:
+                amount = payment["amount"]
                 if monthly_fee > 0:
                     months_covered = int(math.floor(amount / monthly_fee))
                 else:
@@ -789,6 +793,7 @@ async def get_beitraege_matrix(year: int, division_id: int | None = None, team_i
                     cover_month = start_month + offset
                     if 1 <= cover_month <= 12:
                         covered_months.add(cover_month)
+                        month_covering_payments[cover_month].append(payment)
 
             months_paid = len(covered_months)
 
@@ -804,6 +809,7 @@ async def get_beitraege_matrix(year: int, division_id: int | None = None, team_i
                 "mitgliedsnummer": r["mitgliedsnummer"],
                 "divisions": r["divisions"] or "",
                 "months": months,
+                "month_covering_payments": {f"{m:02d}": month_covering_payments[m] for m in range(1, 13)},
                 "total_paid": member_total,
                 "monthly_fee": monthly_fee,
                 "covered_months": sorted(covered_months),

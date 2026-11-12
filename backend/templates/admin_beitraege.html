@@ -76,7 +76,7 @@
         <h1>💰 Beiträge <span style="font-weight: 400; font-size: 1rem; color: var(--text-muted);">Übersicht {{ year }}</span></h1>
     </div>
 
-    <!-- Toolbar: Year + Division filter -->
+    <!-- Toolbar: Year + Division + Team filter -->
     <form class="toolbar" method="GET" action="">
         <select name="year" onchange="this.form.submit()">
             {% for y in range(current_year - 3, current_year + 2) %}
@@ -87,6 +87,12 @@
             <option value="">Alle Abteilungen</option>
             {% for d in divisions %}
             <option value="{{ d.id }}" {% if division_id == d.id %}selected{% endif %}>{{ d.icon }} {{ d.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="team_id" onchange="this.form.submit()">
+            <option value="">Alle Teams</option>
+            {% for t in teams %}
+            <option value="{{ t.id }}" {% if team_id == t.id %}selected{% endif %}>{{ t.div_icon or '⚽' }} {{ t.mannschaftsname }}</option>
             {% endfor %}
         </select>
     </form>

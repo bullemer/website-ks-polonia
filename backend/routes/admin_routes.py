@@ -533,14 +533,14 @@ async def admin_review_application(request: Request, app_id: int, data: Applicat
 # --- Beiträge (membership fees overview) ---
 
 @router.get("/beitraege")
-async def admin_beitraege(request: Request, year: Optional[int] = None, division_id: Optional[int] = None):
+async def admin_beitraege(request: Request, year: Optional[int] = None, division_id: Optional[int] = None, team_id: Optional[int] = None):
     """Monthly payment overview matrix for all active members."""
     admin = require_admin(request)
     import datetime
     current_year = datetime.datetime.now().year
     selected_year = year or current_year
 
-    matrix = await member_service.get_beitraege_matrix(selected_year, division_id)
+    matrix = await member_service.get_beitraege_matrix(selected_year, division_id, team_id)
 
     pool = await get_pool()
     async with pool.acquire() as conn:
@@ -548,6 +548,10 @@ async def admin_beitraege(request: Request, year: Optional[int] = None, division
             "SELECT id, name, icon FROM divisions WHERE is_active = TRUE ORDER BY sort_order"
         )
         divisions = [dict(r) for r in div_rows]
+        team_rows = await conn.fetch(
+            "SELECT t.id, t.mannschaftsname, d.icon as div_icon FROM teams t LEFT JOIN divisions d ON d.id = t.division_id WHERE t.is_active = TRUE ORDER BY d.sort_order, t.sort_order, t.mannschaftsname"
+        )
+        teams = [dict(r) for r in team_rows]
 
     current_month = datetime.datetime.now().month if selected_year == current_year else 12
     month_names = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
@@ -560,7 +564,9 @@ async def admin_beitraege(request: Request, year: Optional[int] = None, division
         "current_month": current_month,
         "month_names": month_names,
         "division_id": division_id,
+        "team_id": team_id,
         "divisions": divisions,
+        "teams": teams,
     })
 
 

@@ -638,7 +638,7 @@ async def delete_payment(payment_id: int) -> bool:
         return "DELETE 1" in result
 
 
-async def get_beitraege_matrix(year: int, division_id: int | None = None) -> dict:
+async def get_beitraege_matrix(year: int, division_id: int | None = None, team_id: int | None = None) -> dict:
     """
     Build the monthly payment overview matrix for the Beiträge page.
 
@@ -654,8 +654,24 @@ async def get_beitraege_matrix(year: int, division_id: int | None = None) -> dic
     """
     pool = await get_pool()
     async with pool.acquire() as conn:
-        # Build member query with optional division filter
-        if division_id:
+        # Build member query with optional division/team filter
+        if team_id:
+            member_rows = await conn.fetch(
+                """
+                SELECT DISTINCT m.id, m.vorname, m.nachname, m.mitgliedsnummer,
+                       STRING_AGG(DISTINCT d.name, ', ' ORDER BY d.name) as divisions
+                FROM members m
+                JOIN member_teams mt ON mt.member_id = m.id AND mt.status = 'active'
+                LEFT JOIN member_divisions md ON md.member_id = m.id AND md.status = 'active'
+                LEFT JOIN divisions d ON d.id = md.division_id
+                WHERE m.is_active = TRUE
+                  AND mt.team_id = $1
+                GROUP BY m.id
+                ORDER BY m.nachname, m.vorname
+                """,
+                team_id,
+            )
+        elif division_id:
             member_rows = await conn.fetch(
                 """
                 SELECT DISTINCT m.id, m.vorname, m.nachname, m.mitgliedsnummer,

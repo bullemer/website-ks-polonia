@@ -19,6 +19,7 @@ import datetime
 import secrets
 import traceback
 import random
+import re
 import asyncpg
 from jose import jwt as jose_jwt, JWTError
 from fastapi.templating import Jinja2Templates
@@ -391,13 +392,15 @@ async def handle_membership(request: Request):
     attachments = []
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_vorname = re.sub(r'[^a-zA-Z0-9_-]', '_', vorname)
+    safe_nachname = re.sub(r'[^a-zA-Z0-9_-]', '_', nachname)
 
     if id_front and hasattr(id_front, "filename") and id_front.filename:
         try:
             ext = _validate_upload_extension(id_front.filename)
         except ValueError as ve:
             return JSONResponse({"success": False, "error": str(ve)}, status_code=400)
-        front_filename = f"{nachname}_{vorname}_Front_{timestamp}{ext}"
+        front_filename = f"{safe_nachname}_{safe_vorname}_Front_{timestamp}{ext}"
         front_path = os.path.join(UPLOAD_DIR, front_filename)
         try:
             content = await _read_upload_safe(id_front)
@@ -412,7 +415,7 @@ async def handle_membership(request: Request):
             ext = _validate_upload_extension(id_back.filename)
         except ValueError as ve:
             return JSONResponse({"success": False, "error": str(ve)}, status_code=400)
-        back_filename = f"{nachname}_{vorname}_Back_{timestamp}{ext}"
+        back_filename = f"{safe_nachname}_{safe_vorname}_Back_{timestamp}{ext}"
         back_path = os.path.join(UPLOAD_DIR, back_filename)
         try:
             content = await _read_upload_safe(id_back)

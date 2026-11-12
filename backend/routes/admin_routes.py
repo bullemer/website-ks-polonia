@@ -167,6 +167,33 @@ async def admin_toggle_admin(request: Request, member_id: int):
     return JSONResponse({"success": True, "is_admin": new_status, "role": new_role})
 
 
+@router.get("/members/{member_id}/document/{side}")
+async def admin_download_document(request: Request, member_id: int, side: str):
+    """Download a member's uploaded ID document (front or back). Admin only."""
+    require_admin(request)
+    if side not in ("front", "back"):
+        raise HTTPException(status_code=400, detail="Ungültige Seite: 'front' oder 'back'")
+    member = await member_service.get_member_by_id(member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+    path_key = f"id_{side}_path"
+    file_path = member.get(path_key)
+    if not file_path:
+        raise HTTPException(status_code=404, detail="Kein Dokument vorhanden")
+    from pathlib import Path
+    p = Path(file_path)
+    if not p.is_file():
+        raise HTTPException(status_code=404, detail="Datei nicht gefunden")
+    # Determine content type from extension
+    ext = p.suffix.lower()
+    content_types = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".pdf": "application/pdf", ".webp": "image/webp"}
+    ct = content_types.get(ext, "application/octet-stream")
+    return Response(p.read_bytes(), media_type=ct, headers={
+        "Content-Disposition": f'inline; filename="{p.name}"',
+        "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
+    })
+
+
 # --- Divisions ---
 @router.get("/divisions")
 async def admin_list_divisions(request: Request):

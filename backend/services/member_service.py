@@ -480,10 +480,13 @@ async def list_members(
             f"""
             SELECT m.id, m.mitgliedsnummer, m.vorname, m.nachname, m.email,
                    m.membership_level, m.role, m.is_active, m.is_admin, m.eintrittsdatum,
-                   STRING_AGG(d.name, ', ' ORDER BY d.sort_order) as divisions
+                   STRING_AGG(DISTINCT d.name, ', ' ORDER BY d.name) as divisions,
+                   STRING_AGG(DISTINCT t.mannschaftsname, ', ' ORDER BY t.mannschaftsname) as teams
             FROM members m
             LEFT JOIN member_divisions md ON md.member_id = m.id AND md.status = 'active'
             LEFT JOIN divisions d ON d.id = md.division_id
+            LEFT JOIN member_teams mt ON mt.member_id = m.id AND mt.status = 'active'
+            LEFT JOIN teams t ON t.id = mt.team_id
             WHERE {where}
             GROUP BY m.id
             ORDER BY m.nachname, m.vorname

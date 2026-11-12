@@ -61,6 +61,7 @@
                         <th>Name</th>
                         <th>E-Mail</th>
                         <th>Abteilungen</th>
+                        <th>Teams</th>
                         <th>Typ</th>
                         <th>Status</th>
                         <th>Eintritt</th>
@@ -74,6 +75,7 @@
                         <td><a href="/api/admin/members/{{ m.id }}"><strong>{{ m.vorname }} {{ m.nachname }}</strong></a></td>
                         <td>{{ m.email }}</td>
                         <td>{{ m.divisions or '—' }}</td>
+                        <td style="font-size:0.82rem;">{{ m.teams or '—' }}</td>
                         <td>
                             <span class="badge badge-level">{{ m.membership_level or 'regular' }}</span>
                             {% if m.role == 'superadmin' %}

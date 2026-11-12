@@ -32,6 +32,7 @@ async def get_managed_teams(member_id: int, is_superadmin: bool = False) -> List
     """
     Get all teams a member has admin/trainer privileges for.
     If is_superadmin=True, returns all active teams in the club.
+    De-duplicates by team id to avoid showing the same team multiple times.
     """
     pool = await get_pool()
     async with pool.acquire() as conn:
@@ -47,20 +48,34 @@ async def get_managed_teams(member_id: int, is_superadmin: bool = False) -> List
                 ORDER BY d.sort_order, t.sort_order
             """)
         else:
+            # Use DISTINCT ON to pick one row per team even if the member
+            # has multiple role entries (e.g. player + trainer) for the
+            # same team.  We keep the highest-privilege role via ORDER BY.
             rows = await conn.fetch("""
-                SELECT t.*, d.name as division_name, d.icon as division_icon,
+                SELECT DISTINCT ON (t.id)
+                       t.*, d.name as division_name, d.icon as division_icon,
                        mt_admin.role as admin_role,
-                       COUNT(mt_all.member_id) FILTER (WHERE mt_all.status = 'active') as member_count
+                       (SELECT COUNT(*) FROM member_teams mt2
+                        WHERE mt2.team_id = t.id AND mt2.status = 'active') as member_count
                 FROM teams t
                 JOIN member_teams mt_admin ON mt_admin.team_id = t.id 
                      AND mt_admin.member_id = $1 
                      AND mt_admin.status = 'active'
                 LEFT JOIN divisions d ON d.id = t.division_id
-                LEFT JOIN member_teams mt_all ON mt_all.team_id = t.id
                 WHERE t.is_active = TRUE
-                GROUP BY t.id, d.name, d.icon, d.sort_order, mt_admin.role
-                ORDER BY d.sort_order, t.sort_order
+                ORDER BY t.id, 
+                         CASE mt_admin.role
+                             WHEN 'trainer' THEN 1
+                             WHEN 'co-trainer' THEN 2
+                             WHEN 'manager' THEN 3
+                             WHEN 'captain' THEN 4
+                             ELSE 5
+                         END
             """, member_id)
+            # Re-sort by division/team sort_order after DISTINCT ON
+            result = [dict(r) for r in rows]
+            result.sort(key=lambda t: (t.get("division_sort") or t.get("sort_order") or 0, t.get("sort_order") or 0))
+            return result
         return [dict(r) for r in rows]
 
 
@@ -83,8 +98,10 @@ async def get_team_members(team_id: int) -> List[Dict[str, Any]]:
     async with pool.acquire() as conn:
         rows = await conn.fetch("""
             SELECT mt.id as assignment_id, mt.role, mt.position, mt.jersey_number, mt.status, mt.joined_at,
+                   mt.spielrecht_ab, mt.dfb_registered_at,
                    m.id as member_id, m.vorname, m.nachname, m.email, m.telefon, m.mitgliedsnummer,
-                   m.membership_level, m.role as system_role
+                   m.membership_level, m.role as system_role, m.nationality, m.passnummer,
+                   m.geburtsdatum, m.claim_token
             FROM member_teams mt
             JOIN members m ON m.id = mt.member_id
             WHERE mt.team_id = $1 AND mt.status = 'active'
@@ -102,8 +119,9 @@ async def get_team_members(team_id: int) -> List[Dict[str, Any]]:
         res = []
         for r in rows:
             d = dict(r)
-            if d.get("joined_at"):
-                d["joined_at"] = str(d["joined_at"])
+            for date_field in ("joined_at", "spielrecht_ab", "dfb_registered_at", "geburtsdatum"):
+                if d.get(date_field):
+                    d[date_field] = str(d[date_field])
             res.append(d)
         return res
 

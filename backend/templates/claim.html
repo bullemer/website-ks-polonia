@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#DC143C">
+    <title>Kontaktdaten hinterlegen – KS Polonia Hamburg</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #DC143C; --primary-dark: #a50e2d; --primary-light: #f0325a;
+            --bg: #fafafa; --surface: #fff; --border: #e5e7eb;
+            --text: #111827; --text-muted: #6b7280; --text-light: #9ca3af;
+            --success: #22c55e; --danger: #ef4444;
+            --radius: 14px;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; min-height: 100dvh;
+            display: flex; flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+        .hero {
+            background: linear-gradient(145deg, #DC143C 0%, #8B0000 60%, #6d0020 100%);
+            color: #fff; text-align: center;
+            padding: calc(var(--safe-top) + 3rem) 1.5rem 3rem;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 60%);
+        }
+        .hero-logo {
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.3);
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .hero h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
+        .hero p { font-size: 0.88rem; opacity: 0.8; margin-top: 0.35rem; font-weight: 400; }
+        .main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1.5rem; }
+        .claim-card {
+            width: 100%; max-width: 440px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem 1.5rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            margin-top: -1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .player-info {
+            background: #f8f9fa; border-radius: 10px;
+            padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        .player-info .name {
+            font-size: 1.1rem; font-weight: 700; color: var(--text);
+        }
+        .player-info .meta {
+            font-size: 0.82rem; color: var(--text-muted); margin-top: 0.3rem;
+        }
+        .player-info .team-badge {
+            display: inline-block; margin-top: 0.5rem;
+            background: var(--primary); color: #fff;
+            padding: 0.25rem 0.75rem; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .section-title {
+            font-size: 0.82rem; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.04em;
+            margin-bottom: 1rem;
+        }
+        .field { margin-bottom: 1.25rem; }
+        .field label {
+            display: block; font-size: 0.8rem; font-weight: 600;
+            margin-bottom: 0.4rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .field .hint {
+            font-size: 0.75rem; color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+        .field input {
+            width: 100%; padding: 0.85rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 10px; font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fdfdfd;
+        }
+        .field input:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(220,20,60,0.1);
+            background: #fff;
+        }
+        .submit-btn {
+            width: 100%; padding: 0.9rem;
+            background: var(--primary); color: #fff;
+            border: none; border-radius: 10px;
+            font-size: 1rem; font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .submit-btn:hover { background: var(--primary-dark); }
+        .submit-btn:active { transform: scale(0.98); }
+        .submit-btn:disabled { background: var(--border); color: var(--text-light); cursor: not-allowed; }
+        .alert {
+            padding: 0.8rem 1rem; border-radius: 10px;
+            font-size: 0.88rem; font-weight: 500;
+            margin-bottom: 1.25rem; display: none;
+        }
+        .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .footer-note {
+            text-align: center; padding: 1.5rem;
+            font-size: 0.75rem; color: var(--text-light);
+        }
+        .footer-note a { color: var(--text-muted); }
+        .success-card {
+            text-align: center; padding: 2rem 1rem;
+        }
+        .success-card .checkmark {
+            font-size: 3rem; margin-bottom: 1rem;
+        }
+        .success-card h2 {
+            font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;
+        }
+        .success-card p {
+            font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;
+        }
+        .password-toggle {
+            margin-bottom: 1.25rem;
+        }
+        .password-toggle label {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.88rem; color: var(--text-muted);
+            cursor: pointer;
+        }
+        .password-toggle input[type="checkbox"] {
+            width: 1.1rem; height: 1.1rem; accent-color: var(--primary);
+        }
+        .password-fields { display: none; }
+        .password-fields.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <img src="/logo.png" alt="KS Polonia" class="hero-logo">
+        <h1>KS Polonia Hamburg</h1>
+        <p>Kontaktdaten hinterlegen</p>
+    </div>
+
+    <div class="main">
+        <div class="claim-card">
+            <div id="alert" class="alert"></div>
+
+            {% if error %}
+            <div class="alert alert-error" style="display:block">{{ error }}</div>
+            {% elif already_claimed %}
+            <div class="success-card">
+                <div class="checkmark">✅</div>
+                <h2>Bereits registriert</h2>
+                <p>Für <strong>{{ member.vorname }} {{ member.nachname }}</strong> wurden bereits Kontaktdaten hinterlegt.
+                Bei Fragen wende dich bitte an den Trainer.</p>
+                <div style="margin-top:1.5rem">
+                    <a href="/api/portal/login" class="submit-btn" style="display:inline-block;text-decoration:none;max-width:300px">
+                        Zum Portal →
+                    </a>
+                </div>
+            </div>
+            {% else %}
+
+            <div class="player-info">
+                <div class="name">{{ member.vorname }} {{ member.nachname }}</div>
+                <div class="meta">Geb. {{ member.geburtsdatum_display }}</div>
+                {% if team_name %}
+                <span class="team-badge">{{ team_name }}</span>
+                {% endif %}
+            </div>
+
+            <p class="section-title">Kontaktdaten eintragen</p>
+
+            <form id="claimForm">
+                <div class="field">
+                    <label for="email">E-Mail-Adresse *</label>
+                    <input type="email" id="email" name="email" required placeholder="eltern@example.de" autocomplete="email" inputmode="email">
+                    <div class="hint">E-Mail-Adresse eines Elternteils / Erziehungsberechtigten</div>
+                </div>
+                <div class="field">
+                    <label for="telefon">Handynummer</label>
+                    <input type="tel" id="telefon" name="telefon" placeholder="0151 12345678" autocomplete="tel" inputmode="tel">
+                    <div class="hint">Für wichtige Mitteilungen und WhatsApp</div>
+                </div>
+
+                <div class="password-toggle">
+                    <label>
+                        <input type="checkbox" id="wantPassword">
+                        Passwort festlegen (für Portal-Zugang)
+                    </label>
+                </div>
+                <div id="passwordFields" class="password-fields">
+                    <div class="field">
+                        <label for="password">Passwort</label>
+                        <input type="password" id="password" name="password" placeholder="Mindestens 8 Zeichen" autocomplete="new-password" minlength="8">
+                    </div>
+                    <div class="field">
+                        <label for="password2">Passwort bestätigen</label>
+                        <input type="password" id="password2" name="password2" placeholder="Passwort wiederholen" autocomplete="new-password">
+                    </div>
+                </div>
+
+                <input type="hidden" name="token" value="{{ token }}">
+                <button type="submit" class="submit-btn" id="submitBtn">Absenden</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="footer-note">
+        <a href="/">← Zurück zur Website</a> · © KS Polonia Hamburg e.V. 1988
+    </div>
+
+    {% if not error and not already_claimed %}
+    <script>
+        const alertEl = document.getElementById('alert');
+
+        // Password toggle
+        document.getElementById('wantPassword').addEventListener('change', (e) => {
+            document.getElementById('passwordFields').classList.toggle('active', e.target.checked);
+            const pw = document.getElementById('password');
+            const pw2 = document.getElementById('password2');
+            if (!e.target.checked) { pw.value = ''; pw2.value = ''; }
+        });
+
+        document.getElementById('claimForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true; btn.textContent = 'Wird gespeichert...';
+            alertEl.style.display = 'none';
+
+            const email = document.getElementById('email').value.trim();
+            const telefon = document.getElementById('telefon').value.trim();
+            const wantPw = document.getElementById('wantPassword').checked;
+            const password = document.getElementById('password').value;
+            const password2 = document.getElementById('password2').value;
+
+            if (wantPw) {
+                if (password.length < 8) {
+                    showAlert('Passwort muss mindestens 8 Zeichen lang sein.', 'error');
+                    btn.disabled = false; btn.textContent = 'Absenden';
+                    return;
+                }
+                if (password !== password2) {
+                    showAlert('Passwörter stimmen nicht überein.', 'error');
+                    btn.disabled = false; btn.textContent = 'Absenden';
+                    return;
+                }
+            }
+
+            try {
+                const res = await fetch('/api/claim/{{ token }}', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        email,
+                        telefon: telefon || null,
+                        password: wantPw ? password : null,
+                    }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    document.querySelector('.claim-card').innerHTML = `
+                        <div class="success-card">
+                            <div class="checkmark">✅</div>
+                            <h2>Vielen Dank!</h2>
+                            <p>Die Kontaktdaten für <strong>{{ member.vorname }}</strong> wurden gespeichert.</p>
+                            ${data.has_password ? '<p style="margin-top:1rem">Du kannst dich jetzt mit deiner E-Mail-Adresse und dem gewählten Passwort im <a href="/api/portal/login" style="color:var(--primary);font-weight:600">Mitgliederportal</a> anmelden.</p>' : ''}
+                        </div>`;
+                } else {
+                    showAlert(data.detail || 'Fehler beim Speichern', 'error');
+                }
+            } catch (err) {
+                showAlert('Verbindungsfehler. Bitte versuche es erneut.', 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Absenden';
+            }
+        });
+
+        function showAlert(msg, type) {
+            alertEl.textContent = msg;
+            alertEl.className = 'alert alert-' + type;
+            alertEl.style.display = 'block';
+            alertEl.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        }
+    </script>
+    {% endif %}
+</body>
+</html>

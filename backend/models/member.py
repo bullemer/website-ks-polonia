@@ -51,6 +51,8 @@ class MemberAdminUpdate(BaseModel):
     geburtsdatum: Optional[str] = None
     geschlecht: Optional[str] = None
     eintrittsdatum: Optional[str] = None
+    nationality: Optional[str] = None
+    passnummer: Optional[str] = None
     membership_level: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None

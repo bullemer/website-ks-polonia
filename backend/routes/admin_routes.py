@@ -258,6 +258,7 @@ async def admin_list_divisions(request: Request):
         teams = await conn.fetch("""
             SELECT t.*, COUNT(mt.member_id) FILTER (WHERE mt.status = 'active') as member_count
             FROM teams t LEFT JOIN member_teams mt ON mt.team_id = t.id
+            WHERE t.is_active = TRUE
             GROUP BY t.id ORDER BY t.sort_order
         """)
     divisions = [dict(r) for r in rows]
@@ -386,6 +387,16 @@ async def admin_create_team(request: Request, data: TeamCreate):
     require_superadmin(request)
     pool = await get_pool()
     async with pool.acquire() as conn:
+        # Check for duplicate team name within the same division
+        existing = await conn.fetchval(
+            "SELECT id FROM teams WHERE LOWER(mannschaftsname) = LOWER($1) AND division_id = $2 AND is_active = TRUE",
+            data.mannschaftsname, data.division_id,
+        )
+        if existing:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Eine Mannschaft mit dem Namen '{data.mannschaftsname}' existiert bereits in dieser Abteilung (ID {existing}).",
+            )
         new_id = await conn.fetchval(
             """INSERT INTO teams (division_id, mannschaftsart, mannschaftsname, spielklasse,
                coach, age_group, widget_id, sort_order) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id""",

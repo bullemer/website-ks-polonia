@@ -1,11 +1,13 @@
 """
 KS Polonia – Auth routes.
-Login, logout, password reset, email verification.
+Login, logout, password reset, email verification, account activation.
 """
 import os
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 from auth import (
     verify_password, hash_password, create_access_token,
@@ -229,3 +231,149 @@ async def verify_email(token: str):
         )
 
     return RedirectResponse(url=f"{SITE_URL}/portal/login?verified=1")
+
+
+# ═══════════════════════════════════════
+#  ACCOUNT ACTIVATION (Nachname + Geburtsdatum)
+# ═══════════════════════════════════════
+
+class ActivateLookupRequest(BaseModel):
+    nachname: str
+    geburtsdatum: str  # YYYY-MM-DD
+
+
+class ActivateCompleteRequest(BaseModel):
+    activate_token: str
+    email: EmailStr
+    telefon: Optional[str] = None
+    password: str
+
+
+@router.post("/activate-lookup")
+async def activate_lookup(req: ActivateLookupRequest):
+    """
+    Step 1: Member identifies by Nachname + Geburtsdatum.
+    Returns a short-lived activate_token tied to that member.
+    Only works for active members who have NOT yet set an email.
+    """
+    from database import get_pool
+    import datetime
+
+    # Validate date format
+    try:
+        dob = datetime.date.fromisoformat(req.geburtsdatum)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Ungültiges Datumsformat.")
+
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        # Case-insensitive last-name match + exact DOB
+        member = await conn.fetchrow(
+            """
+            SELECT id, vorname, nachname, email
+            FROM members
+            WHERE LOWER(nachname) = LOWER($1)
+              AND geburtsdatum = $2
+              AND is_active = TRUE
+            ORDER BY id
+            LIMIT 1
+            """,
+            req.nachname.strip(), dob,
+        )
+
+    if not member:
+        raise HTTPException(
+            status_code=404,
+            detail="Kein Mitglied mit diesem Namen und Geburtsdatum gefunden. "
+                   "Bitte überprüfe die Eingabe oder wende dich an den Verein.",
+        )
+
+    if member["email"]:
+        raise HTTPException(
+            status_code=409,
+            detail="Für dieses Mitglied ist bereits eine E-Mail-Adresse hinterlegt. "
+                   "Bitte nutze 'Passwort vergessen', um dein Passwort zurückzusetzen.",
+        )
+
+    # Generate a short-lived activate token and store it
+    token = generate_token()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            """
+            UPDATE members
+            SET claim_token = $1, updated_at = NOW()
+            WHERE id = $2
+            """,
+            token, member["id"],
+        )
+
+    return JSONResponse({
+        "success": True,
+        "vorname": member["vorname"],
+        "activate_token": token,
+    })
+
+
+@router.post("/activate-complete")
+async def activate_complete(req: ActivateCompleteRequest):
+    """
+    Step 2: Member sets email + password using the activate_token from step 1.
+    """
+    from database import get_pool
+
+    if len(req.password) < 8:
+        raise HTTPException(status_code=400, detail="Passwort muss mindestens 8 Zeichen lang sein.")
+
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        member = await conn.fetchrow(
+            """
+            SELECT id, email, vorname
+            FROM members
+            WHERE claim_token = $1 AND is_active = TRUE
+            """,
+            req.activate_token,
+        )
+
+    if not member:
+        raise HTTPException(status_code=400, detail="Ungültiger oder abgelaufener Aktivierungslink.")
+
+    if member["email"]:
+        raise HTTPException(status_code=409, detail="Konto wurde bereits aktiviert.")
+
+    # Check email not already taken
+    async with pool.acquire() as conn:
+        existing = await conn.fetchrow(
+            "SELECT id FROM members WHERE email = $1 AND id != $2",
+            req.email, member["id"],
+        )
+        if existing:
+            raise HTTPException(
+                status_code=409,
+                detail="Diese E-Mail-Adresse ist bereits einem anderen Mitglied zugeordnet.",
+            )
+
+    # Update member: set email, phone, password, clear token
+    hashed = hash_password(req.password)
+    async with pool.acquire() as conn:
+        await conn.execute(
+            """
+            UPDATE members
+            SET email = $1,
+                telefon = COALESCE($2, telefon),
+                password_hash = $3,
+                claim_token = NULL,
+                email_verified = TRUE,
+                updated_at = NOW()
+            WHERE id = $4
+            """,
+            req.email,
+            req.telefon,
+            hashed,
+            member["id"],
+        )
+
+    return JSONResponse({
+        "success": True,
+        "message": f"Konto für {member['vorname']} erfolgreich aktiviert!",
+    })

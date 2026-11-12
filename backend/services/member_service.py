@@ -206,6 +206,7 @@ async def update_member_profile(member_id: int, updates: dict) -> bool:
     ALLOWED_PROFILE_COLUMNS = {
         'email', 'telefon', 'strasse', 'hausnummer', 'plz', 'ort', 'land',
         'vorname', 'nachname', 'geburtsdatum', 'geschlecht', 'eintrittsdatum',
+        'nationality', 'passnummer',
         'role', 'membership_level', 'is_active',
     }
     fields = {k: v for k, v in updates.items() if v is not None and k in ALLOWED_PROFILE_COLUMNS}
@@ -284,21 +285,25 @@ async def get_all_divisions() -> list[dict]:
 
 
 async def get_all_teams() -> list[dict]:
-    """Get all active teams with their division info."""
+    """Get all active teams with their division info, de-duplicated by name + division."""
     pool = await get_pool()
     async with pool.acquire() as conn:
         rows = await conn.fetch(
             """
-            SELECT t.id, t.nummer, t.mannschaftsname, t.mannschaftsart, t.spielklasse,
+            SELECT DISTINCT ON (LOWER(t.mannschaftsname), t.division_id)
+                   t.id, t.nummer, t.mannschaftsname, t.mannschaftsart, t.spielklasse,
                    t.division_id, t.coach, t.training_times, t.training_location,
                    d.name as division_name, d.icon as division_icon, d.sort_order as division_sort
             FROM teams t
             LEFT JOIN divisions d ON d.id = t.division_id
             WHERE t.is_active = TRUE
-            ORDER BY d.sort_order, t.sort_order, t.id
+            ORDER BY LOWER(t.mannschaftsname), t.division_id, t.id
             """
         )
-        return [dict(r) for r in rows]
+        # Re-sort by division/team sort_order after DISTINCT ON
+        result = [dict(r) for r in rows]
+        result.sort(key=lambda t: (t.get("division_sort") or 0, t.get("sort_order") or 0, t.get("id") or 0))
+        return result
 
 
 async def get_member_divisions(member_id: int) -> list[dict]:
@@ -326,6 +331,7 @@ async def get_member_teams(member_id: int) -> list[dict]:
         rows = await conn.fetch(
             """
             SELECT mt.id as assignment_id, mt.role, mt.position, mt.jersey_number, mt.status, mt.joined_at,
+                   mt.spielrecht_ab, mt.dfb_registered_at,
                    t.id as team_id, t.mannschaftsname, t.mannschaftsart, t.spielklasse, t.coach,
                    d.name as division_name, d.icon as division_icon
             FROM member_teams mt

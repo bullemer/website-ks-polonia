@@ -180,7 +180,7 @@
                 <div class="links">
                     <a href="#" id="forgotLink">Passwort vergessen?</a>
                     <div class="divider">oder</div>
-                    <a href="/mitgliedsantrag/" class="signup-link">Mitglied werden →</a>
+                    <a href="#" id="activateLink" class="signup-link">🔑 Konto aktivieren</a>
                 </div>
             </div>
 
@@ -198,6 +198,58 @@
                     <button type="submit" class="submit-btn" id="forgotBtn">Link senden</button>
                 </form>
             </div>
+
+            <!-- Konto Aktivieren (2 steps) -->
+            <div id="activateSection" class="forgot-section">
+                <a href="#" class="back-link" id="backToLogin2">← Zurück zur Anmeldung</a>
+
+                <!-- Step 1: Identify yourself -->
+                <div id="activateStep1">
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Du bist bereits Vereinsmitglied? Gib deinen <strong>Nachnamen</strong> und dein <strong>Geburtsdatum</strong> ein, um dein Konto zu aktivieren.
+                    </p>
+                    <form id="activateLookupForm">
+                        <div class="field">
+                            <label for="actNachname">Nachname</label>
+                            <input type="text" id="actNachname" required placeholder="Mustermann" autocomplete="family-name">
+                        </div>
+                        <div class="field">
+                            <label for="actGeburtsdatum">Geburtsdatum</label>
+                            <input type="date" id="actGeburtsdatum" required autocomplete="bday">
+                        </div>
+                        <button type="submit" class="submit-btn" id="actLookupBtn">Weiter</button>
+                    </form>
+                </div>
+
+                <!-- Step 2: Enter email + phone + password -->
+                <div id="activateStep2" style="display:none">
+                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1rem;margin-bottom:1.25rem;">
+                        <span style="font-size:1.1rem">✅</span>
+                        <strong id="actGreeting"></strong>
+                        <p style="font-size:0.82rem;color:var(--text-muted);margin-top:0.25rem">Mitglied gefunden. Bitte gib jetzt deine Kontaktdaten ein.</p>
+                    </div>
+                    <form id="activateRegForm">
+                        <div class="field">
+                            <label for="actEmail">E-Mail-Adresse *</label>
+                            <input type="email" id="actEmail" required placeholder="deine@email.de" autocomplete="email" inputmode="email">
+                        </div>
+                        <div class="field">
+                            <label for="actTelefon">Handynummer</label>
+                            <input type="tel" id="actTelefon" placeholder="0151 12345678" autocomplete="tel" inputmode="tel">
+                        </div>
+                        <div class="field">
+                            <label for="actPassword">Passwort *</label>
+                            <input type="password" id="actPassword" required placeholder="Mindestens 8 Zeichen" autocomplete="new-password" minlength="8">
+                        </div>
+                        <div class="field">
+                            <label for="actPassword2">Passwort bestätigen *</label>
+                            <input type="password" id="actPassword2" required placeholder="Passwort wiederholen" autocomplete="new-password">
+                        </div>
+                        <input type="hidden" id="actToken" name="token">
+                        <button type="submit" class="submit-btn" id="actRegBtn">Konto aktivieren</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -208,11 +260,27 @@
     <script>
         const loginSection = document.getElementById('loginSection');
         const forgotSection = document.getElementById('forgotSection');
+        const activateSection = document.getElementById('activateSection');
         const alertEl = document.getElementById('alert');
+
+        function hideAllSections() {
+            loginSection.style.display = 'none';
+            forgotSection.classList.remove('active');
+            activateSection.classList.remove('active');
+            alertEl.style.display = 'none';
+        }
+        function showLogin() {
+            hideAllSections();
+            loginSection.style.display = 'block';
+        }
 
         // Check for verified param
         if (new URLSearchParams(window.location.search).get('verified') === '1') {
             showAlert('E-Mail bestätigt! Sie können sich jetzt anmelden.', 'success');
+        }
+        // Check for activated param
+        if (new URLSearchParams(window.location.search).get('activated') === '1') {
+            showAlert('Konto aktiviert! Sie können sich jetzt anmelden.', 'success');
         }
 
         // Login
@@ -246,15 +314,101 @@
         // Forgot password toggle
         document.getElementById('forgotLink').addEventListener('click', (e) => {
             e.preventDefault();
-            loginSection.style.display = 'none';
+            hideAllSections();
             forgotSection.classList.add('active');
             const emailVal = document.getElementById('email').value;
             if (emailVal) document.getElementById('forgotEmail').value = emailVal;
         });
         document.getElementById('backToLogin').addEventListener('click', (e) => {
+            e.preventDefault(); showLogin();
+        });
+
+        // Activate toggle
+        document.getElementById('activateLink').addEventListener('click', (e) => {
             e.preventDefault();
-            forgotSection.classList.remove('active');
-            loginSection.style.display = 'block';
+            hideAllSections();
+            activateSection.classList.add('active');
+            document.getElementById('activateStep1').style.display = 'block';
+            document.getElementById('activateStep2').style.display = 'none';
+        });
+        document.getElementById('backToLogin2').addEventListener('click', (e) => {
+            e.preventDefault(); showLogin();
+        });
+
+        // Activate Step 1: Lookup by Nachname + Geburtsdatum
+        document.getElementById('activateLookupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('actLookupBtn');
+            btn.disabled = true; btn.textContent = 'Suche...';
+            alertEl.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/activate-lookup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        nachname: document.getElementById('actNachname').value.trim(),
+                        geburtsdatum: document.getElementById('actGeburtsdatum').value,
+                    }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    document.getElementById('actGreeting').textContent =
+                        `Hallo ${data.vorname}!`;
+                    document.getElementById('actToken').value = data.activate_token;
+                    document.getElementById('activateStep1').style.display = 'none';
+                    document.getElementById('activateStep2').style.display = 'block';
+                } else {
+                    showAlert(data.detail || 'Mitglied nicht gefunden.', 'error');
+                }
+            } catch (err) {
+                showAlert('Verbindungsfehler', 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Weiter';
+            }
+        });
+
+        // Activate Step 2: Register email + password
+        document.getElementById('activateRegForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('actRegBtn');
+            const pw = document.getElementById('actPassword').value;
+            const pw2 = document.getElementById('actPassword2').value;
+
+            if (pw.length < 8) {
+                showAlert('Passwort muss mindestens 8 Zeichen lang sein.', 'error');
+                return;
+            }
+            if (pw !== pw2) {
+                showAlert('Passwörter stimmen nicht überein.', 'error');
+                return;
+            }
+
+            btn.disabled = true; btn.textContent = 'Wird gespeichert...';
+            alertEl.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/activate-complete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        activate_token: document.getElementById('actToken').value,
+                        email: document.getElementById('actEmail').value.trim(),
+                        telefon: document.getElementById('actTelefon').value.trim() || null,
+                        password: pw,
+                    }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    window.location.href = '/api/portal/login?activated=1';
+                } else {
+                    showAlert(data.detail || 'Fehler beim Aktivieren.', 'error');
+                }
+            } catch (err) {
+                showAlert('Verbindungsfehler', 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Konto aktivieren';
+            }
         });
 
         // Forgot password submit

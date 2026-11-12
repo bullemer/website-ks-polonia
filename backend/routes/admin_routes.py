@@ -444,7 +444,7 @@ async def admin_review_application(request: Request, app_id: int, data: Applicat
             f"Bitte ändern Sie Ihr Passwort nach der ersten Anmeldung.\n\n"
             f"Sportliche Grüße,\nKS Polonia Hamburg e.V."
         )
-        send_email(subject="Willkommen beim KS Polonia! – Zugangsdaten", text_body=body)
+        send_email(subject="Willkommen beim KS Polonia! – Zugangsdaten", text_body=body, to_email=result["email"])
         return JSONResponse({"success": True, "message": f"Genehmigt. E-Mail an {result['email']} gesendet."})
     elif data.status == "rejected":
         ok = await member_service.reject_application(app_id, admin["email"], data.admin_notes or "")

@@ -137,8 +137,7 @@ async def forgot_password(req: ForgotPasswordRequest):
     send_email(
         subject="KS Polonia – Passwort zurücksetzen",
         text_body=body,
-        reply_to_email=member["email"],
-        reply_to_name=f"{member['vorname']} {member['nachname']}",
+        to_email=member["email"],
     )
 
     return JSONResponse({"success": True, "message": "Falls ein Konto existiert, wurde eine E-Mail versendet."})

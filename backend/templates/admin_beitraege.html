@@ -143,7 +143,10 @@
                     {% set covering = member.month_covering_payments[mkey] %}
                     {% set is_covered = m in member.covered_months %}
                     <td class="month-cell {% if is_covered %}month-paid{% elif m > current_month and year == current_year %}month-future{% else %}month-unpaid{% endif %}"
-                        onclick="openPaymentModal({{ member.id }}, '{{ member.vorname }}', '{{ member.nachname }}', '{{ mkey }}', {{ year }}, {{ covering | tojson }}, {{ member.monthly_fee }})"
+                        data-mid="{{ member.id }}" data-vn="{{ member.vorname }}" data-nn="{{ member.nachname }}"
+                        data-month="{{ mkey }}" data-year="{{ year }}" data-fee="{{ member.monthly_fee }}"
+                        data-payments='{{ covering | tojson }}'
+                        onclick="cellClick(this)"
                         title="{{ member.vorname }} {{ member.nachname }} – {{ month_names[m-1] }} {{ year }}">
                         {% if is_covered %}
                             ✅
@@ -217,6 +220,20 @@ const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','Aug
 // Expose current_month from server for JS
 const CURRENT_MONTH = {{ current_month }};
 const CURRENT_YEAR = {{ current_year }};
+
+function cellClick(el) {
+    var payments = [];
+    try { payments = JSON.parse(el.getAttribute('data-payments') || '[]'); } catch(e) {}
+    openPaymentModal(
+        parseInt(el.dataset.mid),
+        el.dataset.vn,
+        el.dataset.nn,
+        el.dataset.month,
+        parseInt(el.dataset.year),
+        payments,
+        parseFloat(el.dataset.fee) || 15.0
+    );
+}
 
 function openPaymentModal(memberId, vorname, nachname, month, year, existingPayments, monthlyFee) {
     document.getElementById('modalMemberName').textContent = vorname + ' ' + nachname;

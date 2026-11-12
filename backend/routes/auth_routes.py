@@ -2,8 +2,10 @@
 KS Polonia – Auth routes.
 Login, logout, password reset, email verification.
 """
+import os
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 
 from auth import (
     verify_password, hash_password, create_access_token,
@@ -15,6 +17,9 @@ from mailer import send_email
 from config import SITE_URL
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "..", "templates"))
 
 
 @router.post("/login")
@@ -137,6 +142,33 @@ async def forgot_password(req: ForgotPasswordRequest):
     )
 
     return JSONResponse({"success": True, "message": "Falls ein Konto existiert, wurde eine E-Mail versendet."})
+
+
+@router.get("/reset-form")
+async def reset_form(request: Request, token: str = ""):
+    """Render the password-reset form. Validates the token first."""
+    error = None
+    if not token:
+        error = "Kein Token angegeben. Bitte fordern Sie einen neuen Link an."
+    else:
+        from database import get_pool
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            member = await conn.fetchrow(
+                """
+                SELECT id FROM members
+                WHERE password_reset_token = $1
+                  AND password_reset_expires > NOW()
+                """,
+                token,
+            )
+            if not member:
+                error = "Dieser Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an."
+
+    return templates.TemplateResponse(request, "reset_password.html", {
+        "token": token,
+        "error": error,
+    })
 
 
 @router.post("/reset-password")

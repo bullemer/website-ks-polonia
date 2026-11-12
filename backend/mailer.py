@@ -1,16 +1,17 @@
 import smtplib
 import os
+import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
-# Hardcoded server configs (as previously found in PHPMailer scripts)
-SMTP_HOST = "mail.your-server.de"
-SMTP_PORT = 587
-SMTP_USER = "info@ks-polonia.de"
-SMTP_PASSWORD = "C4XOidAid08XX7U6"
-TARGET_EMAIL = "info@ks-polonia.de"
-FROM_EMAIL = "info@ks-polonia.de"
+from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, TARGET_EMAIL, FROM_EMAIL
+
+
+def _sanitize_header_value(value: str) -> str:
+    """Strip newlines and special characters that could enable header injection."""
+    return re.sub(r'[\r\n\x00-\x1f]+', ' ', value).strip()
+
 
 def send_email(subject: str, text_body: str, reply_to_email: str = None, reply_to_name: str = None, attachments: list = None, to_email: str = None):
     """
@@ -30,7 +31,7 @@ def send_email(subject: str, text_body: str, reply_to_email: str = None, reply_t
     msg['To'] = recipient
     
     if reply_to_email:
-        name = reply_to_name if reply_to_name else reply_to_email
+        name = _sanitize_header_value(reply_to_name) if reply_to_name else reply_to_email
         msg['Reply-To'] = f"{name} <{reply_to_email}>"
 
     # Process Attachments
@@ -52,4 +53,3 @@ def send_email(subject: str, text_body: str, reply_to_email: str = None, reply_t
         return True, None
     except Exception as e:
         return False, str(e)
-

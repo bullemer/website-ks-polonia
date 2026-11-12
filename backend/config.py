@@ -11,10 +11,9 @@ _SECRET_FILE = Path(os.getenv("KS_POLONIA_SECRET_FILE", "/usr/home/trusteei/.con
 _private = json.loads(_SECRET_FILE.read_text()) if _SECRET_FILE.exists() else {}
 
 # --- Database ---
-DATABASE_URL = _private.get("DATABASE_URL") or os.getenv(
-    "DATABASE_URL",
-    "postgresql://trusteei_0:k6%25KkhF%3B%29FY4@kwnz.your-database.de:5432/kspolonia",
-)
+DATABASE_URL = _private.get("DATABASE_URL") or os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("Set DATABASE_URL")
 
 # --- JWT Auth ---
 JWT_SECRET = os.getenv("JWT_SECRET") or _private.get("JWT_SECRET")
@@ -28,7 +27,9 @@ JWT_EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "24"))
 SMTP_HOST = os.getenv("SMTP_HOST", "mail.your-server.de")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "info@ks-polonia.de")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "C4XOidAid08XX7U6")
+SMTP_PASSWORD = _private.get("SMTP_PASSWORD") or os.getenv("SMTP_PASSWORD")
+if not SMTP_PASSWORD:
+    raise RuntimeError("Set SMTP_PASSWORD")
 TARGET_EMAIL = os.getenv("TARGET_EMAIL", "info@ks-polonia.de")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "info@ks-polonia.de")
 
@@ -39,10 +40,16 @@ UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/usr/home/trusteei/kspolonia_uploads")
 SITE_URL = os.getenv("SITE_URL", "https://www.ks-polonia.de")
 API_VERSION = "2.0.0"
 
+# --- Dev mode ---
+KS_DEV = os.getenv("KS_DEV", "") == "1"
+
 # --- CORS ---
 CORS_ORIGINS = [
     "https://ks-polonia.de",
     "https://www.ks-polonia.de",
-    "http://localhost:4321",
-    "http://127.0.0.1:4321",
 ]
+if KS_DEV:
+    CORS_ORIGINS.extend([
+        "http://localhost:4321",
+        "http://127.0.0.1:4321",
+    ])

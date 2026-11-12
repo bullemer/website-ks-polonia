@@ -8,6 +8,7 @@ FastAPI application serving:
 
 v2.0 – Membership Management System
 """
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException, Form
 from fastapi.responses import JSONResponse, HTMLResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,12 +18,14 @@ import os
 import datetime
 import secrets
 import traceback
+import random
 import asyncpg
+from jose import jwt as jose_jwt, JWTError
 from fastapi.templating import Jinja2Templates
 
 from config import (
     DATABASE_URL, API_VERSION, UPLOAD_DIR,
-    CORS_ORIGINS,
+    CORS_ORIGINS, JWT_SECRET, JWT_ALGORITHM, KS_DEV,
 )
 from database import get_pool, close_pool
 from auth import require_superadmin
@@ -41,7 +44,27 @@ from routes.team_routes import router as team_router
 #  APP SETUP
 # ═══════════════════════════════════════
 
-app = FastAPI(title="KS Polonia API", version=API_VERSION)
+GENERIC_ERROR_MSG = "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+
+ALLOWED_UPLOAD_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".webp"}
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize and tear down resources."""
+    await get_pool()
+    yield
+    await close_pool()
+
+
+app = FastAPI(
+    title="KS Polonia API",
+    version=API_VERSION,
+    docs_url="/docs" if KS_DEV else None,
+    redoc_url="/redoc" if KS_DEV else None,
+    lifespan=lifespan,
+)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
@@ -63,16 +86,38 @@ app.include_router(portal_router)
 app.include_router(ticket_router)
 app.include_router(team_router)
 
-# --- Lifecycle ---
-@app.on_event("startup")
-async def startup():
-    """Initialize connection pool on startup."""
-    await get_pool()
 
-@app.on_event("shutdown")
-async def shutdown():
-    """Close connection pool on shutdown."""
-    await close_pool()
+# ═══════════════════════════════════════
+#  CAPTCHA TOKEN HELPERS
+# ═══════════════════════════════════════
+
+def _create_captcha_token(answer: int) -> str:
+    """Create a signed JWT containing the expected captcha answer and an expiry (5 min)."""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    payload = {
+        "captcha_answer": answer,
+        "exp": now + datetime.timedelta(minutes=5),
+    }
+    return jose_jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def _verify_captcha_token(token: str, user_answer: int) -> bool:
+    """Verify a signed captcha token and compare with the user-supplied answer."""
+    try:
+        payload = jose_jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return int(payload["captcha_answer"]) == user_answer
+    except (JWTError, KeyError, ValueError, TypeError):
+        return False
+
+
+@app.get("/captcha-token")
+async def get_captcha_token():
+    """Generate a random math captcha and return the question + signed token."""
+    a = random.randint(1, 20)
+    b = random.randint(1, 20)
+    answer = a + b
+    token = _create_captcha_token(answer)
+    return JSONResponse({"question": f"{a} + {b} = ?", "token": token})
 
 
 # ═══════════════════════════════════════
@@ -86,7 +131,7 @@ class ContactForm(BaseModel):
     message: str
     website_url: Optional[str] = ""  # Honeypot
     captcha_answer: Optional[str] = None
-    captcha_expected: Optional[str] = None
+    captcha_token: Optional[str] = None
     sportart: Optional[str] = None
     age: Optional[str] = None
 
@@ -114,8 +159,9 @@ async def wall_get_spots():
             )
         spots = [dict(r) for r in rows]
         return JSONResponse({"spots": spots})
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    except Exception:
+        traceback.print_exc()
+        return JSONResponse({"error": GENERIC_ERROR_MSG}, status_code=500)
 
 
 @app.get("/wall/stats")
@@ -149,8 +195,9 @@ async def wall_get_stats():
             "percent": round((taken / total * 100) if total > 0 else 0, 1),
             "by_category": stats,
         })
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    except Exception:
+        traceback.print_exc()
+        return JSONResponse({"error": GENERIC_ERROR_MSG}, status_code=500)
 
 
 @app.post("/wall/reserve")
@@ -197,8 +244,9 @@ async def wall_reserve_spot(req: ReserveSpotRequest):
             "message": "Platz erfolgreich reserviert! Wir melden uns in Kürze.",
             "payment_url": f"/wall-of-honor?txn={txn_id}",
         })
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    except Exception:
+        traceback.print_exc()
+        return JSONResponse({"error": GENERIC_ERROR_MSG}, status_code=500)
 
 
 # ═══════════════════════════════════════
@@ -239,9 +287,11 @@ async def handle_contact(request: Request):
     if form.website_url and form.website_url.strip() != "":
         return respond({"success": True, "message": "Ihre Nachricht wurde erfolgreich gesendet!"})
 
-    if form.captcha_answer is not None and form.captcha_expected is not None:
+    # Captcha verification via signed server-side token
+    if form.captcha_answer is not None and form.captcha_token is not None:
         try:
-            if int(form.captcha_answer.strip()) != int(form.captcha_expected.strip()):
+            user_answer = int(form.captcha_answer.strip())
+            if not _verify_captcha_token(form.captcha_token, user_answer):
                 return respond({"success": False, "error": "Die Sicherheitsfrage wurde falsch beantwortet."}, 400)
         except ValueError:
             return respond({"success": False, "error": "Bitte geben Sie eine gültige Zahl als Antwort ein."}, 400)
@@ -291,6 +341,31 @@ async def handle_contact(request: Request):
 #  Now inserts into DB + sends email
 # ═══════════════════════════════════════
 
+async def _read_upload_safe(upload_file) -> bytes:
+    """Read an upload file in chunks, enforcing MAX_UPLOAD_BYTES limit."""
+    chunks = []
+    total = 0
+    while True:
+        chunk = await upload_file.read(8192)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > MAX_UPLOAD_BYTES:
+            raise ValueError("Datei zu groß (max. 10 MB)")
+        chunks.append(chunk)
+    return b"".join(chunks)
+
+
+def _validate_upload_extension(filename: str) -> str:
+    """Validate and return the file extension. Raises ValueError for invalid types."""
+    ext = os.path.splitext(filename)[1].lower() or ""
+    if ext not in ALLOWED_UPLOAD_EXTENSIONS:
+        raise ValueError(
+            f"Ungültiger Dateityp '{ext}'. Erlaubt: {', '.join(sorted(ALLOWED_UPLOAD_EXTENSIONS))}"
+        )
+    return ext
+
+
 @app.post("/mitgliedsantrag")
 async def handle_membership(request: Request):
     form = await request.form()
@@ -318,19 +393,33 @@ async def handle_membership(request: Request):
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
     if id_front and hasattr(id_front, "filename") and id_front.filename:
-        ext = os.path.splitext(id_front.filename)[1].lower() or ".bin"
+        try:
+            ext = _validate_upload_extension(id_front.filename)
+        except ValueError as ve:
+            return JSONResponse({"success": False, "error": str(ve)}, status_code=400)
         front_filename = f"{nachname}_{vorname}_Front_{timestamp}{ext}"
         front_path = os.path.join(UPLOAD_DIR, front_filename)
+        try:
+            content = await _read_upload_safe(id_front)
+        except ValueError as ve:
+            return JSONResponse({"success": False, "error": str(ve)}, status_code=400)
         with open(front_path, "wb") as f:
-            f.write(await id_front.read())
+            f.write(content)
         attachments.append(front_path)
 
     if id_back and hasattr(id_back, "filename") and id_back.filename:
-        ext = os.path.splitext(id_back.filename)[1].lower() or ".bin"
+        try:
+            ext = _validate_upload_extension(id_back.filename)
+        except ValueError as ve:
+            return JSONResponse({"success": False, "error": str(ve)}, status_code=400)
         back_filename = f"{nachname}_{vorname}_Back_{timestamp}{ext}"
         back_path = os.path.join(UPLOAD_DIR, back_filename)
+        try:
+            content = await _read_upload_safe(id_back)
+        except ValueError as ve:
+            return JSONResponse({"success": False, "error": str(ve)}, status_code=400)
         with open(back_path, "wb") as f:
-            f.write(await id_back.read())
+            f.write(content)
         attachments.append(back_path)
 
     # --- Insert into database ---
@@ -354,10 +443,12 @@ async def handle_membership(request: Request):
             id_back_path=back_path,
         )
         member_nr = result["mitgliedsnummer"]
-    except Exception as e:
-        # If DB insert fails (e.g., duplicate email), still send email
-        member_nr = "DB-FEHLER"
+    except Exception:
         traceback.print_exc()
+        return JSONResponse(
+            {"success": False, "error": "Datenbankfehler beim Anlegen des Mitgliedsantrags. Bitte versuchen Sie es später erneut."},
+            status_code=500,
+        )
 
     # --- Send notification email (keep existing behavior) ---
     email_subject = f"Neuer Mitgliedsantrag online: {vorname} {nachname}"
@@ -414,7 +505,7 @@ async def handle_membership(request: Request):
     )
     if success:
         return JSONResponse({"success": True, "message": "Vielen Dank! Ihr Antrag wurde erfolgreich übermittelt."})
-    return JSONResponse({"success": False, "error": "Fehler: " + str(error_msg)}, status_code=500)
+    return JSONResponse({"success": False, "error": "Fehler beim E-Mail-Versand. Bitte versuchen Sie es später erneut."}, status_code=500)
 
 
 # ═══════════════════════════════════════

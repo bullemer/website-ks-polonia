@@ -105,26 +105,29 @@ def require_superadmin(request: Request) -> dict:
 
 async def require_team_admin(request: Request, team_id: int) -> dict:
     """
-    Enforces that user is either superadmin or assigned as admin/trainer for the given team.
+    Enforces that user is either superadmin/admin or assigned as trainer/manager
+    for the given team.
     Raises HTTPException 403 if neither.
     """
     member = get_current_member(request)
-    if member.get("role") == "superadmin":
+
+    # System-level superadmin/admin can manage any team
+    if member.get("role") in ("superadmin", "admin"):
         return member
 
-    if member.get("role") == "admin":
-        from database import get_pool
-        pool = await get_pool()
-        async with pool.acquire() as conn:
-            is_assigned = await conn.fetchval(
-                """
-                SELECT 1 FROM member_teams
-                WHERE member_id = $1 AND team_id = $2 AND status = 'active'
-                """,
-                member["member_id"], team_id,
-            )
-            if is_assigned:
-                return member
+    # Check team-level role: trainer or manager in this specific team
+    from database import get_pool
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        team_rolle = await conn.fetchval(
+            """
+            SELECT rolle FROM member_teams
+            WHERE member_id = $1 AND team_id = $2 AND status = 'active'
+            """,
+            member["member_id"], team_id,
+        )
+        if team_rolle and team_rolle in ('trainer', 'manager'):
+            return member
 
     raise HTTPException(status_code=403, detail="Keine Administrator-Berechtigung für dieses Team")
 

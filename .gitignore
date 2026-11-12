@@ -32,3 +32,6 @@ __pycache__/
 
 # jetbrains setting folder
 .idea/
+
+# sensitive credentials
+public/api/.htpasswd

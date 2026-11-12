@@ -1,5 +1,7 @@
 ---
 
+import { version as pkgVersion } from '../../package.json';
+
 interface Props {
     title: string;
     description?: string;
@@ -126,13 +128,24 @@ const breadcrumbSchema = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-    <!-- Google Analytics (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-66XQ9QNKSN"></script>
+    <!-- Google Analytics (gtag.js) — loaded only with cookie consent -->
     <script is:inline>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-66XQ9QNKSN');
+        (function() {
+            function getCookie(name) {
+                var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                return match ? match[2] : null;
+            }
+            if (getCookie('cookie_consent') === 'accepted') {
+                var s = document.createElement('script');
+                s.async = true;
+                s.src = 'https://www.googletagmanager.com/gtag/js?id=G-66XQ9QNKSN';
+                document.head.appendChild(s);
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-66XQ9QNKSN');
+            }
+        })();
     </script>
 </head>
 <body>
@@ -321,7 +334,7 @@ const breadcrumbSchema = {
                     <div class="system-status" id="system-status">
                         <span class="status-indicator"></span>
                         <a href="/status" class="status-link">
-                            <span id="sys-version-web">Web: v1.0.0</span> | 
+                            <span id="sys-version-web">Web: v{pkgVersion}</span> | 
                             <span id="sys-version-api">API: prüfen...</span>
                         </a>
                     </div>
@@ -404,6 +417,51 @@ const breadcrumbSchema = {
       setTimeout(checkSystemHealth, 500);
     </script>
     
+    <!-- Cookie Consent Banner -->
+    <div id="cookieConsent" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:#1a1a2e; color:#e2e8f0; padding:1rem 1.5rem; font-size:0.9rem; box-shadow:0 -2px 12px rgba(0,0,0,0.3);">
+        <div style="max-width:1140px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+            <p style="margin:0; flex:1; min-width:200px;">Diese Website verwendet Cookies für Google Analytics, um die Nutzung zu analysieren. <a href="/seiten/datenschutz" style="color:#ff6b81; text-decoration:underline;">Datenschutzerklärung</a></p>
+            <div style="display:flex; gap:0.5rem; flex-shrink:0;">
+                <button id="cookieAccept" style="padding:0.5rem 1.25rem; background:#DC143C; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer; font-size:0.85rem;">Akzeptieren</button>
+                <button id="cookieReject" style="padding:0.5rem 1.25rem; background:transparent; color:#94a3b8; border:1px solid #475569; border-radius:6px; font-weight:600; cursor:pointer; font-size:0.85rem;">Ablehnen</button>
+            </div>
+        </div>
+    </div>
+    <script is:inline>
+        (function() {
+            function getCookie(name) {
+                var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                return match ? match[2] : null;
+            }
+            function setCookie(name, value, days) {
+                var d = new Date();
+                d.setTime(d.getTime() + days * 86400000);
+                document.cookie = name + '=' + value + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
+            }
+            var consent = getCookie('cookie_consent');
+            if (!consent) {
+                document.getElementById('cookieConsent').style.display = 'block';
+            }
+            document.getElementById('cookieAccept')?.addEventListener('click', function() {
+                setCookie('cookie_consent', 'accepted', 365);
+                document.getElementById('cookieConsent').style.display = 'none';
+                // Load GA now
+                var s = document.createElement('script');
+                s.async = true;
+                s.src = 'https://www.googletagmanager.com/gtag/js?id=G-66XQ9QNKSN';
+                document.head.appendChild(s);
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-66XQ9QNKSN');
+            });
+            document.getElementById('cookieReject')?.addEventListener('click', function() {
+                setCookie('cookie_consent', 'rejected', 365);
+                document.getElementById('cookieConsent').style.display = 'none';
+            });
+        })();
+    </script>
+
     <!-- Google Translate Script (Lazy Loaded for Performance) -->
     <script type="text/javascript">
       function googleTranslateElementInit() {
@@ -415,13 +473,11 @@ const breadcrumbSchema = {
       }
       setTimeout(() => {
           const script = document.createElement('script');
-          script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+          script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
           script.async = true;
           document.body.appendChild(script);
       }, 3500);
     </script>
-</body>
-</html>
 
 <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -996,3 +1052,5 @@ const breadcrumbSchema = {
         .footer-links { flex-wrap: wrap; justify-content: center; }
     }
 </style>
+</body>
+</html>

@@ -55,11 +55,7 @@
   
   # New additions from GSC analysis
   RewriteRule ^impressum/?$ /seiten/impressum-2 [R=301,L]
-  RewriteRule ^seiten/impressum/?$ /seiten/impressum-2 [R=301,L]
-  RewriteRule ^seiten/galerie/?$ /galerie [R=301,L]
-  RewriteRule ^seiten/kontaktformular/?$ /kontakt [R=301,L]
   RewriteRule ^kontaktformular/?$ /kontakt [R=301,L]
-  RewriteRule ^seiten/home/?$ / [R=301,L]
   RewriteRule ^home/?$ / [R=301,L]
   RewriteRule ^probetraining/?$ /seiten/probetraining [R=301,L]
   RewriteRule ^spendenkonto/?$ /seiten/spendenkonto [R=301,L]

@@ -2,8 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 const teams = (await getCollection('teams'))
-    .filter(team => (team.data.title || team.data.teamName || '').toLowerCase().includes('polonia'))
-    .sort((a, b) => (a.data.title || a.data.teamName || '').localeCompare(b.data.title || b.data.teamName || '', 'de'));
+    .filter(team => (team.data.title || '').toLowerCase().includes('polonia'))
+    .sort((a, b) => (a.data.title || '').localeCompare(b.data.title || '', 'de'));
 const seen = new Set();
 const uniqueTeams = teams.filter(team => {
     const key = team.data.externalUrl || team.id;
@@ -19,7 +19,7 @@ const uniqueTeams = teams.filter(team => {
         <p class="quick-links"><a href="/trainingszeiten">Trainingszeiten</a> · <a href="/spieltermine">Spieltermine</a> · <a href="/seiten/probetraining">Probetraining anfragen</a></p>
         <h2>Unsere Mannschaften</h2>
         <ul class="team-grid">
-            {uniqueTeams.map(team => <li><a href={`/football/${team.id}`}>{team.data.title || team.data.teamName}</a></li>)}
+            {uniqueTeams.map(team => <li><a href={`/football/${team.id}`}>{team.data.title}</a></li>)}
         </ul>
     </section>
 </Layout>

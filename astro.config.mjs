@@ -53,20 +53,10 @@ const SITEMAP_EXCLUDE_PATTERNS = [
 export default defineConfig({
     site: 'https://www.ks-polonia.de',
     trailingSlash: 'never',
-    redirects: {
-        '/seiten/basketball-jugend-u10': '/seiten/basketball-jugend-u12',
-        '/seiten/galerie': '/galerie',
-        '/seiten/kontaktformular': '/kontakt',
-        '/seiten/impressum': '/seiten/impressum-2',
-        '/seiten/home': '/',
-        '/seiten/mitglied-werden': '/mitgliedsantrag',
-    },
     integrations: [
         react(),
         markdoc(),
         sitemap({
-            changefreq: 'weekly',
-            lastmod: new Date(),
             filter: (page) => {
                 const cleanUrl = page.replace(/\/+$/, '');
                 return !SITEMAP_EXCLUDE_PATTERNS.some(pattern => {
@@ -80,32 +70,32 @@ export default defineConfig({
                 const url = item.url;
                 // Homepage gets highest priority
                 if (url === 'https://www.ks-polonia.de/' || url === 'https://www.ks-polonia.de') {
-                    return { ...item, priority: 1.0, changefreq: 'daily' };
+                    return { ...item, priority: 1.0 };
                 }
                 // Key action pages — high priority
                 if (url.includes('/trainingszeiten') || url.includes('/spieltermine') ||
                     url.includes('/mitgliedsantrag') || url.includes('/probetraining')) {
-                    return { ...item, priority: 0.9, changefreq: 'weekly' };
+                    return { ...item, priority: 0.9 };
                 }
                 // Sport-specific landing pages
                 if (url.includes('/basketball-') || url.includes('/badminton')) {
-                    return { ...item, priority: 0.8, changefreq: 'weekly' };
+                    return { ...item, priority: 0.8 };
                 }
                 // News index
                 if (url.endsWith('/news/') || url.endsWith('/news')) {
-                    return { ...item, priority: 0.8, changefreq: 'daily' };
+                    return { ...item, priority: 0.8 };
                 }
                 // Individual news articles
                 if (url.includes('/news/')) {
-                    return { ...item, priority: 0.6, changefreq: 'monthly' };
+                    return { ...item, priority: 0.6 };
                 }
                 // Football team pages
                 if (url.includes('/football/')) {
-                    return { ...item, priority: 0.5, changefreq: 'weekly' };
+                    return { ...item, priority: 0.5 };
                 }
                 // Paginated list pages (aktuelles/2, /3, etc.)
                 if (/\/seiten\/aktuelles\/\d+/.test(url)) {
-                    return { ...item, priority: 0.3, changefreq: 'weekly' };
+                    return { ...item, priority: 0.3 };
                 }
                 // Everything else
                 return { ...item, priority: 0.7 };

@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Seite nicht gefunden" description="Die gesuchte Seite existiert leider nicht.">
+    <div class="not-found">
+        <h1>404</h1>
+        <p class="message">Seite nicht gefunden</p>
+        <p class="detail">Die gesuchte Seite existiert leider nicht.</p>
+        <a href="/" class="home-link">← Zurück zur Startseite</a>
+    </div>
+</Layout>
+
+<style>
+    .not-found {
+        text-align: center;
+        padding: 4rem 1rem;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .not-found h1 {
+        font-size: 6rem;
+        font-weight: 800;
+        color: var(--color-primary, #DC143C);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    .message {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-text, #1a1a2e);
+        margin-bottom: 0.75rem;
+    }
+    .detail {
+        font-size: 1rem;
+        color: var(--color-text-muted, #6b7280);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    .home-link {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: var(--color-primary, #DC143C);
+        color: #fff;
+        font-weight: 600;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+    .home-link:hover {
+        background: var(--color-primary-dark, #a5102e);
+        color: #fff;
+    }
+</style>

@@ -119,7 +119,7 @@ import Layout from '../layouts/Layout.astro';
             <h2>4. Zahlungsart</h2>
             <div class="form-group full-width">
                 <label class="radio-label">
-                    <input type="radio" name="zahlungsart" value="Überweisung" checked readOnly /> <strong>Überweisung</strong>
+                    <input type="radio" name="zahlungsart" value="Überweisung" checked /> <strong>Überweisung</strong>
                 </label>
                 <div class="payment-info">
                     <p>Bitte überweisen Sie die fälligen Beiträge auf folgendes Konto:</p>
@@ -181,7 +181,7 @@ import Layout from '../layouts/Layout.astro';
 
         <button type="submit" class="submit-btn" id="submitBtn">Antrag absenden</button>
 
-        <div id="formStatus" class="form-status" style="display: none;"></div>
+        <div id="formStatus" role="status" aria-live="polite" class="form-status" style="display: none;"></div>
 
         <p class="form-note">
             * Pflichtfelder. Ihre Daten werden vertraulich behandelt und verschlüsselt übertragen. Mehr Informationen finden Sie in unserer <a href="/seiten/datenschutz">Datenschutzerklärung</a>.

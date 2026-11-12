@@ -53,6 +53,17 @@ export default config({
         ageGroup: fields.text({ label: 'Age Group' }),
         coach: fields.text({ label: 'Coach' }),
         trainingTimes: fields.text({ label: 'Training Times', multiline: true }),
+        widgetId: fields.text({ label: 'Fussball.de Widget ID' }),
+        gallery: fields.array(
+          fields.object({
+            src: fields.text({ label: 'Image Source', validation: { isRequired: true } }),
+            caption: fields.text({ label: 'Caption' }),
+          }),
+          {
+            label: 'Gallery',
+            itemLabel: (props) => props.fields.caption.value || props.fields.src.value || 'New Image',
+          }
+        ),
         roster: fields.array(
           fields.object({
             name: fields.text({ label: 'Name', validation: { isRequired: true } }),

@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 const { team } = Astro.props;
 const { Content } = await render(team);
 
-const teamName = team.data.title || team.data.teamName || 'KS Polonia Hamburg';
+const teamName = team.data.title || 'KS Polonia Hamburg';
 const pageUrl = `https://www.ks-polonia.de/football/${team.id}`;
 const teamSchema = {
     "@context": "https://schema.org",
@@ -26,7 +26,7 @@ const teamSchema = {
         "@type": "SportsOrganization",
         "name": "K.S. Polonia Hamburg e.V. 1988",
         "url": "https://www.ks-polonia.de",
-        "logo": "https://www.ks-polonia.de/images/logo.png"
+        "logo": "https://www.ks-polonia.de/logo.png"
     },
     ...(team.data.coach ? {
         "coach": {
@@ -52,19 +52,19 @@ const teamSchema = {
 ---
 
 <Layout 
-    title={`${team.data.title || team.data.teamName} | K.S. Polonia Hamburg`}
-    description={`${team.data.title || team.data.teamName} – Fußball ${team.data.spielklasse || ''} beim polnischen Sportverein KS Polonia Hamburg in Uhlenhorst. Spielplan, Ergebnisse und Kader.`}
+    title={`${team.data.title} | K.S. Polonia Hamburg`}
+    description={`${team.data.title} – Fußball ${team.data.spielklasse || ''} beim polnischen Sportverein KS Polonia Hamburg in Uhlenhorst. Spielplan, Ergebnisse und Kader.`}
     type="profile"
 >
     <script type="application/ld+json" set:html={JSON.stringify(teamSchema)} />
     <div class="team-page-header">
         {team.data.logoUrl && (
             <div class="team-logo">
-                <img src={team.data.logoUrl} alt={`${team.data.title || team.data.teamName} Logo`} />
+                <img src={team.data.logoUrl} alt={`${team.data.title} Logo`} />
             </div>
         )}
         <div class="team-header-content">
-            <h1>{team.data.title || team.data.teamName}</h1>
+            <h1>{team.data.title}</h1>
             <div class="team-meta-tags">
                 {team.data.sport && <span class="badge badge-primary">{team.data.sport}</span>}
                 {team.data.spielklasse && <span class="badge badge-secondary">{team.data.spielklasse}</span>}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KS Polonia Admin{% endblock %}</title>
+    <style>
+        :root { --primary: #DC143C; --primary-dark: #b91c1c; --bg: #0f1117; --surface: #1a1d27; --surface-hover: #22252f; --border: #2a2d3a; --text: #e4e4e7; --text-muted: #9ca3af; --success: #22c55e; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem 0; position: fixed; top: 0; bottom: 0; overflow-y: auto; }
+        .sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+        .sidebar-logo h2 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo span { font-size: 0.72rem; color: var(--text-muted); }
+        .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; border-left: 3px solid transparent; }
+        .nav-link:hover, .nav-link.active { background: var(--surface-hover); color: #fff; border-left-color: var(--primary); }
+        .nav-link .icon { font-size: 1.1rem; width: 24px; text-align: center; }
+        .main { margin-left: 260px; flex: 1; padding: 2rem; }
+
+        /* Mobile hamburger */
+        .hamburger {
+            display: none; position: fixed; top: 1rem; left: 1rem; z-index: 1100;
+            width: 44px; height: 44px; border-radius: 10px;
+            background: var(--surface); border: 1px solid var(--border);
+            cursor: pointer; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .hamburger svg { width: 22px; height: 22px; stroke: var(--text); stroke-width: 2; fill: none; stroke-linecap: round; }
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 1000; opacity: 0; transition: opacity 0.2s;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+        @media (max-width: 768px) {
+            .hamburger { display: flex; }
+            .sidebar {
+                transform: translateX(-100%); transition: transform 0.25s ease;
+                z-index: 1050; box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 1rem; padding-top: 4.5rem; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .team-header { flex-direction: column; align-items: flex-start; }
+            .team-header-meta { margin-left: 0; }
+        }
+
+        {% block extra_style %}{% endblock %}
+    </style>
+</head>
+<body>
+
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    {% block before_layout %}{% endblock %}
+
+    <div class="layout">
+        <nav class="sidebar">
+            {% block sidebar_logo %}
+            <div class="sidebar-logo"><h2>KS Polonia Admin</h2><span>Vereinsverwaltung</span></div>
+            {% endblock %}
+            {% block sidebar_nav %}
+            <a href="/api/admin/" class="nav-link{% if active_nav == 'dashboard' %} active{% endif %}"><span class="icon">📊</span> Dashboard</a>
+            <a href="/api/admin/members" class="nav-link{% if active_nav == 'members' %} active{% endif %}"><span class="icon">👥</span> Mitglieder</a>
+            <a href="/api/admin/applications" class="nav-link{% if active_nav == 'applications' %} active{% endif %}"><span class="icon">📋</span> Anträge</a>
+            <a href="/api/admin/divisions" class="nav-link{% if active_nav == 'divisions' %} active{% endif %}"><span class="icon">🏆</span> Abteilungen</a>
+            <a href="/api/tickets/admin" class="nav-link{% if active_nav == 'tickets' %} active{% endif %}"><span class="icon">🎫</span> Dauerkarten</a>
+            <a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
+            {% endblock %}
+        </nav>
+        <main class="main{% block main_class %}{% endblock %}">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% block extra_html %}{% endblock %}
+
+    {% block scripts %}{% endblock %}
+
+    <script>
+    (function(){
+        var btn = document.getElementById('hamburgerBtn');
+        var overlay = document.getElementById('sidebarOverlay');
+        var sidebar = document.querySelector('.sidebar');
+        if (!btn || !sidebar) return;
+        function toggle() { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); }
+        function close() { sidebar.classList.remove('open'); overlay.classList.remove('active'); }
+        btn.addEventListener('click', toggle);
+        overlay.addEventListener('click', close);
+        sidebar.querySelectorAll('.nav-link').forEach(function(a){ a.addEventListener('click', close); });
+    })();
+    </script>
+</body>
+</html>

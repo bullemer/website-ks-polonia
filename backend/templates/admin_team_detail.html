@@ -1,34 +1,10 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ team.mannschaftsname }} – Team Management – KS Polonia</title>
-    <style>
-        :root { 
-            --primary: #DC143C; 
-            --bg: #0f1117; 
-            --surface: #1a1d27; 
-            --surface-hover: #22252f; 
-            --border: #2a2d3a; 
-            --text: #e4e4e7; 
-            --text-muted: #9ca3af; 
-            --success: #22c55e; 
-            --warning: #f59e0b; 
-            --info: #3b82f6; 
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
-        .layout { display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem 0; position: fixed; top: 0; bottom: 0; }
-        .sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
-        .sidebar-logo h2 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .sidebar-logo span { font-size: 0.72rem; color: var(--text-muted); }
-        .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; border-left: 3px solid transparent; }
-        .nav-link:hover, .nav-link.active { background: var(--surface-hover); color: #fff; border-left-color: var(--primary); }
-        .nav-link .icon { font-size: 1.1rem; width: 24px; text-align: center; }
-        .main { margin-left: 260px; flex: 1; padding: 2rem; max-width: 1200px; }
+{% extends "admin_base.html" %}
 
+{% set active_nav = 'divisions' %}
+
+{% block title %}{{ team.mannschaftsname }} – Team Management – KS Polonia{% endblock %}
+
+{% block extra_style %}
         /* Breadcrumb */
         .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
         .breadcrumb a { color: var(--text-muted); text-decoration: none; }
@@ -50,7 +26,6 @@
         .tab-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 0.65rem 1.25rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
         .tab-btn:hover { background: var(--surface-hover); color: #fff; }
         .tab-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
@@ -97,48 +72,18 @@
         .alert { position: fixed; top: 1rem; right: 1rem; padding: 0.8rem 1.25rem; border-radius: 10px; font-size: 0.88rem; font-weight: 500; z-index: 999; display: none; }
         .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
         .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+{% endblock %}
 
+{% block main_class %} style="max-width: 1200px;"{% endblock %}
 
-        /* Mobile hamburger */
-        .hamburger {
-            display: none; position: fixed; top: 1rem; left: 1rem; z-index: 1100;
-            width: 44px; height: 44px; border-radius: 10px;
-            background: var(--surface); border: 1px solid var(--border);
-            cursor: pointer; align-items: center; justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        .hamburger svg { width: 22px; height: 22px; stroke: var(--text); stroke-width: 2; fill: none; stroke-linecap: round; }
-        .sidebar-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-            z-index: 1000; opacity: 0; transition: opacity 0.2s;
-        }
-        .sidebar-overlay.active { display: block; opacity: 1; }
-        @media (max-width: 768px) {
-            .hamburger { display: flex; }
-            .sidebar {
-                transform: translateX(-100%); transition: transform 0.25s ease;
-                z-index: 1050; box-shadow: 4px 0 24px rgba(0,0,0,0.4);
-            }
-            .sidebar.open { transform: translateX(0); }
-            .main { margin-left: 0; padding: 1rem; padding-top: 4.5rem; }
-            .detail-grid { grid-template-columns: 1fr; }
-            .team-header { flex-direction: column; align-items: flex-start; }
-            .team-header-meta { margin-left: 0; }
-        }
-    </style>
-</head>
-<body>
-
-    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
-        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <div class="layout">
-        <nav class="sidebar">
+{% block sidebar_logo %}
             <div class="sidebar-logo">
                 <h2>KS Polonia</h2>
                 <span>{% if is_superadmin %}👑 Superadmin{% else %}🛡️ Team-Admin{% endif %}</span>
             </div>
+{% endblock %}
+
+{% block sidebar_nav %}
             <a href="/api/admin/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
             {% if is_superadmin %}
             <a href="/api/admin/members" class="nav-link"><span class="icon">👥</span> Mitglieder</a>
@@ -150,9 +95,9 @@
             {% endif %}
             <a href="/api/portal" class="nav-link"><span class="icon">👤</span> Zum Portal</a>
             <a href="/api/auth/logout" class="nav-link" style="margin-top: auto;"><span class="icon">🚪</span> Abmelden</a>
-        </nav>
+{% endblock %}
 
-        <main class="main">
+{% block content %}
             <div class="breadcrumb">
                 {% if is_superadmin %}
                 <a href="/api/admin/divisions">Abteilungen</a>
@@ -238,7 +183,7 @@
                                 <td style="font-size: 0.8rem; color: var(--text-muted);">{{ m.telefon or m.email }}</td>
                                 <td style="font-size: 0.82rem; color: var(--text-muted);">{{ m.mitgliedsnummer or '—' }}</td>
                                 <td>
-                                    <button class="btn btn-danger btn-sm" onclick="removeMember({{ m.member_id }}, '{{ m.vorname }} {{ m.nachname }}')">Entfernen</button>
+                                    <button class="btn btn-danger btn-sm js-remove-member" data-member-id="{{ m.member_id }}" data-name="{{ m.vorname|e }} {{ m.nachname|e }}">Entfernen</button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -294,9 +239,7 @@
                 </div>
 
                 <div class="section">
-                    <div class="section-title">
-                        <span>💰 Neue Buchung erfassen</span>
-                    </div>
+                    <div class="section-title"><span>💰 Neue Buchung erfassen</span></div>
                     <form id="treasuryForm" class="form-bar" onsubmit="addTreasuryTx(event)">
                         <select id="txType" required>
                             <option value="income">🟢 Einnahme</option>
@@ -325,13 +268,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Datum</th>
-                                <th>Typ</th>
-                                <th>Beschreibung</th>
-                                <th>Betroffener</th>
-                                <th>Betrag</th>
-                                <th>Erfasst von</th>
-                                <th>Aktion</th>
+                                <th>Datum</th><th>Typ</th><th>Beschreibung</th><th>Betroffener</th><th>Betrag</th><th>Erfasst von</th><th>Aktion</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -349,9 +286,7 @@
                                     {{ '-' if t.type == 'expense' else '+' }}{{ "%.2f"|format(t.amount) }} €
                                 </td>
                                 <td style="font-size:0.8rem;color:var(--text-muted);">{{ t.created_by_name or 'Admin' }}</td>
-                                <td>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteTx({{ t.id }})">Löschen</button>
-                                </td>
+                                <td><button class="btn btn-danger btn-sm" onclick="deleteTx({{ t.id }})">Löschen</button></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -365,9 +300,7 @@
             <!-- TAB 3: AUFGABEN & DIENSTE -->
             <div class="tab-content" id="tab-aufgaben">
                 <div class="section">
-                    <div class="section-title">
-                        <span>➕ Neue Aufgabe / Dienst anlegen</span>
-                    </div>
+                    <div class="section-title"><span>➕ Neue Aufgabe / Dienst anlegen</span></div>
                     <form id="taskForm" class="form-bar" onsubmit="addTask(event)">
                         <input type="text" id="taskTitle" placeholder="Titel (z.B. Trikotwäsche Sa., Kabinendienst) *" required style="flex:1; min-width: 220px;">
                         <input type="text" id="taskDesc" placeholder="Notiz / Details (optional)" style="flex:1; min-width: 150px;">
@@ -389,21 +322,12 @@
                     </div>
                     {% if team_tasks %}
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Status</th>
-                                <th>Aufgabe / Dienst</th>
-                                <th>Zugewiesen an</th>
-                                <th>Fällig am</th>
-                                <th>Aktion</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Status</th><th>Aufgabe / Dienst</th><th>Zugewiesen an</th><th>Fällig am</th><th>Aktion</th></tr></thead>
                         <tbody>
                             {% for task in team_tasks %}
                             <tr id="task-row-{{ task.id }}">
                                 <td>
-                                    <button class="btn btn-sm" style="{% if task.status == 'completed' %}background:rgba(34,197,94,0.15);color:var(--success);border:1px solid rgba(34,197,94,0.3);{% else %}background:rgba(245,158,11,0.15);color:var(--warning);border:1px solid rgba(245,158,11,0.3);{% endif %}"
-                                            onclick="toggleTask({{ task.id }}, '{{ 'open' if task.status == 'completed' else 'completed' }}')">
+                                    <button class="btn btn-sm js-toggle-task" data-task-id="{{ task.id }}" data-next-status="{{ 'open' if task.status == 'completed' else 'completed' }}" style="{% if task.status == 'completed' %}background:rgba(34,197,94,0.15);color:var(--success);border:1px solid rgba(34,197,94,0.3);{% else %}background:rgba(245,158,11,0.15);color:var(--warning);border:1px solid rgba(245,158,11,0.3);{% endif %}">
                                         {{ '✓ Erledigt' if task.status == 'completed' else '○ Offen' }}
                                     </button>
                                 </td>
@@ -413,9 +337,7 @@
                                 </td>
                                 <td>{{ task.assigned_to_name or '—' }}</td>
                                 <td style="font-size:0.85rem;color:var(--text-muted);">{{ task.due_date or '—' }}</td>
-                                <td>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteTask({{ task.id }})">Löschen</button>
-                                </td>
+                                <td><button class="btn btn-danger btn-sm" onclick="deleteTask({{ task.id }})">Löschen</button></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -428,19 +350,14 @@
 
             <!-- TAB 4: WEBSITE & TEAMSEITE -->
             <div class="tab-content" id="tab-website">
-                <!-- Header Card with Live Link & Sync -->
                 <div class="section">
                     <div class="section-title">
                         <span>🌐 Webseiten-Verknüpfung & Live-Status</span>
                         <div style="display:flex;gap:0.5rem;align-items:center;">
                             {% if team.webpage_url %}
-                            <a href="{{ team.webpage_url }}" target="_blank" class="btn" style="background:rgba(255,255,255,0.08);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;">
-                                ↗ Live-Seite aufrufen
-                            </a>
+                            <a href="{{ team.webpage_url }}" target="_blank" class="btn" style="background:rgba(255,255,255,0.08);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;">↗ Live-Seite aufrufen</a>
                             {% endif %}
-                            <button class="btn btn-primary" onclick="syncWebsite()">
-                                🔄 Jetzt synchronisieren
-                            </button>
+                            <button class="btn btn-primary" onclick="syncWebsite()">🔄 Jetzt synchronisieren</button>
                         </div>
                     </div>
                     <div style="padding: 1.25rem 1.5rem; background: rgba(0,0,0,0.1); border-bottom: 1px solid var(--border); font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
@@ -448,82 +365,45 @@
                     </div>
                 </div>
 
-                <!-- Form: Trainingszeiten, Trainer, Betreuer, Steckbrief -->
                 <div class="section">
-                    <div class="section-title">
-                        <span>⚙️ Trainingszeiten, Trainer & Steckbrief</span>
-                    </div>
+                    <div class="section-title"><span>⚙️ Trainingszeiten, Trainer & Steckbrief</span></div>
                     <form id="teamWebForm" onsubmit="saveWebProfile(event)" style="padding: 1.5rem;">
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-bottom: 1.25rem;">
                             <div>
-                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
-                                    ⏱️ Trainingszeiten
-                                </label>
-                                <input type="text" name="training_times" id="webTrainingTimes" value="{{ team.training_times or '' }}" 
-                                       placeholder="z. B. Montag & Donnerstag, 16:30 – 18:00 Uhr"
-                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">⏱️ Trainingszeiten</label>
+                                <input type="text" name="training_times" id="webTrainingTimes" value="{{ team.training_times or '' }}" placeholder="z. B. Montag & Donnerstag, 16:30 – 18:00 Uhr" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
                             </div>
                             <div>
-                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
-                                    📍 Trainingsort / Halle / Sportplatz
-                                </label>
-                                <input type="text" name="training_location" id="webTrainingLocation" value="{{ team.training_location or '' }}" 
-                                       placeholder="z. B. Sportplatz Finkenau 38, 22081 Hamburg"
-                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">📍 Trainingsort / Halle / Sportplatz</label>
+                                <input type="text" name="training_location" id="webTrainingLocation" value="{{ team.training_location or '' }}" placeholder="z. B. Sportplatz Finkenau 38, 22081 Hamburg" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
                             </div>
                             <div>
-                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
-                                    🏋️ Trainer
-                                </label>
-                                <input type="text" name="coach" id="webCoach" value="{{ team.coach or '' }}" 
-                                       placeholder="z. B. Carsten Bullemer, Piotr, Sven"
-                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">🏋️ Trainer</label>
+                                <input type="text" name="coach" id="webCoach" value="{{ team.coach or '' }}" placeholder="z. B. Carsten Bullemer, Piotr, Sven" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
                             </div>
                             <div>
-                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
-                                    📋 Betreuer / Mannschaftsverantwortlicher
-                                </label>
-                                <input type="text" name="contact_person" id="webContactPerson" value="{{ team.contact_person or '' }}" 
-                                       placeholder="z. B. Carsten Bullemer (0173-xxxxxxx)"
-                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">📋 Betreuer / Mannschaftsverantwortlicher</label>
+                                <input type="text" name="contact_person" id="webContactPerson" value="{{ team.contact_person or '' }}" placeholder="z. B. Carsten Bullemer (0173-xxxxxxx)" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
                             </div>
                             <div>
-                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
-                                    🏆 Spielklasse / Liga
-                                </label>
-                                <input type="text" name="spielklasse" id="webSpielklasse" value="{{ team.spielklasse or '' }}" 
-                                       placeholder="z. B. Kinderfußball / Kreisklasse"
-                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">🏆 Spielklasse / Liga</label>
+                                <input type="text" name="spielklasse" id="webSpielklasse" value="{{ team.spielklasse or '' }}" placeholder="z. B. Kinderfußball / Kreisklasse" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
                             </div>
                             <div>
-                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
-                                    👶 Altersklasse / Jahrgänge
-                                </label>
-                                <input type="text" name="age_group" id="webAgeGroup" value="{{ team.age_group or '' }}" 
-                                       placeholder="z. B. U10 (Jahrgang 2016/2017)"
-                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">👶 Altersklasse / Jahrgänge</label>
+                                <input type="text" name="age_group" id="webAgeGroup" value="{{ team.age_group or '' }}" placeholder="z. B. U10 (Jahrgang 2016/2017)" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
                             </div>
                             <div style="grid-column: 1 / -1;">
-                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
-                                    🔗 Webseiten-Pfad (URL Slug)
-                                </label>
-                                <input type="text" name="webpage_url" id="webUrl" value="{{ team.webpage_url or '' }}" 
-                                       placeholder="z. B. /football/e-junioren oder /seiten/basketball-jugend-u12"
-                                       style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">🔗 Webseiten-Pfad (URL Slug)</label>
+                                <input type="text" name="webpage_url" id="webUrl" value="{{ team.webpage_url or '' }}" placeholder="z. B. /football/e-junioren oder /seiten/basketball-jugend-u12" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.85rem;border-radius:8px;font-size:0.9rem;">
                             </div>
                             <div style="grid-column: 1 / -1;">
-                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
-                                    📝 Webseiten-Text / Mannschaftsbeschreibung (Markdown)
-                                </label>
-                                <textarea name="content" id="webContent" rows="8" 
-                                          placeholder="Beschreibe die Mannschaft, Philosophie, Willkommenstext..."
-                                          style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.75rem;border-radius:8px;font-size:0.88rem;font-family:monospace;resize:vertical;">{{ team.content or '' }}</textarea>
+                                <label style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">📝 Webseiten-Text / Mannschaftsbeschreibung (Markdown)</label>
+                                <textarea name="content" id="webContent" rows="8" placeholder="Beschreibe die Mannschaft, Philosophie, Willkommenstext..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.75rem;border-radius:8px;font-size:0.88rem;font-family:monospace;resize:vertical;">{{ team.content or '' }}</textarea>
                             </div>
                         </div>
                         <div style="display:flex;justify-content:flex-end;">
-                            <button type="submit" class="btn btn-primary" id="saveWebBtn" style="padding:0.75rem 1.5rem;font-size:0.9rem;">
-                                💾 Änderungen speichern & mit Website synchronisieren
-                            </button>
+                            <button type="submit" class="btn btn-primary" id="saveWebBtn" style="padding:0.75rem 1.5rem;font-size:0.9rem;">💾 Änderungen speichern & mit Website synchronisieren</button>
                         </div>
                     </form>
                 </div>
@@ -534,19 +414,11 @@
                         <span>📸 Team-Fotos & Galerie</span>
                         <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 400;" id="photoCount">{{ team.gallery|length if team.gallery else 0 }} Fotos</span>
                     </div>
-
-                    <!-- Upload Form -->
                     <form id="photoUploadForm" onsubmit="uploadPhoto(event)" style="padding: 1.25rem 1.5rem; background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--border); display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                        <input type="file" name="photo" id="photoFileInput" accept="image/png,image/jpeg,image/webp,image/jpg" required
-                               style="background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.45rem 0.65rem; border-radius: 8px; font-size: 0.82rem;">
-                        <input type="text" name="caption" id="photoCaptionInput" placeholder="Bildunterschrift (optional)" 
-                               style="flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.55rem 0.8rem; border-radius: 8px; font-size: 0.85rem;">
-                        <button type="submit" class="btn btn-primary" id="uploadPhotoBtn">
-                            📤 Foto hochladen
-                        </button>
+                        <input type="file" name="photo" id="photoFileInput" accept="image/png,image/jpeg,image/webp,image/jpg" required style="background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.45rem 0.65rem; border-radius: 8px; font-size: 0.82rem;">
+                        <input type="text" name="caption" id="photoCaptionInput" placeholder="Bildunterschrift (optional)" style="flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.55rem 0.8rem; border-radius: 8px; font-size: 0.85rem;">
+                        <button type="submit" class="btn btn-primary" id="uploadPhotoBtn">📤 Foto hochladen</button>
                     </form>
-
-                    <!-- Gallery Grid -->
                     <div id="galleryGrid" style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem;">
                         {% if team.gallery and team.gallery|length > 0 %}
                             {% for img in team.gallery %}
@@ -555,12 +427,8 @@
                                     <img src="{{ img.src }}" alt="{{ img.caption or 'Teamfoto' }}" style="width: 100%; height: 100%; object-fit: cover;">
                                 </div>
                                 <div style="padding: 0.75rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem;">
-                                    <div style="font-size: 0.8rem; color: var(--text); line-height: 1.3;">
-                                        {{ img.caption or 'Keine Bildunterschrift' }}
-                                    </div>
-                                    <button class="btn btn-danger btn-sm" onclick="deletePhoto('{{ img.src }}')" style="width: 100%; margin-top: 0.3rem;">
-                                        🗑️ Foto löschen
-                                    </button>
+                                    <div style="font-size: 0.8rem; color: var(--text); line-height: 1.3;">{{ img.caption or 'Keine Bildunterschrift' }}</div>
+                                    <button class="btn btn-danger btn-sm" onclick="deletePhoto('{{ img.src }}')" style="width: 100%; margin-top: 0.3rem;">🗑️ Foto löschen</button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -570,11 +438,13 @@
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
+{% endblock %}
 
+{% block extra_html %}
     <div id="alert" class="alert"></div>
+{% endblock %}
 
+{% block scripts %}
     <script>
     const teamId = {{ team.id }};
 
@@ -597,7 +467,6 @@
     async function addMember() {
         const memberId = document.getElementById('addMemberSelect').value;
         if (!memberId) return showAlert('Bitte Mitglied auswählen', false);
-
         const res = await fetch('/api/teams/' + teamId + '/members', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -613,6 +482,11 @@
         else showAlert(data.detail || 'Fehler', false);
     }
 
+    document.querySelectorAll('.js-remove-member').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            removeMember(this.getAttribute('data-member-id'), this.getAttribute('data-name'));
+        });
+    });
     async function removeMember(memberId, name) {
         if (!confirm(name + ' aus dem Team entfernen?')) return;
         const res = await fetch('/api/teams/' + teamId + '/members/' + memberId, { method: 'DELETE' });
@@ -632,17 +506,10 @@
         const type = document.getElementById('txType').value;
         const memberId = document.getElementById('txMember').value ? parseInt(document.getElementById('txMember').value) : null;
         const dateVal = document.getElementById('txDate').value || null;
-
         const res = await fetch('/api/teams/' + teamId + '/treasury', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                type: type,
-                amount: amount,
-                description: desc,
-                member_id: memberId,
-                transaction_date: dateVal,
-            }),
+            body: JSON.stringify({ type: type, amount: amount, description: desc, member_id: memberId, transaction_date: dateVal }),
         });
         const data = await res.json();
         if (data.success) { showAlert('Buchung gespeichert'); setTimeout(() => location.reload(), 600); }
@@ -667,22 +534,21 @@
         const desc = document.getElementById('taskDesc').value.trim();
         const assignee = document.getElementById('taskAssignee').value ? parseInt(document.getElementById('taskAssignee').value) : null;
         const dueDate = document.getElementById('taskDueDate').value || null;
-
         const res = await fetch('/api/teams/' + teamId + '/tasks', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                title: title,
-                description: desc,
-                assigned_to: assignee,
-                due_date: dueDate,
-            }),
+            body: JSON.stringify({ title: title, description: desc, assigned_to: assignee, due_date: dueDate }),
         });
         const data = await res.json();
         if (data.success) { showAlert('Aufgabe erstellt'); setTimeout(() => location.reload(), 600); }
         else showAlert(data.detail || 'Fehler', false);
     }
 
+    document.querySelectorAll('.js-toggle-task').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            toggleTask(parseInt(this.getAttribute('data-task-id')), this.getAttribute('data-next-status'));
+        });
+    });
     async function toggleTask(taskId, nextStatus) {
         const res = await fetch('/api/teams/' + teamId + '/tasks/' + taskId, {
             method: 'PUT',
@@ -719,27 +585,17 @@
                 body: JSON.stringify(payload),
             });
             const data = await res.json();
-            if (data.success) {
-                showAlert(data.message || 'Teamseite erfolgreich synchronisiert');
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                showAlert(data.detail || 'Fehler beim Speichern', false);
-            }
-        } catch(err) {
-            showAlert('Verbindungsfehler beim Speichern', false);
-        } finally {
-            if (btn) { btn.disabled = false; btn.textContent = '💾 Änderungen speichern & mit Website synchronisieren'; }
-        }
+            if (data.success) { showAlert(data.message || 'Teamseite erfolgreich synchronisiert'); setTimeout(() => location.reload(), 1000); }
+            else showAlert(data.detail || 'Fehler beim Speichern', false);
+        } catch(err) { showAlert('Verbindungsfehler beim Speichern', false); }
+        finally { if (btn) { btn.disabled = false; btn.textContent = '💾 Änderungen speichern & mit Website synchronisieren'; } }
     }
 
     async function syncWebsite() {
         const res = await fetch('/api/teams/' + teamId + '/sync-website', { method: 'POST' });
         const data = await res.json();
-        if (data.success) {
-            showAlert('Website erfolgreich synchronisiert: ' + (data.synced_files || []).join(', '));
-        } else {
-            showAlert(data.error || 'Fehler bei der Synchronisation', false);
-        }
+        if (data.success) showAlert('Website erfolgreich synchronisiert: ' + (data.synced_files || []).join(', '));
+        else showAlert(data.error || 'Fehler bei der Synchronisation', false);
     }
 
     async function uploadPhoto(e) {
@@ -748,22 +604,12 @@
         if (btn) { btn.disabled = true; btn.textContent = 'Lädt hoch...'; }
         try {
             const fd = new FormData(e.target);
-            const res = await fetch('/api/teams/' + teamId + '/photos', {
-                method: 'POST',
-                body: fd,
-            });
+            const res = await fetch('/api/teams/' + teamId + '/photos', { method: 'POST', body: fd });
             const data = await res.json();
-            if (data.success) {
-                showAlert('Foto erfolgreich hochgeladen');
-                setTimeout(() => location.reload(), 800);
-            } else {
-                showAlert(data.detail || 'Fehler beim Upload', false);
-            }
-        } catch(err) {
-            showAlert('Netzwerkfehler beim Foto-Upload', false);
-        } finally {
-            if (btn) { btn.disabled = false; btn.textContent = '📤 Foto hochladen'; }
-        }
+            if (data.success) { showAlert('Foto erfolgreich hochgeladen'); setTimeout(() => location.reload(), 800); }
+            else showAlert(data.detail || 'Fehler beim Upload', false);
+        } catch(err) { showAlert('Netzwerkfehler beim Foto-Upload', false); }
+        finally { if (btn) { btn.disabled = false; btn.textContent = '📤 Foto hochladen'; } }
     }
 
     async function deletePhoto(photoSrc) {
@@ -775,29 +621,9 @@
                 body: JSON.stringify({ photo_src: photoSrc }),
             });
             const data = await res.json();
-            if (data.success) {
-                showAlert('Foto gelöscht');
-                setTimeout(() => location.reload(), 600);
-            } else {
-                showAlert(data.detail || 'Fehler beim Löschen', false);
-            }
-        } catch(err) {
-            showAlert('Verbindungsfehler', false);
-        }
+            if (data.success) { showAlert('Foto gelöscht'); setTimeout(() => location.reload(), 600); }
+            else showAlert(data.detail || 'Fehler beim Löschen', false);
+        } catch(err) { showAlert('Verbindungsfehler', false); }
     }
     </script>
-    <script>
-    (function(){
-        var btn = document.getElementById('hamburgerBtn');
-        var overlay = document.getElementById('sidebarOverlay');
-        var sidebar = document.querySelector('.sidebar');
-        if (!btn || !sidebar) return;
-        function toggle() { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); }
-        function close() { sidebar.classList.remove('open'); overlay.classList.remove('active'); }
-        btn.addEventListener('click', toggle);
-        overlay.addEventListener('click', close);
-        sidebar.querySelectorAll('.nav-link').forEach(function(a){ a.addEventListener('click', close); });
-    })();
-    </script>
-</body>
-</html>
+{% endblock %}

@@ -203,7 +203,12 @@ async def get_member_by_id(member_id: int) -> dict | None:
 
 async def update_member_profile(member_id: int, updates: dict) -> bool:
     """Update member profile fields. Only non-None values are updated."""
-    fields = {k: v for k, v in updates.items() if v is not None}
+    ALLOWED_PROFILE_COLUMNS = {
+        'email', 'telefon', 'strasse', 'hausnummer', 'plz', 'ort', 'land',
+        'vorname', 'nachname', 'geburtsdatum', 'geschlecht', 'eintrittsdatum',
+        'role', 'membership_level', 'is_active',
+    }
+    fields = {k: v for k, v in updates.items() if v is not None and k in ALLOWED_PROFILE_COLUMNS}
     if not fields:
         return False
 
@@ -234,21 +239,22 @@ async def update_bank_account(member_id: int, kontoinhaber: str, iban: str, bic:
     """Insert or update the active bank account for a member."""
     pool = await get_pool()
     async with pool.acquire() as conn:
-        # Deactivate previous accounts
-        await conn.execute(
-            "UPDATE member_bank_accounts SET is_active = FALSE WHERE member_id = $1",
-            member_id,
-        )
-        # Insert new active account
-        new_id = await conn.fetchval(
-            """
-            INSERT INTO member_bank_accounts (member_id, kontoinhaber, iban, bic, bank_name, is_active)
-            VALUES ($1, $2, $3, $4, $5, TRUE)
-            RETURNING id
-            """,
-            member_id, kontoinhaber, iban, bic or "", bank_name or "",
-        )
-        return new_id
+        async with conn.transaction():
+            # Deactivate previous accounts
+            await conn.execute(
+                "UPDATE member_bank_accounts SET is_active = FALSE WHERE member_id = $1",
+                member_id,
+            )
+            # Insert new active account
+            new_id = await conn.fetchval(
+                """
+                INSERT INTO member_bank_accounts (member_id, kontoinhaber, iban, bic, bank_name, is_active)
+                VALUES ($1, $2, $3, $4, $5, TRUE)
+                RETURNING id
+                """,
+                member_id, kontoinhaber, iban, bic or "", bank_name or "",
+            )
+            return new_id
 
 
 async def get_bank_account(member_id: int) -> dict | None:
@@ -302,7 +308,7 @@ async def get_member_divisions(member_id: int) -> list[dict]:
         rows = await conn.fetch(
             """
             SELECT md.id as assignment_id, md.status, md.joined_at,
-                   d.id as division_id, d.id, d.name, d.sport, d.icon
+                   d.id as division_id, d.name, d.sport, d.icon
             FROM member_divisions md
             JOIN divisions d ON d.id = md.division_id
             WHERE md.member_id = $1 AND md.status = 'active'
@@ -320,7 +326,7 @@ async def get_member_teams(member_id: int) -> list[dict]:
         rows = await conn.fetch(
             """
             SELECT mt.id as assignment_id, mt.role, mt.position, mt.jersey_number, mt.status, mt.joined_at,
-                   t.id as team_id, t.id as id, t.mannschaftsname, t.mannschaftsart, t.spielklasse, t.coach,
+                   t.id as team_id, t.mannschaftsname, t.mannschaftsart, t.spielklasse, t.coach,
                    d.name as division_name, d.icon as division_icon
             FROM member_teams mt
             JOIN teams t ON t.id = mt.team_id
@@ -436,6 +442,7 @@ async def list_members(
         param_idx = 1
 
         if search:
+            search = search.replace('%', '\\%').replace('_', '\\_')
             conditions.append(
                 f"(m.vorname ILIKE ${param_idx} OR m.nachname ILIKE ${param_idx} "
                 f"OR m.email ILIKE ${param_idx} OR m.mitgliedsnummer ILIKE ${param_idx})"

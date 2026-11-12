@@ -129,17 +129,18 @@ def generate_ticket_pdf(
         qr_img.save(tmp.name)
         qr_path = tmp.name
 
-    # White background for QR
-    pdf.set_fill_color(255, 255, 255)
-    pdf.rect(120, 60, 34, 34, "F")
-    # Round corners effect (small white rect)
-    pdf.image(qr_path, x=122, y=62, w=30, h=30)
-
-    # Clean up temp file
     try:
-        os.unlink(qr_path)
-    except OSError:
-        pass
+        # White background for QR
+        pdf.set_fill_color(255, 255, 255)
+        pdf.rect(120, 60, 34, 34, "F")
+        # Round corners effect (small white rect)
+        pdf.image(qr_path, x=122, y=62, w=30, h=30)
+    finally:
+        # Clean up temp file
+        try:
+            os.unlink(qr_path)
+        except OSError:
+            pass
 
     # Return PDF bytes
     return pdf.output()

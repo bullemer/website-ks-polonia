@@ -285,7 +285,9 @@ async def create_team_task(
 
 async def update_team_task(task_id: int, team_id: int, updates: Dict[str, Any]) -> bool:
     """Update task details or status."""
+    ALLOWED_TASK_COLUMNS = {'title', 'description', 'assigned_to', 'due_date', 'status', 'completed_at'}
     pool = await get_pool()
+    updates = {k: v for k, v in updates.items() if k in ALLOWED_TASK_COLUMNS}
     if not updates:
         return True
 

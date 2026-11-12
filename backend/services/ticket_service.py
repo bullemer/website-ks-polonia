@@ -8,7 +8,17 @@ from database import get_pool
 from auth import hash_password, generate_token
 
 
-CURRENT_SEASON = "2026/2027"
+def get_current_season() -> str:
+    """Derive the current season from the current date.
+    If month >= 7 (July), season is '{year}/{year+1}', else '{year-1}/{year}'.
+    """
+    now = datetime.datetime.now()
+    if now.month >= 7:
+        return f"{now.year}/{now.year + 1}"
+    return f"{now.year - 1}/{now.year}"
+
+
+CURRENT_SEASON = get_current_season()
 
 
 async def generate_ticket_code(season: str) -> str:

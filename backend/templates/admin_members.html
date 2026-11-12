@@ -1,22 +1,10 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mitglieder – KS Polonia Admin</title>
-    <style>
-        :root { --primary: #DC143C; --bg: #0f1117; --surface: #1a1d27; --surface-hover: #22252f; --border: #2a2d3a; --text: #e4e4e7; --text-muted: #9ca3af; --success: #22c55e; --warning: #f59e0b; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
-        .layout { display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem 0; position: fixed; top: 0; bottom: 0; }
-        .sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
-        .sidebar-logo h2 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .sidebar-logo span { font-size: 0.72rem; color: var(--text-muted); }
-        .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; border-left: 3px solid transparent; }
-        .nav-link:hover, .nav-link.active { background: var(--surface-hover); color: #fff; border-left-color: var(--primary); }
-        .nav-link .icon { font-size: 1.1rem; width: 24px; text-align: center; }
-        .main { margin-left: 260px; flex: 1; padding: 2rem; }
+{% extends "admin_base.html" %}
+
+{% set active_nav = 'members' %}
+
+{% block title %}Mitglieder – KS Polonia Admin{% endblock %}
+
+{% block extra_style %}
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .page-header h1 { font-size: 1.8rem; font-weight: 700; }
         .toolbar { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem; background: var(--surface); padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border); }
@@ -43,52 +31,9 @@
         a:hover { color: var(--primary); }
         .btn-del { background: none; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; padding: 0.3rem 0.5rem; font-size: 0.85rem; transition: all 0.15s; }
         .btn-del:hover { background: rgba(239,68,68,0.15); border-color: #ef4444; }
+{% endblock %}
 
-        /* Mobile hamburger */
-        .hamburger {
-            display: none; position: fixed; top: 1rem; left: 1rem; z-index: 1100;
-            width: 44px; height: 44px; border-radius: 10px;
-            background: var(--surface); border: 1px solid var(--border);
-            cursor: pointer; align-items: center; justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        .hamburger svg { width: 22px; height: 22px; stroke: var(--text); stroke-width: 2; fill: none; stroke-linecap: round; }
-        .sidebar-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-            z-index: 1000; opacity: 0; transition: opacity 0.2s;
-        }
-        .sidebar-overlay.active { display: block; opacity: 1; }
-        @media (max-width: 768px) {
-            .hamburger { display: flex; }
-            .sidebar {
-                transform: translateX(-100%); transition: transform 0.25s ease;
-                z-index: 1050; box-shadow: 4px 0 24px rgba(0,0,0,0.4);
-            }
-            .sidebar.open { transform: translateX(0); }
-            .main { margin-left: 0; padding: 1rem; padding-top: 4.5rem; }
-            .detail-grid { grid-template-columns: 1fr; }
-            .team-header { flex-direction: column; align-items: flex-start; }
-            .team-header-meta { margin-left: 0; }
-        }
-    </style>
-</head>
-<body>
-
-    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
-        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <div class="layout">
-        <nav class="sidebar">
-            <div class="sidebar-logo"><h2>KS Polonia Admin</h2><span>Vereinsverwaltung</span></div>
-            <a href="/api/admin/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
-            <a href="/api/admin/members" class="nav-link active"><span class="icon">👥</span> Mitglieder</a>
-            <a href="/api/admin/applications" class="nav-link"><span class="icon">📋</span> Anträge</a>
-            <a href="/api/admin/divisions" class="nav-link"><span class="icon">🏆</span> Abteilungen</a>
-            <a href="/api/tickets/admin" class="nav-link"><span class="icon">🎫</span> Dauerkarten</a>
-            <a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
-        </nav>
-        <main class="main">
+{% block content %}
             <div class="page-header">
                 <h1>Mitglieder <span style="font-weight: 400; font-size: 1rem; color: var(--text-muted);">({{ total }})</span></h1>
             </div>
@@ -141,7 +86,7 @@
                         </td>
                         <td><span class="badge {% if m.is_active %}badge-active{% else %}badge-inactive{% endif %}">{{ 'Aktiv' if m.is_active else 'Inaktiv' }}</span></td>
                         <td>{{ m.eintrittsdatum or '—' }}</td>
-                        <td><button class="btn-del" onclick="deleteMember({{ m.id }}, '{{ m.vorname }} {{ m.nachname }}')" title="Löschen">🗑️</button></td>
+                        <td><button class="btn-del js-delete-member" data-id="{{ m.id }}" data-name="{{ m.vorname|e }} {{ m.nachname|e }}" title="Löschen">🗑️</button></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -157,10 +102,21 @@
             {% else %}
             <div class="empty">Keine Mitglieder gefunden.</div>
             {% endif %}
-        </main>
-    </div>
+{% endblock %}
+
+{% block extra_html %}
     <div id="alert" style="display:none;position:fixed;top:1rem;right:1rem;padding:.8rem 1.25rem;border-radius:10px;font-size:.88rem;font-weight:500;z-index:999;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0"></div>
+{% endblock %}
+
+{% block scripts %}
     <script>
+    document.querySelectorAll('.js-delete-member').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.getAttribute('data-id');
+            var name = this.getAttribute('data-name');
+            deleteMember(id, name);
+        });
+    });
     async function deleteMember(id, name) {
         if (!confirm('Mitglied "' + name + '" endgültig löschen?\n\nAlle Daten (Zahlungen, Teams, etc.) werden unwiderruflich entfernt.')) return;
         const res = await fetch('/api/admin/members/' + id, { method: 'DELETE' });
@@ -172,19 +128,4 @@
         else { a.style.background = '#fef2f2'; a.style.color = '#991b1b'; a.style.borderColor = '#fecaca'; }
     }
     </script>
-
-    <script>
-    (function(){
-        var btn = document.getElementById('hamburgerBtn');
-        var overlay = document.getElementById('sidebarOverlay');
-        var sidebar = document.querySelector('.sidebar');
-        if (!btn || !sidebar) return;
-        function toggle() { sidebar.classList.toggle('open'); overlay.classList.toggle('active'); }
-        function close() { sidebar.classList.remove('open'); overlay.classList.remove('active'); }
-        btn.addEventListener('click', toggle);
-        overlay.addEventListener('click', close);
-        sidebar.querySelectorAll('.nav-link').forEach(function(a){ a.addEventListener('click', close); });
-    })();
-    </script>
-</body>
-</html>
+{% endblock %}

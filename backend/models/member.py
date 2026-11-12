@@ -29,16 +29,13 @@ class MemberCreate(BaseModel):
 
 class MemberProfileUpdate(BaseModel):
     """Fields a member can update in their own profile."""
-    vorname: Optional[str] = None
-    nachname: Optional[str] = None
+    email: Optional[EmailStr] = None
     telefon: Optional[str] = None
     strasse: Optional[str] = None
+    hausnummer: Optional[str] = None
     plz: Optional[str] = None
     ort: Optional[str] = None
     land: Optional[str] = None
-    geburtsdatum: Optional[str] = None
-    geschlecht: Optional[str] = None
-    eintrittsdatum: Optional[str] = None
 
 
 class MemberAdminUpdate(BaseModel):

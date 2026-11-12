@@ -3,10 +3,12 @@ KS Polonia – Admin routes.
 Full CRUD for members, divisions, teams, applications.
 """
 import os
+import re
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse, Response
 from fastapi.templating import Jinja2Templates
 from typing import Optional
+from pydantic import BaseModel
 
 from auth import require_admin, require_superadmin, require_team_admin
 from models.member import MemberAdminUpdate, MemberAssignmentsUpdate
@@ -16,12 +18,26 @@ from models.team_management import MemberRoleUpdate
 from services import member_service, team_service
 from database import get_pool
 from mailer import send_email
-from config import SITE_URL
+from config import SITE_URL, UPLOAD_DIR
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "..", "templates"))
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+# Column whitelists for dynamic SQL updates
+DIVISION_ALLOWED_COLUMNS = {'name', 'description', 'icon'}
+TEAM_ALLOWED_COLUMNS = {'mannschaftsname', 'mannschaftsart', 'spielklasse', 'coach',
+                        'contact_person', 'training_times', 'training_location'}
+
+
+class PaymentCreate(BaseModel):
+    description: str
+    amount: float
+    period: str = ""
+    payment_method: str = ""
+    status: str = "offen"
+    notes: str = ""
 
 
 @router.get("/dashboard")
@@ -132,16 +148,17 @@ async def admin_delete_member(request: Request, member_id: int):
     require_superadmin(request)
     pool = await get_pool()
     async with pool.acquire() as conn:
-        # Check member exists
-        exists = await conn.fetchval("SELECT id FROM members WHERE id = $1", member_id)
-        if not exists:
-            raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
-        # Delete in order (cascading relations first)
-        await conn.execute("DELETE FROM member_payments WHERE member_id = $1", member_id)
-        await conn.execute("DELETE FROM member_teams WHERE member_id = $1", member_id)
-        await conn.execute("DELETE FROM member_divisions WHERE member_id = $1", member_id)
-        await conn.execute("DELETE FROM member_bank_accounts WHERE member_id = $1", member_id)
-        await conn.execute("DELETE FROM members WHERE id = $1", member_id)
+        async with conn.transaction():
+            # Check member exists
+            exists = await conn.fetchval("SELECT id FROM members WHERE id = $1", member_id)
+            if not exists:
+                raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+            # Delete in order (cascading relations first)
+            await conn.execute("DELETE FROM member_payments WHERE member_id = $1", member_id)
+            await conn.execute("DELETE FROM member_teams WHERE member_id = $1", member_id)
+            await conn.execute("DELETE FROM member_divisions WHERE member_id = $1", member_id)
+            await conn.execute("DELETE FROM member_bank_accounts WHERE member_id = $1", member_id)
+            await conn.execute("DELETE FROM members WHERE id = $1", member_id)
     return JSONResponse({"success": True, "message": "Mitglied endgültig gelöscht"})
 
 
@@ -163,6 +180,15 @@ async def admin_toggle_admin(request: Request, member_id: int):
         raise HTTPException(status_code=404)
     new_status = not member["is_admin"]
     new_role = "admin" if new_status else "member"
+    # Prevent removing the last superadmin
+    if not new_status and member.get("role") == "superadmin":
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            superadmin_count = await conn.fetchval(
+                "SELECT COUNT(*) FROM members WHERE role = 'superadmin' AND is_active = TRUE"
+            )
+        if superadmin_count <= 1:
+            raise HTTPException(status_code=400, detail="Der letzte Superadmin kann nicht herabgestuft werden")
     await member_service.update_member_profile(member_id, {"role": new_role})
     return JSONResponse({"success": True, "is_admin": new_status, "role": new_role})
 
@@ -180,6 +206,9 @@ async def admin_download_document(request: Request, member_id: int, side: str):
     file_path = member.get(path_key)
     if not file_path:
         raise HTTPException(status_code=404, detail="Kein Dokument vorhanden")
+    # Path traversal protection
+    if not os.path.abspath(file_path).startswith(os.path.abspath(UPLOAD_DIR)):
+        raise HTTPException(status_code=403, detail="Zugriff verweigert")
     from pathlib import Path
     p = Path(file_path)
     if not p.is_file():
@@ -202,6 +231,7 @@ async def admin_download_document(request: Request, member_id: int, side: str):
         ct = "application/octet-stream"
         real_ext = p.suffix or ".bin"
     safe_name = f"{member.get('nachname', 'Dokument')}_{member.get('vorname', '')}_{side}{real_ext}"
+    safe_name = re.sub(r'[^\w._-]', '_', safe_name)
     # ?dl=1 query param forces download instead of inline display
     disposition = "attachment" if request.query_params.get("dl") else "inline"
     return Response(data, media_type=ct, headers={
@@ -258,6 +288,9 @@ async def admin_update_division(request: Request, div_id: int, data: DivisionUpd
     updates = data.model_dump(exclude_none=True)
     if not updates:
         raise HTTPException(status_code=400)
+    unknown = set(updates.keys()) - DIVISION_ALLOWED_COLUMNS
+    if unknown:
+        raise HTTPException(status_code=400, detail=f"Unbekannte Felder: {', '.join(unknown)}")
     set_c = ", ".join(f"{k} = ${i+2}" for i, k in enumerate(updates.keys()))
     pool = await get_pool()
     async with pool.acquire() as conn:
@@ -369,6 +402,9 @@ async def admin_update_team(request: Request, team_id: int, data: TeamUpdate):
     updates = data.model_dump(exclude_none=True)
     if not updates:
         raise HTTPException(status_code=400)
+    unknown = set(updates.keys()) - TEAM_ALLOWED_COLUMNS
+    if unknown:
+        raise HTTPException(status_code=400, detail=f"Unbekannte Felder: {', '.join(unknown)}")
     set_c = ", ".join(f"{k} = ${i+2}" for i, k in enumerate(updates.keys()))
     pool = await get_pool()
     async with pool.acquire() as conn:
@@ -382,11 +418,12 @@ async def admin_delete_team(request: Request, team_id: int):
     require_superadmin(request)
     pool = await get_pool()
     async with pool.acquire() as conn:
-        exists = await conn.fetchval("SELECT id FROM teams WHERE id = $1", team_id)
-        if not exists:
-            raise HTTPException(status_code=404, detail="Team nicht gefunden")
-        await conn.execute("DELETE FROM member_teams WHERE team_id = $1", team_id)
-        await conn.execute("DELETE FROM teams WHERE id = $1", team_id)
+        async with conn.transaction():
+            exists = await conn.fetchval("SELECT id FROM teams WHERE id = $1", team_id)
+            if not exists:
+                raise HTTPException(status_code=404, detail="Team nicht gefunden")
+            await conn.execute("DELETE FROM member_teams WHERE team_id = $1", team_id)
+            await conn.execute("DELETE FROM teams WHERE id = $1", team_id)
     return JSONResponse({"success": True, "message": "Team gelöscht"})
 
 
@@ -450,6 +487,25 @@ async def admin_review_application(request: Request, app_id: int, data: Applicat
         ok = await member_service.reject_application(app_id, admin["email"], data.admin_notes or "")
         if not ok:
             raise HTTPException(status_code=404)
+        # Send rejection email to the applicant
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            applicant = await conn.fetchrow(
+                "SELECT vorname, nachname, email FROM membership_applications WHERE id = $1", app_id
+            )
+        if applicant and applicant.get("email"):
+            rejection_body = (
+                f"Hallo {applicant['vorname']},\n\n"
+                f"leider müssen wir Ihnen mitteilen, dass Ihr Mitgliedsantrag beim KS Polonia Hamburg e.V. "
+                f"abgelehnt wurde.\n\n"
+                f"Bei Fragen wenden Sie sich bitte an info@ks-polonia.de.\n\n"
+                f"Sportliche Grüße,\nKS Polonia Hamburg e.V."
+            )
+            send_email(
+                subject="KS Polonia – Mitgliedsantrag",
+                text_body=rejection_body,
+                to_email=applicant["email"],
+            )
         return JSONResponse({"success": True, "message": "Abgelehnt"})
     raise HTTPException(status_code=400, detail="Status: 'approved' oder 'rejected'")
 
@@ -466,33 +522,40 @@ async def admin_get_payments(request: Request, member_id: int):
 
 
 @router.post("/members/{member_id}/payments")
-async def admin_create_payment(request: Request, member_id: int):
+async def admin_create_payment(request: Request, member_id: int, data: PaymentCreate):
     """Create a payment record for a member."""
     admin = require_admin(request)
-    body = await request.json()
 
-    amount = body.get("amount")
-    if not amount or float(amount) <= 0:
+    if data.amount <= 0:
         raise HTTPException(status_code=400, detail="Ungültiger Betrag")
 
     new_id = await member_service.create_payment(
         member_id=member_id,
-        amount=float(amount),
-        description=body.get("description", "Mitgliedsbeitrag"),
-        period=body.get("period", ""),
-        payment_date=body.get("payment_date", ""),
-        payment_method=body.get("payment_method", "Überweisung"),
-        status=body.get("status", "received"),
-        notes=body.get("notes", ""),
+        amount=data.amount,
+        description=data.description,
+        period=data.period,
+        payment_date="",
+        payment_method=data.payment_method,
+        status=data.status,
+        notes=data.notes,
         created_by=admin["email"],
     )
     return JSONResponse({"success": True, "id": new_id, "message": "Zahlung erfasst"})
 
 
-@router.delete("/payments/{payment_id}")
-async def admin_delete_payment(request: Request, payment_id: int):
-    """Delete a payment record."""
+@router.delete("/members/{member_id}/payments/{payment_id}")
+async def admin_delete_payment(request: Request, member_id: int, payment_id: int):
+    """Delete a payment record, verifying it belongs to the specified member."""
     require_admin(request)
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        owner = await conn.fetchval(
+            "SELECT member_id FROM member_payments WHERE id = $1", payment_id
+        )
+        if owner is None:
+            raise HTTPException(status_code=404)
+        if owner != member_id:
+            raise HTTPException(status_code=403, detail="Zahlung gehört nicht zu diesem Mitglied")
     ok = await member_service.delete_payment(payment_id)
     if not ok:
         raise HTTPException(status_code=404)
@@ -507,11 +570,12 @@ async def admin_delete_ticket_holder(request: Request, holder_id: int):
     require_admin(request)
     pool = await get_pool()
     async with pool.acquire() as conn:
-        exists = await conn.fetchval("SELECT id FROM season_ticket_holders WHERE id = $1", holder_id)
-        if not exists:
-            raise HTTPException(status_code=404, detail="Dauerkarten-Inhaber nicht gefunden")
-        await conn.execute("DELETE FROM season_tickets WHERE holder_id = $1", holder_id)
-        await conn.execute("DELETE FROM season_ticket_holders WHERE id = $1", holder_id)
+        async with conn.transaction():
+            exists = await conn.fetchval("SELECT id FROM season_ticket_holders WHERE id = $1", holder_id)
+            if not exists:
+                raise HTTPException(status_code=404, detail="Dauerkarten-Inhaber nicht gefunden")
+            await conn.execute("DELETE FROM season_tickets WHERE holder_id = $1", holder_id)
+            await conn.execute("DELETE FROM season_ticket_holders WHERE id = $1", holder_id)
     return JSONResponse({"success": True, "message": "Dauerkarten-Inhaber gelöscht"})
 
 

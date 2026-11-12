@@ -134,11 +134,13 @@ async def forgot_password(req: ForgotPasswordRequest):
         f"Falls Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail.\n\n"
         f"Sportliche Grüße,\nKS Polonia Hamburg e.V."
     )
-    send_email(
+    ok, err = send_email(
         subject="KS Polonia – Passwort zurücksetzen",
         text_body=body,
         to_email=member["email"],
     )
+    if not ok:
+        print(f"Email error: {err}")
 
     return JSONResponse({"success": True, "message": "Falls ein Konto existiert, wurde eine E-Mail versendet."})
 
@@ -186,6 +188,9 @@ async def reset_password(req: ResetPasswordRequest):
         )
         if not member:
             raise HTTPException(status_code=400, detail="Ungültiger oder abgelaufener Link.")
+
+        if len(req.new_password) < 8:
+            raise HTTPException(status_code=400, detail="Passwort muss mindestens 8 Zeichen lang sein")
 
         hashed = hash_password(req.new_password)
         await conn.execute(

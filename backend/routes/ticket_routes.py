@@ -108,6 +108,21 @@ async def ticket_apply(data: TicketSignupRequest):
     )
     send_email(subject=f"Dauerkarten-Antrag: {data.vorname} {data.nachname}", text_body=body)
 
+    # Send confirmation email to the applicant
+    confirmation_body = (
+        f"Hallo {data.vorname},\n\n"
+        f"vielen Dank für Ihren Dauerkarten-Antrag beim KS Polonia Hamburg e.V. "
+        f"für die Saison {ticket_service.CURRENT_SEASON}.\n\n"
+        f"Ihr Antrag wurde erfolgreich eingereicht und wird nun bearbeitet. "
+        f"Sie erhalten eine weitere E-Mail, sobald Ihr Antrag genehmigt wurde.\n\n"
+        f"Sportliche Grüße,\nKS Polonia Hamburg e.V."
+    )
+    send_email(
+        subject="KS Polonia – Dauerkarten-Antrag eingegangen",
+        text_body=confirmation_body,
+        to_email=data.email,
+    )
+
     return JSONResponse({
         "success": True,
         "message": "Vielen Dank! Ihr Dauerkarten-Antrag wurde eingereicht. Sie erhalten eine E-Mail, sobald er bearbeitet wurde.",
@@ -158,7 +173,7 @@ async def ticket_login(req: TicketLoginRequest):
 @router.post("/logout")
 async def ticket_logout():
     response = RedirectResponse(url="/api/tickets/login", status_code=302)
-    response.delete_cookie("ticket_session")
+    response.delete_cookie("ticket_session", path="/api/tickets", httponly=True, secure=True, samesite="lax")
     return response
 
 
@@ -280,6 +295,29 @@ async def ticket_review(request: Request, ticket_id: int, data: TicketReviewRequ
         ok = await ticket_service.reject_ticket(ticket_id, admin["email"], data.admin_notes or "")
         if not ok:
             raise HTTPException(status_code=404)
+        # Send rejection email to the applicant
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            ticket_holder = await conn.fetchrow(
+                """SELECT sth.vorname, sth.email
+                   FROM season_tickets st
+                   JOIN season_ticket_holders sth ON sth.id = st.holder_id
+                   WHERE st.id = $1""",
+                ticket_id,
+            )
+        if ticket_holder and ticket_holder.get("email"):
+            rejection_body = (
+                f"Hallo {ticket_holder['vorname']},\n\n"
+                f"leider müssen wir Ihnen mitteilen, dass Ihr Dauerkarten-Antrag "
+                f"beim KS Polonia Hamburg e.V. abgelehnt wurde.\n\n"
+                f"Bei Fragen wenden Sie sich bitte an info@ks-polonia.de.\n\n"
+                f"Sportliche Grüße,\nKS Polonia Hamburg e.V."
+            )
+            send_email(
+                subject="KS Polonia – Dauerkarten-Antrag",
+                text_body=rejection_body,
+                to_email=ticket_holder["email"],
+            )
         return JSONResponse({"success": True, "message": "Abgelehnt"})
 
     raise HTTPException(status_code=400, detail="Status: 'approved' oder 'rejected'")

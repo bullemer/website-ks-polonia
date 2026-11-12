@@ -3,7 +3,7 @@ KS Polonia – Member portal routes.
 Server-rendered portal pages for authenticated members.
 """
 import os
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
@@ -22,7 +22,7 @@ async def portal_login(request: Request):
     try:
         get_current_member(request)
         return RedirectResponse(url="/api/portal")
-    except Exception:
+    except HTTPException:
         return templates.TemplateResponse(request, "portal_login.html", {})
 
 
@@ -31,7 +31,7 @@ async def portal_dashboard(request: Request):
     """Member dashboard — profile, address, bank, teams, payments, card."""
     try:
         current = get_current_member(request)
-    except Exception:
+    except HTTPException:
         return RedirectResponse(url="/api/portal/login")
 
     member = await member_service.get_member_by_id(current["member_id"])

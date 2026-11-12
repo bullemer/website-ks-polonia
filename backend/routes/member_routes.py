@@ -3,6 +3,7 @@ KS Polonia – Member self-service routes.
 Profile view/edit, bank account, password change, division/team info, document upload.
 """
 import os
+import re
 import datetime
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse, Response
@@ -12,6 +13,27 @@ from models.member import MemberProfileUpdate, PasswordChange, BankAccountUpdate
 
 from services import member_service
 from config import UPLOAD_DIR
+
+ALLOWED_UPLOAD_EXTENSIONS = ('.pdf', '.jpg', '.jpeg', '.png', '.webp')
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
+
+
+async def _read_limited(upload_file, max_bytes: int = MAX_UPLOAD_SIZE) -> bytes:
+    """Read an upload file in chunks, raising 400 if it exceeds max_bytes."""
+    chunks = []
+    total = 0
+    while True:
+        chunk = await upload_file.read(8192)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Datei zu groß. Maximale Größe: {max_bytes // (1024*1024)} MB",
+            )
+        chunks.append(chunk)
+    return b"".join(chunks)
 
 router = APIRouter(prefix="/member", tags=["member"])
 
@@ -103,6 +125,12 @@ async def update_bank(request: Request, data: BankAccountUpdate):
     if len(iban) < 15 or len(iban) > 34:
         raise HTTPException(status_code=400, detail="Ungültige IBAN")
 
+    # MOD-97 checksum validation
+    rearranged = iban[4:] + iban[:4]
+    numeric = "".join(str(ord(c) - 55) if c.isalpha() else c for c in rearranged)
+    if int(numeric) % 97 != 1:
+        raise HTTPException(status_code=400, detail="Ungültige IBAN-Prüfsumme")
+
     new_id = await member_service.update_bank_account(
         current["member_id"],
         kontoinhaber=data.kontoinhaber,
@@ -143,14 +171,16 @@ async def get_teams(request: Request):
     return {"teams": teams}
 
 @router.get("/divisions/all")
-async def get_all_divisions_list():
+async def get_all_divisions_list(request: Request):
     """List all active divisions."""
+    get_current_member(request)
     return {"divisions": await member_service.get_all_divisions()}
 
 
 @router.get("/teams/all")
-async def get_all_teams_list():
+async def get_all_teams_list(request: Request):
     """List all active teams."""
+    get_current_member(request)
     return {"teams": await member_service.get_all_teams()}
 
 
@@ -211,24 +241,30 @@ async def upload_documents(request: Request):
 
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    vorname = member.get("vorname", "")
-    nachname = member.get("nachname", "")
+    vorname = re.sub(r'[^a-zA-Z0-9_-]', '_', member.get("vorname", ""))
+    nachname = re.sub(r'[^a-zA-Z0-9_-]', '_', member.get("nachname", ""))
     updates = {}
 
     if has_front:
         ext = os.path.splitext(id_front.filename)[1].lower() or ".bin"
+        if ext not in ALLOWED_UPLOAD_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"Dateityp '{ext}' nicht erlaubt. Erlaubt: {', '.join(ALLOWED_UPLOAD_EXTENSIONS)}")
+        content = await _read_limited(id_front)
         front_filename = f"{nachname}_{vorname}_Front_{timestamp}{ext}"
         front_path = os.path.join(UPLOAD_DIR, front_filename)
         with open(front_path, "wb") as f:
-            f.write(await id_front.read())
+            f.write(content)
         updates["id_front_path"] = front_path
 
     if has_back:
         ext = os.path.splitext(id_back.filename)[1].lower() or ".bin"
+        if ext not in ALLOWED_UPLOAD_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"Dateityp '{ext}' nicht erlaubt. Erlaubt: {', '.join(ALLOWED_UPLOAD_EXTENSIONS)}")
+        content = await _read_limited(id_back)
         back_filename = f"{nachname}_{vorname}_Back_{timestamp}{ext}"
         back_path = os.path.join(UPLOAD_DIR, back_filename)
         with open(back_path, "wb") as f:
-            f.write(await id_back.read())
+            f.write(content)
         updates["id_back_path"] = back_path
 
     # Persist paths in member record
@@ -285,6 +321,9 @@ async def download_membership_certificate(request: Request, purpose: str = ""):
     nachname = member.get("nachname", "Mitglied").strip()
     vorname = member.get("vorname", "").strip()
     raw_name = f"Mitgliedsbescheinigung_{nachname}_{vorname}.pdf"
+    # Replace umlauts before sanitizing
+    for old, new in [('ä','ae'),('ö','oe'),('ü','ue'),('ß','ss'),('Ä','Ae'),('Ö','Oe'),('Ü','Ue')]:
+        raw_name = raw_name.replace(old, new)
     clean_name = "".join(c for c in raw_name if c.isalnum() or c in "._-")
 
     return Response(

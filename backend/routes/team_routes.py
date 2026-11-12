@@ -20,8 +20,20 @@ from models.team_management import (
     TeamPhotoDelete,
 )
 from services import team_service, member_service
+from database import get_pool
 
 router = APIRouter(prefix="/teams", tags=["teams"])
+
+
+async def _is_team_member(member_id: int, team_id: int) -> bool:
+    """Check if a member is on the team (active assignment)."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchval(
+            "SELECT 1 FROM member_teams WHERE member_id = $1 AND team_id = $2 AND status = 'active'",
+            member_id, team_id,
+        )
+    return row is not None
 
 
 # ═══════════════════════════════════════
@@ -50,8 +62,13 @@ async def get_my_teams(request: Request):
 @router.get("/{team_id}/roster")
 async def get_team_roster(request: Request, team_id: int):
     """Get the active roster for a team."""
-    # Any logged in member can view roster
-    get_current_member(request)
+    member = get_current_member(request)
+    # Verify team membership or admin/superadmin
+    is_admin = member.get("role") in ("admin", "superadmin")
+    if not is_admin:
+        is_on_team = await _is_team_member(member["member_id"], team_id)
+        if not is_on_team:
+            raise HTTPException(status_code=403, detail="Kein Zugriff auf dieses Team")
     members = await team_service.get_team_members(team_id)
     return {"members": members}
 
@@ -93,6 +110,11 @@ async def get_team_treasury(request: Request, team_id: int):
     Accessible to team members and team admins.
     """
     member = get_current_member(request)
+    # Verify team membership or admin/superadmin
+    is_admin_or_super = member.get("role") in ("admin", "superadmin")
+    is_on_team = await _is_team_member(member["member_id"], team_id)
+    if not is_admin_or_super and not is_on_team:
+        raise HTTPException(status_code=403, detail="Kein Zugriff auf die Mannschaftskasse")
     summary = await team_service.get_team_treasury_summary(team_id)
     transactions = await team_service.get_team_treasury_transactions(team_id)
     is_admin = (member.get("role") == "superadmin") or await team_service.is_team_admin(
@@ -140,6 +162,12 @@ async def delete_treasury_transaction(request: Request, team_id: int, tx_id: int
 async def get_team_tasks(request: Request, team_id: int):
     """Get tasks for this team."""
     member = get_current_member(request)
+    # Verify team membership or admin/superadmin
+    is_admin_or_super = member.get("role") in ("admin", "superadmin")
+    if not is_admin_or_super:
+        is_on_team = await _is_team_member(member["member_id"], team_id)
+        if not is_on_team:
+            raise HTTPException(status_code=403, detail="Kein Zugriff auf die Aufgaben dieses Teams")
     tasks = await team_service.get_team_tasks(team_id)
     is_admin = (member.get("role") == "superadmin") or await team_service.is_team_admin(
         member["member_id"], team_id
@@ -256,7 +284,19 @@ async def upload_team_photo(
     os.makedirs(public_teams_dir, exist_ok=True)
     file_path = os.path.join(public_teams_dir, unique_filename)
 
-    content = await photo.read()
+    # Read in chunks with 5MB limit
+    MAX_PHOTO_SIZE = 5 * 1024 * 1024
+    chunks = []
+    total = 0
+    while True:
+        chunk = await photo.read(8192)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > MAX_PHOTO_SIZE:
+            raise HTTPException(status_code=400, detail="Datei zu groß. Maximale Größe: 5 MB")
+        chunks.append(chunk)
+    content = b"".join(chunks)
     with open(file_path, "wb") as f:
         f.write(content)
 

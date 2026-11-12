@@ -44,7 +44,7 @@ BEGIN
     --   4. INSERT into member_teams with Spielrecht data (ON CONFLICT update)
 
     -- ─── 1. Bajster, Franek ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Franek', 'Bajster', '2016-09-06', 'männlich', 'D', '0695-8073', TRUE, '2026-03-03', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -58,7 +58,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 2. Bullemer, Tom ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Tom', 'Bullemer', '2016-10-02', 'männlich', 'D', '0672-0157', TRUE, '2023-01-30', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -72,7 +72,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 3. Dygowski, Leo ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Leo', 'Dygowski', '2017-03-04', 'männlich', 'PL', '0730-3584', TRUE, '2024-08-14', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -86,7 +86,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 4. Grunenberg, Noah Jens ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Noah Jens', 'Grunenberg', '2016-11-19', 'männlich', 'D', '0749-8931', TRUE, '2025-01-11', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -100,7 +100,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 5. Kumara, Yunus Emre ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Yunus Emre', 'Kumara', '2016-10-27', 'männlich', 'D', '0749-3470', TRUE, '2025-01-01', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -114,7 +114,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 6. Lababidi, Ahmed ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Ahmed', 'Lababidi', '2016-08-16', 'männlich', 'D', '0706-1082', TRUE, '2023-10-25', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -128,7 +128,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 7. Lescale, Loic Can ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Loic Can', 'Lescale', '2016-08-21', 'männlich', 'D', '0749-3603', TRUE, '2025-01-05', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -142,7 +142,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 8. Monroy Metzler, Alexander ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Alexander', 'Monroy Metzler', '2017-04-26', 'männlich', 'D', '0773-3250', TRUE, '2025-09-04', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -156,7 +156,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 9. Onuorah, Maxim Chuka ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Maxim Chuka', 'Onuorah', '2016-04-01', 'männlich', 'D', '0749-3472', TRUE, '2025-01-01', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -170,7 +170,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 10. Rosenthal, Leon Sverre ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Leon Sverre', 'Rosenthal', '2016-12-15', 'männlich', 'D', '0775-6946', TRUE, '2025-09-12', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -184,7 +184,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 11. Stumpf, Michael ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Michael', 'Stumpf', '2016-11-18', 'männlich', 'D', '0813-1308', TRUE, '2026-09-15', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -198,7 +198,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 12. Ulumaskan, Enes ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Enes', 'Ulumaskan', '2016-03-17', 'männlich', 'D', '0791-9702', TRUE, '2026-03-29', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''
@@ -212,7 +212,7 @@ BEGIN
     ON CONFLICT (member_id, team_id) DO UPDATE SET spielrecht_ab = EXCLUDED.spielrecht_ab, dfb_registered_at = EXCLUDED.dfb_registered_at;
 
     -- ─── 13. Yesiltas, Talha Hulusi ───
-    v_token := encode(gen_random_bytes(32), 'hex');
+    v_token := md5(random()::text || clock_timestamp()::text || random()::text);
     INSERT INTO members (vorname, nachname, geburtsdatum, geschlecht, nationality, passnummer, is_active, eintrittsdatum, claim_token)
     VALUES ('Talha Hulusi', 'Yesiltas', '2016-05-07', 'männlich', 'TR', '0752-7665', TRUE, '2025-02-22', v_token)
     ON CONFLICT (passnummer) WHERE passnummer IS NOT NULL AND passnummer != ''

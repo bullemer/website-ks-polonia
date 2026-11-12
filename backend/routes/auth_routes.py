@@ -237,6 +237,12 @@ async def verify_email(token: str):
 #  ACCOUNT ACTIVATION (Nachname + Geburtsdatum)
 # ═══════════════════════════════════════
 
+class RequestAccessRequest(BaseModel):
+    nachname: str
+    geburtsdatum: str  # YYYY-MM-DD
+    email: EmailStr
+
+
 class ActivateLookupRequest(BaseModel):
     nachname: str
     geburtsdatum: str  # YYYY-MM-DD
@@ -376,4 +382,105 @@ async def activate_complete(req: ActivateCompleteRequest):
     return JSONResponse({
         "success": True,
         "message": f"Konto für {member['vorname']} erfolgreich aktiviert!",
+    })
+
+
+# ═══════════════════════════════════════
+#  REQUEST ACCESS (Zugang anfordern)
+# ═══════════════════════════════════════
+
+@router.post("/request-access")
+async def request_access(req: RequestAccessRequest):
+    """
+    Single-step flow: member provides Nachname + Geburtsdatum + Email.
+    A random password is generated, stored, and emailed to the member.
+    """
+    import datetime
+    import secrets
+
+    # Validate date format
+    try:
+        dob = datetime.date.fromisoformat(req.geburtsdatum)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Ungültiges Datumsformat.")
+
+    from database import get_pool
+    pool = await get_pool()
+
+    async with pool.acquire() as conn:
+        # Case-insensitive last-name match + exact DOB
+        member = await conn.fetchrow(
+            """
+            SELECT id, vorname, nachname, email
+            FROM members
+            WHERE LOWER(nachname) = LOWER($1)
+              AND geburtsdatum = $2
+              AND is_active = TRUE
+            ORDER BY id
+            LIMIT 1
+            """,
+            req.nachname.strip(), dob,
+        )
+
+    if not member:
+        raise HTTPException(
+            status_code=404,
+            detail="Kein Mitglied gefunden.",
+        )
+
+    email = req.email.strip().lower()
+
+    # Check email not already taken by a DIFFERENT member
+    async with pool.acquire() as conn:
+        existing = await conn.fetchrow(
+            "SELECT id FROM members WHERE email = $1 AND id != $2",
+            email, member["id"],
+        )
+        if existing:
+            raise HTTPException(
+                status_code=409,
+                detail="E-Mail bereits vergeben.",
+            )
+
+    # Generate random password
+    pw = secrets.token_urlsafe(10)[:10]
+    hashed = hash_password(pw)
+
+    # Update member record
+    async with pool.acquire() as conn:
+        await conn.execute(
+            """
+            UPDATE members
+            SET email = $1,
+                password_hash = $2,
+                email_verified = TRUE,
+                updated_at = NOW()
+            WHERE id = $3
+            """,
+            email, hashed, member["id"],
+        )
+
+    # Send credentials email
+    body = (
+        f"Hallo {member['vorname']},\n\n"
+        f"dein Zugang zum KS Polonia Mitgliederportal wurde eingerichtet.\n\n"
+        f"Deine Zugangsdaten:\n"
+        f"E-Mail: {email}\n"
+        f"Passwort: {pw}\n\n"
+        f"Bitte ändere dein Passwort nach dem ersten Login.\n\n"
+        f"Login: {SITE_URL}/portal/login\n\n"
+        f"Sportliche Grüße,\n"
+        f"KS Polonia Hamburg"
+    )
+    ok, err = send_email(
+        subject="Dein KS Polonia Zugang",
+        text_body=body,
+        to_email=email,
+    )
+    if not ok:
+        print(f"Email error: {err}")
+
+    return JSONResponse({
+        "success": True,
+        "message": "Zugangsdaten wurden per E-Mail versendet.",
     })

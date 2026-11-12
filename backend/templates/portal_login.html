@@ -179,6 +179,7 @@
                 </form>
                 <div class="links">
                     <a href="#" id="forgotLink">Passwort vergessen?</a>
+                    <a href="#" id="requestAccessLink" style="font-size:0.88rem; color: var(--text-muted);">Noch keinen Zugang? → Zugang anfordern</a>
                     <div class="divider">oder</div>
                     <a href="#" id="activateLink" class="signup-link">🔑 Konto aktivieren</a>
                 </div>
@@ -250,6 +251,29 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Zugang anfordern (Request Access) -->
+            <div id="requestAccessSection" class="forgot-section">
+                <a href="#" class="back-link" id="backToLogin3">← Zurück zur Anmeldung</a>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                    Gib deinen Nachnamen, Geburtsdatum und E-Mail-Adresse ein. Du erhältst dein Passwort per E-Mail.
+                </p>
+                <form id="requestAccessForm">
+                    <div class="field">
+                        <label for="reqNachname">Nachname</label>
+                        <input type="text" id="reqNachname" required placeholder="Mustermann" autocomplete="family-name">
+                    </div>
+                    <div class="field">
+                        <label for="reqGeburtsdatum">Geburtsdatum</label>
+                        <input type="date" id="reqGeburtsdatum" required autocomplete="bday">
+                    </div>
+                    <div class="field">
+                        <label for="reqEmail">E-Mail-Adresse</label>
+                        <input type="email" id="reqEmail" required placeholder="deine@email.de" autocomplete="email" inputmode="email">
+                    </div>
+                    <button type="submit" class="submit-btn" id="reqAccessBtn">Zugang anfordern</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -261,12 +285,14 @@
         const loginSection = document.getElementById('loginSection');
         const forgotSection = document.getElementById('forgotSection');
         const activateSection = document.getElementById('activateSection');
+        const requestAccessSection = document.getElementById('requestAccessSection');
         const alertEl = document.getElementById('alert');
 
         function hideAllSections() {
             loginSection.style.display = 'none';
             forgotSection.classList.remove('active');
             activateSection.classList.remove('active');
+            requestAccessSection.classList.remove('active');
             alertEl.style.display = 'none';
         }
         function showLogin() {
@@ -332,6 +358,16 @@
             document.getElementById('activateStep2').style.display = 'none';
         });
         document.getElementById('backToLogin2').addEventListener('click', (e) => {
+            e.preventDefault(); showLogin();
+        });
+
+        // Request Access toggle
+        document.getElementById('requestAccessLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            hideAllSections();
+            requestAccessSection.classList.add('active');
+        });
+        document.getElementById('backToLogin3').addEventListener('click', (e) => {
             e.preventDefault(); showLogin();
         });
 
@@ -428,6 +464,38 @@
                 showAlert('Fehler beim Senden', 'error');
             } finally {
                 btn.disabled = false; btn.textContent = 'Link senden';
+            }
+        });
+
+        // Request Access submit
+        document.getElementById('requestAccessForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('reqAccessBtn');
+            btn.disabled = true; btn.textContent = 'Wird gesendet...';
+            alertEl.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/auth/request-access', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        nachname: document.getElementById('reqNachname').value.trim(),
+                        geburtsdatum: document.getElementById('reqGeburtsdatum').value,
+                        email: document.getElementById('reqEmail').value.trim(),
+                    }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showAlert(data.message, 'success');
+                    document.getElementById('requestAccessForm').reset();
+                    setTimeout(() => { showLogin(); showAlert(data.message, 'success'); }, 3000);
+                } else {
+                    showAlert(data.detail || 'Fehler bei der Anfrage.', 'error');
+                }
+            } catch (err) {
+                showAlert('Verbindungsfehler', 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Zugang anfordern';
             }
         });
 

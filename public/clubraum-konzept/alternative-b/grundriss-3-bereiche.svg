@@ -8,9 +8,9 @@
 <rect x="106.00" y="203.33" width="95.33" height="59.20" fill="#f4f4f1" stroke="none" stroke-width="0.25" opacity="0.55"/>
 <text x="151.67" y="229.33" font-size="2.6" fill="#6b736d" text-anchor="middle" font-weight="bold" >TREPPE / LUFTRAUM</text>
 <text x="151.67" y="234.67" font-size="2.0" fill="#6b736d" text-anchor="middle" font-weight="normal" >nicht Teil der Nutzfläche</text>
-<rect x="44.00" y="52.00" width="77.00" height="101.33" fill="#f3f2ee" stroke="none" stroke-width="0.25" />
-<rect x="121.00" y="52.00" width="77.00" height="101.33" fill="#f6e1e4" stroke="none" stroke-width="0.25" />
-<path d="M44.00 153.33 L198.00 153.33 L198.00 200.00 L102.67 200.00 L102.67 259.20 L44.00 259.20 Z" fill="#efebe1" stroke="none" stroke-width="0.25" />
+<rect x="44.00" y="52.00" width="77.00" height="108.67" fill="#f3f2ee" stroke="none" stroke-width="0.25" />
+<rect x="121.00" y="52.00" width="77.00" height="108.67" fill="#f6e1e4" stroke="none" stroke-width="0.25" />
+<path d="M44.00 160.67 L198.00 160.67 L198.00 200.00 L102.67 200.00 L102.67 259.20 L44.00 259.20 Z" fill="#efebe1" stroke="none" stroke-width="0.25" />
 <path d="M44.00 52.00 L198.00 52.00 L198.00 200.00 L102.67 200.00 L102.67 259.20 L44.00 259.20 Z" fill="none" stroke="#25302b" stroke-width="0.35" />
 <rect x="40.67" y="58.33" width="3.33" height="31.33" fill="#ffffff" stroke="#25302b" stroke-width="0.2" />
 <line x1="42.33" y1="58.33" x2="42.33" y2="89.67" stroke="#5b8fa8" stroke-width="0.35" />
@@ -45,14 +45,14 @@
 <rect x="143.33" y="149.33" width="8.00" height="17.33" fill="none" stroke="#5b8fa8" stroke-width="0.25" stroke-dasharray="1 0.7"/>
 <text x="153.07" y="160.67" font-size="1.5" fill="#3d6f86" text-anchor="start" font-weight="normal" >Oberlicht</text>
 <text x="153.07" y="164.27" font-size="1.5" fill="#3d6f86" text-anchor="start" font-weight="normal" >(Decke)</text>
-<rect x="54.00" y="153.33" width="144.00" height="16.00" fill="url(#route)" stroke="none" stroke-width="0.25" />
-<rect x="182.00" y="169.33" width="16.00" height="30.67" fill="url(#route)" stroke="none" stroke-width="0.25" />
-<rect x="59.33" y="169.33" width="16.00" height="89.87" fill="url(#route)" stroke="none" stroke-width="0.25" />
-<text x="109.33" y="158.67" font-size="2.0" fill="#3f8a63" text-anchor="middle" font-weight="bold" >QUERWEG · freizuhalten 1,20 m</text>
+<rect x="54.00" y="160.67" width="144.00" height="16.00" fill="url(#route)" stroke="none" stroke-width="0.25" />
+<rect x="182.00" y="176.67" width="16.00" height="23.33" fill="url(#route)" stroke="none" stroke-width="0.25" />
+<rect x="59.33" y="176.67" width="16.00" height="82.53" fill="url(#route)" stroke="none" stroke-width="0.25" />
+<text x="109.33" y="166.00" font-size="2.0" fill="#3f8a63" text-anchor="middle" font-weight="bold" >QUERWEG · freizuhalten 1,20 m</text>
 <text x="67.33" y="235.33" font-size="1.7" fill="#3f8a63" text-anchor="middle" font-weight="normal" transform="rotate(-90 67.33 235.33)" >Weg 1,20 m</text>
 <path d="M65.73 250.40 L67.33 252.00 L68.93 250.40" fill="none" stroke="#3f8a63" stroke-width="0.6" />
 <path d="M188.40 191.07 L190.00 192.67 L191.60 191.07" fill="none" stroke="#3f8a63" stroke-width="0.6" />
-<line x1="44.00" y1="153.33" x2="198.00" y2="153.33" stroke="#4b5650" stroke-width="0.5" stroke-dasharray="2.4 1.2"/>
+<line x1="44.00" y1="160.67" x2="198.00" y2="160.67" stroke="#4b5650" stroke-width="0.5" stroke-dasharray="2.4 1.2"/>
 <line x1="121.00" y1="47.33" x2="121.00" y2="204.67" stroke="#4b5650" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/>
 <text x="121.00" y="45.60" font-size="1.8" fill="#4b5650" text-anchor="middle" font-weight="normal" >Raummitte  x = 5,775 m</text>
 <rect x="120.33" y="53.47" width="1.33" height="15.73" fill="#55705f" stroke="#2f4337" stroke-width="0.2" />
@@ -119,13 +119,13 @@
 <rect x="167.00" y="128.33" width="6.00" height="6.00" fill="#ffffff" stroke="#6b736d" stroke-width="0.2" />
 <line x1="167.33" y1="134.00" x2="172.67" y2="134.00" stroke="#6b736d" stroke-width="0.6" />
 <text x="86.00" y="139.33" font-size="5.6" fill="#5f6661" text-anchor="middle" font-weight="bold" >CROATIA</text>
-<text x="86.00" y="147.33" font-size="2.1" fill="#5f6661" text-anchor="middle" font-weight="normal" >Bereich frei · 43,9 m²</text>
+<text x="86.00" y="147.33" font-size="2.1" fill="#5f6661" text-anchor="middle" font-weight="normal" >Bereich frei · 47,1 m²</text>
 <text x="86.00" y="113.33" font-size="2.0" fill="#6b736d" text-anchor="middle" font-weight="normal" >leer – Einrichtung durch Croatia</text>
 <text x="163.33" y="139.33" font-size="5.6" fill="#ab293d" text-anchor="middle" font-weight="bold" >POLONIA</text>
-<text x="163.33" y="147.33" font-size="2.1" fill="#ab293d" text-anchor="middle" font-weight="normal" >Vereinsbereich · 43,9 m²</text>
+<text x="163.33" y="147.33" font-size="2.1" fill="#ab293d" text-anchor="middle" font-weight="normal" >Vereinsbereich · 47,1 m²</text>
 <text x="166.00" y="179.33" font-size="2.4" fill="#5d5446" text-anchor="middle" font-weight="bold" >GEMEINSAMER BEREICH</text>
-<text x="166.00" y="184.67" font-size="1.9" fill="#5d5446" text-anchor="middle" font-weight="normal" >offen · 60,0 m²</text>
-<text x="166.00" y="189.07" font-size="1.7" fill="#5d5446" text-anchor="middle" font-weight="normal" >Theke · Küche · Eingang</text>
+<text x="166.00" y="184.67" font-size="1.9" fill="#5d5446" text-anchor="middle" font-weight="normal" >offen · 53,6 m²</text>
+<text x="166.00" y="189.07" font-size="1.7" fill="#5d5446" text-anchor="middle" font-weight="normal" >Freifläche · Küche · Eingang</text>
 <circle cx="65.07" cy="162.00" r="1.73" fill="#ffffff" stroke="#1d6fb8" stroke-width="0.3" />
 <line x1="63.87" y1="162.00" x2="66.27" y2="162.00" stroke="#1d6fb8" stroke-width="0.25" />
 <text x="65.07" y="167.33" font-size="1.3" fill="#1d6fb8" text-anchor="middle" font-weight="normal" >CLS 4|2</text>
@@ -139,44 +139,37 @@
 <text x="48.27" y="227.60" font-size="1.45" fill="#c8102e" text-anchor="start" font-weight="normal" >RWA-Taster 1 · freihalten</text>
 <rect x="174.40" y="197.60" width="2.13" height="2.13" fill="#c8102e" stroke="none" stroke-width="0.25" />
 <text x="173.33" y="193.60" font-size="1.4" fill="#c8102e" text-anchor="end" font-weight="normal" >Oberlicht-Taster</text>
-<rect x="93.47" y="176.67" width="27.53" height="8.00" fill="#c79a63" stroke="#6d5434" stroke-width="0.3" />
-<rect x="121.00" y="176.67" width="27.53" height="8.00" fill="#c79a63" stroke="#6d5434" stroke-width="0.3" />
-<rect x="121.67" y="175.73" width="26.20" height="0.93" fill="#ab293d" stroke="none" stroke-width="0.25" />
-<line x1="121.00" y1="173.33" x2="121.00" y2="185.33" stroke="#25302b" stroke-width="0.5" />
-<text x="115.87" y="181.60" font-size="1.45" fill="#5f6661" text-anchor="middle" font-weight="normal" >Croatia</text>
-<text x="126.13" y="181.60" font-size="1.45" fill="#ab293d" text-anchor="middle" font-weight="bold" >POLONIA</text>
-<rect x="93.47" y="184.67" width="8.00" height="17.33" fill="#c79a63" stroke="#6d5434" stroke-width="0.3" />
-<rect x="93.87" y="188.67" width="7.20" height="10.67" fill="#e5c79d" stroke="#6d5434" stroke-width="0.2" stroke-dasharray="0.6 0.4"/>
-<text x="97.47" y="194.00" font-size="1.35" fill="#3b2a14" text-anchor="middle" font-weight="normal" transform="rotate(-90 97.47 194.00)" >Klappe</text>
-<rect x="140.53" y="184.67" width="8.00" height="6.67" fill="#c79a63" stroke="#6d5434" stroke-width="0.3" />
-<line x1="144.53" y1="191.33" x2="144.53" y2="200.00" stroke="#6d5434" stroke-width="0.5" />
-<path d="M144.53 200.00 A8.67 8.67 0 0 1 153.20 191.33" fill="none" stroke="#6d5434" stroke-width="0.2" stroke-dasharray="0.6 0.4"/>
-<text x="154.53" y="196.67" font-size="1.35" fill="#3b2a14" text-anchor="start" font-weight="normal" >Pendeltür</text>
-<rect x="102.67" y="177.07" width="8.00" height="7.20" fill="#b8c0b7" stroke="#5e675f" stroke-width="0.2" />
-<text x="106.67" y="181.47" font-size="1.3" fill="#25302b" text-anchor="middle" font-weight="normal" >UK-C</text>
-<rect x="131.33" y="177.07" width="8.00" height="7.20" fill="#b8c0b7" stroke="#5e675f" stroke-width="0.2" />
-<text x="135.33" y="181.47" font-size="1.3" fill="#25302b" text-anchor="middle" font-weight="normal" >UK-P</text>
-<circle cx="100.67" cy="173.07" r="2.53" fill="#ffffff" stroke="#6b736d" stroke-width="0.25" />
-<circle cx="108.67" cy="173.07" r="2.53" fill="#ffffff" stroke="#6b736d" stroke-width="0.25" />
-<circle cx="116.67" cy="173.07" r="2.53" fill="#ffffff" stroke="#6b736d" stroke-width="0.25" />
-<circle cx="125.33" cy="173.07" r="2.53" fill="#ffffff" stroke="#6b736d" stroke-width="0.25" />
-<circle cx="133.33" cy="173.07" r="2.53" fill="#ffffff" stroke="#6b736d" stroke-width="0.25" />
-<circle cx="141.33" cy="173.07" r="2.53" fill="#ffffff" stroke="#6b736d" stroke-width="0.25" />
-<text x="124.00" y="190.00" font-size="1.6" fill="#8a5a2b" text-anchor="middle" font-weight="normal" >Bedienbereich ca. 1,15 m</text>
-<rect x="93.47" y="202.00" width="8.53" height="48.00" fill="#c79a63" stroke="#6d5434" stroke-width="0.3" />
-<rect x="93.87" y="204.00" width="7.73" height="7.47" fill="#c3c5bd" stroke="#747a6d" stroke-width="0.2" />
-<text x="97.73" y="208.53" font-size="1.2" fill="#25302b" text-anchor="middle" font-weight="normal" >KS</text>
-<rect x="93.87" y="211.73" width="7.73" height="7.47" fill="#c3c5bd" stroke="#747a6d" stroke-width="0.2" />
-<text x="97.73" y="216.27" font-size="1.2" fill="#25302b" text-anchor="middle" font-weight="normal" >KS</text>
-<rect x="94.67" y="222.67" width="6.13" height="8.27" fill="#e9eef0" stroke="#747a6d" stroke-width="0.2" rx="0.8"/>
-<text x="97.73" y="227.60" font-size="1.2" fill="#25302b" text-anchor="middle" font-weight="normal" >Sp</text>
-<rect x="93.87" y="232.00" width="7.73" height="7.73" fill="#dfe2e3" stroke="#747a6d" stroke-width="0.2" />
-<text x="97.73" y="236.67" font-size="1.2" fill="#25302b" text-anchor="middle" font-weight="normal" >GSP</text>
-<text x="90.00" y="226.00" font-size="1.75" fill="#3b2a14" text-anchor="middle" font-weight="bold" transform="rotate(-90 90.00 226.00)" >KÜCHE gemeinsam · 3,60 m · Wasserwand</text>
+<text x="121.33" y="190.00" font-size="1.7" fill="#5d5446" text-anchor="middle" font-weight="normal" >ÖFFENTLICHE FREIFLÄCHE · ehem. Theke</text>
+<rect x="93.47" y="202.00" width="8.53" height="24.00" fill="#c79a63" stroke="#6d5434" stroke-width="0.3" />
+<line x1="93.47" y1="210.00" x2="102.00" y2="210.00" stroke="#6d5434" stroke-width="0.2" />
+<line x1="93.47" y1="218.00" x2="102.00" y2="218.00" stroke="#6d5434" stroke-width="0.2" />
+<rect x="94.53" y="219.07" width="6.27" height="5.87" fill="#e9eef0" stroke="#747a6d" stroke-width="0.2" rx="0.5"/>
+<circle cx="97.73" cy="222.00" r="0.33" fill="#747a6d" stroke="none" stroke-width="0.25" />
+<rect x="94.00" y="210.53" width="7.47" height="6.93" fill="#e5d5bd" stroke="#6d5434" stroke-width="0.2" />
+<text x="97.73" y="214.53" font-size="1.0" fill="#25302b" text-anchor="middle" font-weight="normal" >Stau</text>
+<rect x="94.00" y="202.53" width="7.47" height="6.93" fill="none" stroke="#836b52" stroke-width="0.25" stroke-dasharray="0.8 0.5"/>
+<text x="97.73" y="205.60" font-size="1.0" fill="#25302b" text-anchor="middle" font-weight="normal" >60 cm</text>
+<text x="97.73" y="207.73" font-size="1.0" fill="#25302b" text-anchor="middle" font-weight="normal" >mobil</text>
+<rect x="93.60" y="210.40" width="7.73" height="7.20" fill="none" stroke="#5f6661" stroke-width="0.25" stroke-dasharray="0.7 0.5"/>
+<text x="89.33" y="213.73" font-size="1.25" fill="#5f6661" text-anchor="middle" font-weight="bold" transform="rotate(-90 89.33 213.73)" >PANTRY CROATIA · 1,80 m</text>
+<rect x="93.47" y="226.00" width="8.53" height="24.00" fill="#c79a63" stroke="#6d5434" stroke-width="0.3" />
+<line x1="93.47" y1="234.00" x2="102.00" y2="234.00" stroke="#6d5434" stroke-width="0.2" />
+<line x1="93.47" y1="242.00" x2="102.00" y2="242.00" stroke="#6d5434" stroke-width="0.2" />
+<rect x="94.53" y="227.07" width="6.27" height="5.87" fill="#e9eef0" stroke="#747a6d" stroke-width="0.2" rx="0.5"/>
+<circle cx="97.73" cy="230.00" r="0.33" fill="#747a6d" stroke="none" stroke-width="0.25" />
+<rect x="94.00" y="234.53" width="7.47" height="6.93" fill="#e5d5bd" stroke="#6d5434" stroke-width="0.2" />
+<text x="97.73" y="238.53" font-size="1.0" fill="#25302b" text-anchor="middle" font-weight="normal" >Stau</text>
+<rect x="94.00" y="242.53" width="7.47" height="6.93" fill="none" stroke="#836b52" stroke-width="0.25" stroke-dasharray="0.8 0.5"/>
+<text x="97.73" y="245.60" font-size="1.0" fill="#25302b" text-anchor="middle" font-weight="normal" >60 cm</text>
+<text x="97.73" y="247.73" font-size="1.0" fill="#25302b" text-anchor="middle" font-weight="normal" >mobil</text>
+<rect x="93.60" y="234.40" width="7.73" height="7.20" fill="none" stroke="#ab293d" stroke-width="0.25" stroke-dasharray="0.7 0.5"/>
+<text x="89.33" y="237.73" font-size="1.25" fill="#ab293d" text-anchor="middle" font-weight="bold" transform="rotate(-90 89.33 237.73)" >PANTRY POLONIA · 1,80 m</text>
+<rect x="82.67" y="225.73" width="20.00" height="0.53" fill="#5b625d" stroke="#25302b" stroke-width="0.2" />
+<text x="81.33" y="226.00" font-size="1.15" fill="#6b736d" text-anchor="end" font-weight="normal" >Trennung</text>
 <rect x="45.07" y="205.33" width="8.27" height="8.00" fill="#dfe8ec" stroke="#5f6661" stroke-width="0.4" />
 <text x="54.93" y="210.13" font-size="1.45" fill="#5f6661" text-anchor="start" font-weight="bold" >K1 Croatia</text>
-<rect x="45.07" y="214.40" width="8.27" height="8.00" fill="#dfe8ec" stroke="#ab293d" stroke-width="0.4" />
-<text x="54.93" y="219.20" font-size="1.45" fill="#ab293d" text-anchor="start" font-weight="bold" >K2 Polonia</text>
+<rect x="45.07" y="235.33" width="8.27" height="8.00" fill="#dfe8ec" stroke="#ab293d" stroke-width="0.4" />
+<text x="54.93" y="240.13" font-size="1.45" fill="#ab293d" text-anchor="start" font-weight="bold" >K2 Polonia</text>
 <text x="78.67" y="243.33" font-size="1.6" fill="#5d5446" text-anchor="middle" font-weight="normal" >Zugang · Abholen</text>
 <rect x="106.67" y="196.00" width="8.00" height="4.00" fill="#20555b" stroke="none" stroke-width="0.25" />
 <text x="110.67" y="194.67" font-size="1.3" fill="#20555b" text-anchor="middle" font-weight="normal" >N01 Technik ≥ 2,10 m</text>
@@ -228,18 +221,18 @@
 <line x1="196.40" y1="19.60" x2="199.60" y2="16.40" stroke="#25302b" stroke-width="0.35" />
 <line x1="198.00" y1="15.60" x2="198.00" y2="20.40" stroke="#25302b" stroke-width="0.15" />
 <text x="121.00" y="16.40" font-size="2.0" fill="#25302b" text-anchor="middle" font-weight="normal" >11,550 m · Breitenkette lt. Bestandsplan</text>
-<line x1="30.00" y1="52.00" x2="30.00" y2="153.33" stroke="#25302b" stroke-width="0.2" />
+<line x1="30.00" y1="52.00" x2="30.00" y2="160.67" stroke="#25302b" stroke-width="0.2" />
 <line x1="28.40" y1="53.60" x2="31.60" y2="50.40" stroke="#25302b" stroke-width="0.35" />
 <line x1="27.60" y1="52.00" x2="32.40" y2="52.00" stroke="#25302b" stroke-width="0.15" />
-<line x1="28.40" y1="154.93" x2="31.60" y2="151.73" stroke="#25302b" stroke-width="0.35" />
-<line x1="27.60" y1="153.33" x2="32.40" y2="153.33" stroke="#25302b" stroke-width="0.15" />
-<text x="28.13" y="102.67" font-size="1.8" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 28.13 102.67)" >7,60 · Vereinsbereiche</text>
-<line x1="30.00" y1="153.33" x2="30.00" y2="200.00" stroke="#25302b" stroke-width="0.2" />
-<line x1="28.40" y1="154.93" x2="31.60" y2="151.73" stroke="#25302b" stroke-width="0.35" />
-<line x1="27.60" y1="153.33" x2="32.40" y2="153.33" stroke="#25302b" stroke-width="0.15" />
+<line x1="28.40" y1="162.27" x2="31.60" y2="159.07" stroke="#25302b" stroke-width="0.35" />
+<line x1="27.60" y1="160.67" x2="32.40" y2="160.67" stroke="#25302b" stroke-width="0.15" />
+<text x="28.13" y="106.33" font-size="1.8" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 28.13 106.33)" >8,15 · Vereinsbereiche</text>
+<line x1="30.00" y1="160.67" x2="30.00" y2="200.00" stroke="#25302b" stroke-width="0.2" />
+<line x1="28.40" y1="162.27" x2="31.60" y2="159.07" stroke="#25302b" stroke-width="0.35" />
+<line x1="27.60" y1="160.67" x2="32.40" y2="160.67" stroke="#25302b" stroke-width="0.15" />
 <line x1="28.40" y1="201.60" x2="31.60" y2="198.40" stroke="#25302b" stroke-width="0.35" />
 <line x1="27.60" y1="200.00" x2="32.40" y2="200.00" stroke="#25302b" stroke-width="0.15" />
-<text x="28.13" y="176.67" font-size="1.7" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 28.13 176.67)" >3,50 · offen</text>
+<text x="28.13" y="180.33" font-size="1.7" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 28.13 180.33)" >2,95 · offen</text>
 <line x1="30.00" y1="200.00" x2="30.00" y2="259.20" stroke="#25302b" stroke-width="0.2" />
 <line x1="28.40" y1="201.60" x2="31.60" y2="198.40" stroke="#25302b" stroke-width="0.35" />
 <line x1="27.60" y1="200.00" x2="32.40" y2="200.00" stroke="#25302b" stroke-width="0.15" />
@@ -258,43 +251,25 @@
 <line x1="213.07" y1="128.27" x2="216.27" y2="125.07" stroke="#25302b" stroke-width="0.35" />
 <line x1="212.27" y1="126.67" x2="217.07" y2="126.67" stroke="#25302b" stroke-width="0.15" />
 <text x="212.80" y="89.33" font-size="1.6" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 212.80 89.33)" >5,60 · Stützenachse (Annahme)</text>
-<line x1="214.67" y1="126.67" x2="214.67" y2="153.33" stroke="#25302b" stroke-width="0.2" />
+<line x1="214.67" y1="126.67" x2="214.67" y2="160.67" stroke="#25302b" stroke-width="0.2" />
 <line x1="213.07" y1="128.27" x2="216.27" y2="125.07" stroke="#25302b" stroke-width="0.35" />
 <line x1="212.27" y1="126.67" x2="217.07" y2="126.67" stroke="#25302b" stroke-width="0.15" />
-<line x1="213.07" y1="154.93" x2="216.27" y2="151.73" stroke="#25302b" stroke-width="0.35" />
-<line x1="212.27" y1="153.33" x2="217.07" y2="153.33" stroke="#25302b" stroke-width="0.15" />
-<text x="212.80" y="140.00" font-size="1.6" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 212.80 140.00)" >2,00</text>
-<line x1="214.67" y1="153.33" x2="214.67" y2="169.33" stroke="#25302b" stroke-width="0.2" />
-<line x1="213.07" y1="154.93" x2="216.27" y2="151.73" stroke="#25302b" stroke-width="0.35" />
-<line x1="212.27" y1="153.33" x2="217.07" y2="153.33" stroke="#25302b" stroke-width="0.15" />
-<line x1="213.07" y1="170.93" x2="216.27" y2="167.73" stroke="#25302b" stroke-width="0.35" />
-<line x1="212.27" y1="169.33" x2="217.07" y2="169.33" stroke="#25302b" stroke-width="0.15" />
-<text x="212.80" y="161.33" font-size="1.4" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 212.80 161.33)" >1,20</text>
-<line x1="214.67" y1="169.33" x2="214.67" y2="176.67" stroke="#25302b" stroke-width="0.2" />
-<line x1="213.07" y1="170.93" x2="216.27" y2="167.73" stroke="#25302b" stroke-width="0.35" />
-<line x1="212.27" y1="169.33" x2="217.07" y2="169.33" stroke="#25302b" stroke-width="0.15" />
+<line x1="213.07" y1="162.27" x2="216.27" y2="159.07" stroke="#25302b" stroke-width="0.35" />
+<line x1="212.27" y1="160.67" x2="217.07" y2="160.67" stroke="#25302b" stroke-width="0.15" />
+<text x="212.80" y="143.67" font-size="1.6" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 212.80 143.67)" >2,55</text>
+<line x1="214.67" y1="160.67" x2="214.67" y2="176.67" stroke="#25302b" stroke-width="0.2" />
+<line x1="213.07" y1="162.27" x2="216.27" y2="159.07" stroke="#25302b" stroke-width="0.35" />
+<line x1="212.27" y1="160.67" x2="217.07" y2="160.67" stroke="#25302b" stroke-width="0.15" />
 <line x1="213.07" y1="178.27" x2="216.27" y2="175.07" stroke="#25302b" stroke-width="0.35" />
 <line x1="212.27" y1="176.67" x2="217.07" y2="176.67" stroke="#25302b" stroke-width="0.15" />
-<text x="212.80" y="173.00" font-size="1.4" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 212.80 173.00)" >0,55</text>
-<line x1="214.67" y1="176.67" x2="214.67" y2="184.67" stroke="#25302b" stroke-width="0.2" />
+<text x="212.80" y="168.67" font-size="1.4" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 212.80 168.67)" >1,20</text>
+<line x1="214.67" y1="176.67" x2="214.67" y2="200.00" stroke="#25302b" stroke-width="0.2" />
 <line x1="213.07" y1="178.27" x2="216.27" y2="175.07" stroke="#25302b" stroke-width="0.35" />
 <line x1="212.27" y1="176.67" x2="217.07" y2="176.67" stroke="#25302b" stroke-width="0.15" />
-<line x1="213.07" y1="186.27" x2="216.27" y2="183.07" stroke="#25302b" stroke-width="0.35" />
-<line x1="212.27" y1="184.67" x2="217.07" y2="184.67" stroke="#25302b" stroke-width="0.15" />
-<text x="212.80" y="180.67" font-size="1.4" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 212.80 180.67)" >0,60</text>
-<line x1="214.67" y1="184.67" x2="214.67" y2="200.00" stroke="#25302b" stroke-width="0.2" />
-<line x1="213.07" y1="186.27" x2="216.27" y2="183.07" stroke="#25302b" stroke-width="0.35" />
-<line x1="212.27" y1="184.67" x2="217.07" y2="184.67" stroke="#25302b" stroke-width="0.15" />
 <line x1="213.07" y1="201.60" x2="216.27" y2="198.40" stroke="#25302b" stroke-width="0.35" />
 <line x1="212.27" y1="200.00" x2="217.07" y2="200.00" stroke="#25302b" stroke-width="0.15" />
-<text x="212.80" y="192.33" font-size="1.4" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 212.80 192.33)" >1,15</text>
-<text x="218.67" y="172.00" font-size="1.5" fill="#6b736d" text-anchor="start" font-weight="normal" transform="rotate(90 218.67 172.00)" >Weg · Hocker · Theke · Bedienen</text>
-<line x1="93.47" y1="166.93" x2="148.53" y2="166.93" stroke="#6d5434" stroke-width="0.2" />
-<line x1="91.87" y1="168.53" x2="95.07" y2="165.33" stroke="#6d5434" stroke-width="0.35" />
-<line x1="93.47" y1="164.53" x2="93.47" y2="169.33" stroke="#6d5434" stroke-width="0.15" />
-<line x1="146.93" y1="168.53" x2="150.13" y2="165.33" stroke="#6d5434" stroke-width="0.35" />
-<line x1="148.53" y1="164.53" x2="148.53" y2="169.33" stroke="#6d5434" stroke-width="0.15" />
-<text x="121.00" y="165.33" font-size="1.5" fill="#6d5434" text-anchor="middle" font-weight="normal" >4,13 m Theke = 2 × 2,065</text>
+<text x="212.80" y="188.33" font-size="1.4" fill="#25302b" text-anchor="middle" font-weight="normal" transform="rotate(-90 212.80 188.33)" >1,75</text>
+<text x="218.67" y="177.33" font-size="1.5" fill="#6b736d" text-anchor="start" font-weight="normal" transform="rotate(90 218.67 177.33)" >Querweg · öffentliche Freifläche</text>
 <rect x="126.67" y="275.87" width="13.33" height="1.60" fill="#25302b" stroke="#25302b" stroke-width="0.2" />
 <rect x="140.00" y="275.87" width="13.33" height="1.60" fill="#ffffff" stroke="#25302b" stroke-width="0.2" />
 <rect x="153.33" y="275.87" width="13.33" height="1.60" fill="#25302b" stroke="#25302b" stroke-width="0.2" />
@@ -309,20 +284,20 @@
 <line x1="240" y1="14" x2="240" y2="283" stroke="#25302b" stroke-width="0.35"/>
 <text x="248.00" y="22.00" font-size="4.2" fill="#25302b" text-anchor="start" font-weight="bold" >KS POLONIA · CLUBRAUM 201</text>
 <text x="248.00" y="29.00" font-size="3.5" fill="#ab293d" text-anchor="start" font-weight="bold" >Alternative B: Drei Bereiche</text>
-<text x="248.00" y="35.00" font-size="2.3" fill="#6b736d" text-anchor="start" font-weight="normal" >Grundriss Bereichsaufteilung · Entwurf 02 · 01.11.2026</text>
+<text x="248.00" y="35.00" font-size="2.3" fill="#6b736d" text-anchor="start" font-weight="normal" >Grundriss Bereichsaufteilung · Entwurf 04 · 13.11.2026</text>
 <text x="248.00" y="45.00" font-size="2.6" fill="#25302b" text-anchor="start" font-weight="bold" >BEREICHE UND FLÄCHEN</text>
 <rect x="248" y="47.6" width="5" height="4.2" fill="#f3f2ee" stroke="#5f6661" stroke-width="0.35"/>
 <text x="255.00" y="51.00" font-size="2.3" fill="#5f6661" text-anchor="start" font-weight="bold" >Croatia-Bereich</text>
-<text x="288.00" y="51.00" font-size="1.9" fill="#6b736d" text-anchor="start" font-weight="normal" >5,775 × 7,60 m</text>
-<text x="404.00" y="51.00" font-size="2.3" fill="#25302b" text-anchor="end" font-weight="bold" >43,9 m²</text>
+<text x="288.00" y="51.00" font-size="1.9" fill="#6b736d" text-anchor="start" font-weight="normal" >5,775 × 8,15 m</text>
+<text x="404.00" y="51.00" font-size="2.3" fill="#25302b" text-anchor="end" font-weight="bold" >47,1 m²</text>
 <rect x="248" y="53.800000000000004" width="5" height="4.2" fill="#f6e1e4" stroke="#ab293d" stroke-width="0.35"/>
 <text x="255.00" y="57.20" font-size="2.3" fill="#ab293d" text-anchor="start" font-weight="bold" >Polonia-Bereich</text>
-<text x="288.00" y="57.20" font-size="1.9" fill="#6b736d" text-anchor="start" font-weight="normal" >5,775 × 7,60 m</text>
-<text x="404.00" y="57.20" font-size="2.3" fill="#25302b" text-anchor="end" font-weight="bold" >43,9 m²</text>
+<text x="288.00" y="57.20" font-size="1.9" fill="#6b736d" text-anchor="start" font-weight="normal" >5,775 × 8,15 m</text>
+<text x="404.00" y="57.20" font-size="2.3" fill="#25302b" text-anchor="end" font-weight="bold" >47,1 m²</text>
 <rect x="248" y="60.0" width="5" height="4.2" fill="#efebe1" stroke="#5d5446" stroke-width="0.35"/>
 <text x="255.00" y="63.40" font-size="2.3" fill="#5d5446" text-anchor="start" font-weight="bold" >Gemeinsamer Bereich</text>
-<text x="288.00" y="63.40" font-size="1.9" fill="#6b736d" text-anchor="start" font-weight="normal" >11,55 × 3,50 + Nische 4,40 × 4,44</text>
-<text x="404.00" y="63.40" font-size="2.3" fill="#25302b" text-anchor="end" font-weight="bold" >60,0 m²</text>
+<text x="288.00" y="63.40" font-size="1.9" fill="#6b736d" text-anchor="start" font-weight="normal" >11,55 × 2,95 + Nische 4,40 × 4,44</text>
+<text x="404.00" y="63.40" font-size="2.3" fill="#25302b" text-anchor="end" font-weight="bold" >53,6 m²</text>
 <line x1="248" y1="66.0" x2="404" y2="66.0" stroke="#25302b" stroke-width="0.25"/>
 <text x="255.00" y="69.60" font-size="2.2" fill="#25302b" text-anchor="start" font-weight="normal" >Summe (Plan: 147,79 m²)</text>
 <text x="404.00" y="69.60" font-size="2.3" fill="#25302b" text-anchor="end" font-weight="bold" >147,7 m²</text>
@@ -334,7 +309,7 @@
 <g transform="translate(248 95.4)"><rect width="5" height="3.2" fill="url(#route)" stroke="#8cc4a4" stroke-width=".2"/></g>
 <text x="256.00" y="98.00" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="normal" >Verkehrs-/Fluchtweg freihalten, Planung 1,20 m</text>
 <g transform="translate(248 100.6)"><rect width="5" height="3.2" fill="#c79a63" stroke="#6d5434" stroke-width=".25"/></g>
-<text x="256.00" y="103.20" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="normal" >Theke / Küchenzeile, Arbeitshöhe ca. 93 cm</text>
+<text x="256.00" y="103.20" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="normal" >Küchenzeile, Arbeitshöhe ca. 93 cm</text>
 <g transform="translate(248 105.8)"><rect width="5" height="3.2" fill="#fff" stroke="#6b736d" stroke-width=".25" stroke-dasharray="1 .5"/></g>
 <text x="256.00" y="108.40" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="normal" >Möblierung nur beispielhaft (Nutzungsplanung folgt)</text>
 <g transform="translate(248 111.0)"><circle cx="2.5" cy="1.6" r="1.6" fill="#fff" stroke="#1d6fb8" stroke-width=".3"/><line x1="1.3" y1="1.6" x2="3.7" y2="1.6" stroke="#1d6fb8" stroke-width=".3"/></g>
@@ -345,44 +320,46 @@
 <text x="256.00" y="124.00" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="normal" >Holzstütze 24/24 – keine Befestigung ohne Statik</text>
 <text x="248.00" y="132.00" font-size="2.6" fill="#25302b" text-anchor="start" font-weight="bold" >KONZEPT</text>
 <text x="248.00" y="137.00" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="bold" >Teilung</text>
-<text x="265.00" y="137.00" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Exakt in Raummitte x = 5,775 m: beide Vereinsbereiche gleich groß (je 43,9 m²).</text>
+<text x="265.00" y="137.00" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Exakt in Raummitte x = 5,775 m: beide Vereinsbereiche gleich groß (je 47,1 m²).</text>
 <text x="265.00" y="141.10" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Polonia: TV, Lowboard, Vereinsschrank, Lounge, Tische. Croatia: bleibt leer.</text>
 <text x="248.00" y="145.20" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="bold" >Trennung</text>
 <text x="265.00" y="145.20" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >6 freistehende Elemente à 1,20 m, wahlweise Akustik-Stellwand (H ≤ 2,0 m)</text>
 <text x="265.00" y="149.30" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >oder Pflanzkübel auf Rollen im gleichen Raster – auch gemischt. Für gemeinsame</text>
 <text x="265.00" y="153.40" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Events an der Nordwand zusammenschieben: ein großer, offener Raum.</text>
 <text x="248.00" y="157.50" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="bold" >Offen</text>
-<text x="265.00" y="157.50" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Richtung Theke keine Wand: beide Bereiche münden direkt in den Querweg</text>
+<text x="265.00" y="157.50" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Richtung Freifläche keine Wand: beide Bereiche münden direkt in den Querweg</text>
 <text x="265.00" y="161.60" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >und erreichen beide Ausgänge, ohne den anderen Bereich zu queren.</text>
-<text x="248.00" y="165.70" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="bold" >Theke</text>
-<text x="265.00" y="165.70" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Ein Korpus, zwei gleich lange Hälften (je 2,065 m, 3 Hocker): Polonia-Front</text>
-<text x="265.00" y="169.80" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >in Vereinsrot, Croatia-Hälfte neutral; je ein Untertheken-Kühlschrank (UK-C / UK-P).</text>
-<text x="265.00" y="173.90" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Zugang Croatia-Seite über Klappe zur Küche, Polonia-Seite über Pendeltür.</text>
-<text x="248.00" y="178.00" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="bold" >Küche</text>
-<text x="265.00" y="178.00" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Gemeinsam an der Wasserwand (unverändert); Getränke getrennt in K1 / K2.</text>
-<text x="248.00" y="182.10" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="bold" >Technik</text>
-<text x="265.00" y="182.10" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >N01 Netzwerk in den gemeinsamen Bereich verlegt; Steigschacht frei.</text>
-<text x="248.00" y="186.00" font-size="2.6" fill="#c8102e" text-anchor="start" font-weight="bold" >VOR UMSETZUNG PRÜFEN</text>
-<text x="248.00" y="191.00" font-size="1.95" fill="#25302b" text-anchor="start" font-weight="normal" >• Aufmaß: Raumtiefe 11,10 m, Stützenachse 5,60 m und Bereichsgrenze 7,60 m</text>
-<text x="248.00" y="195.00" font-size="1.95" fill="#25302b" text-anchor="start" font-weight="normal" >   sind aus Plan/Skizze abgeleitet – Theke erst nach Aufmaß bestellen.</text>
-<text x="248.00" y="199.00" font-size="1.95" fill="#25302b" text-anchor="start" font-weight="normal" >• Brandschutz: mobile Trennung darf Rauchmelder, RWA, Sicherheitsbeleuchtung</text>
-<text x="248.00" y="203.00" font-size="1.95" fill="#25302b" text-anchor="start" font-weight="normal" >   und Fluchtwege nicht beeinträchtigen – Höhe/Material mit Brandschutz klären.</text>
-<text x="248.00" y="207.00" font-size="1.95" fill="#25302b" text-anchor="start" font-weight="normal" >• Trennelemente standsicher (Fuß/Bremse), nicht an Holzstützen/Dach befestigen.</text>
-<text x="248.00" y="211.00" font-size="1.95" fill="#25302b" text-anchor="start" font-weight="normal" >• Pflanzen: Gewicht/Bewässerung auf Estrich, schwer entflammbare Kübel.</text>
-<text x="248.00" y="215.00" font-size="1.95" fill="#25302b" text-anchor="start" font-weight="normal" >• Tür Treppenhaus/Halle: Aufschlagrichtung und Lage vor Ort bestätigen.</text>
-<text x="248.00" y="219.00" font-size="1.95" fill="#25302b" text-anchor="start" font-weight="normal" >• Nutzung beider Vereine (Schlüssel, Kosten, Zeiten) vertraglich regeln.</text>
+<text x="248.00" y="165.70" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="bold" >Freifläche</text>
+<text x="265.00" y="165.70" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Die bisherige Theke entfällt; ihre Fläche bleibt gemeinsam und öffentlich nutzbar.</text>
+<text x="265.00" y="169.80" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Der 1,20-m-Querweg und die Wege zu beiden Ausgängen bleiben frei.</text>
+<text x="248.00" y="173.90" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="bold" >Pantrys</text>
+<text x="265.00" y="173.90" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Zwei gleiche 1,80-m-Zeilen mit Spüle, Stauraum und je einem Hängeschrank.</text>
+<text x="265.00" y="178.00" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Je 60 cm freie Arbeitsplatte für ein zeitweise genutztes mobiles Induktionsfeld.</text>
+<text x="265.00" y="182.10" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Wasser/Abwasser, Strom und Geräteabstände vor Ausführung prüfen; K1/K2 separat.</text>
+<text x="248.00" y="186.20" font-size="2.05" fill="#25302b" text-anchor="start" font-weight="bold" >Technik</text>
+<text x="265.00" y="186.20" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >N01 Netzwerk in den gemeinsamen Bereich verlegt; Steigschacht frei.</text>
+<text x="248.00" y="192.00" font-size="2.6" fill="#c8102e" text-anchor="start" font-weight="bold" >VOR UMSETZUNG PRÜFEN</text>
+<text x="248.00" y="197.00" font-size="1.85" fill="#25302b" text-anchor="start" font-weight="normal" >• Aufmaß: Raumtiefe 11,10 m und Stützenachse 5,60 m sind Annahmen;</text>
+<text x="248.00" y="200.50" font-size="1.85" fill="#25302b" text-anchor="start" font-weight="normal" >   neue Bereichsgrenze 8,15 m und freie Wege vor Ort prüfen.</text>
+<text x="248.00" y="204.00" font-size="1.85" fill="#25302b" text-anchor="start" font-weight="normal" >• Brandschutz: mobile Trennung darf Rauchmelder, RWA, Sicherheitsbeleuchtung</text>
+<text x="248.00" y="207.50" font-size="1.85" fill="#25302b" text-anchor="start" font-weight="normal" >   und Fluchtwege nicht beeinträchtigen – Höhe/Material mit Brandschutz klären.</text>
+<text x="248.00" y="211.00" font-size="1.85" fill="#25302b" text-anchor="start" font-weight="normal" >• Trennelemente standsicher (Fuß/Bremse), nicht an Holzstützen/Dach befestigen.</text>
+<text x="248.00" y="214.50" font-size="1.85" fill="#25302b" text-anchor="start" font-weight="normal" >• Pflanzen: Gewicht/Bewässerung auf Estrich, schwer entflammbare Kübel.</text>
+<text x="248.00" y="218.00" font-size="1.85" fill="#25302b" text-anchor="start" font-weight="normal" >• Tür Treppenhaus/Halle: Aufschlagrichtung und Lage vor Ort bestätigen.</text>
+<text x="248.00" y="221.50" font-size="1.85" fill="#25302b" text-anchor="start" font-weight="normal" >• Zweite Spüle: Wasser/Abwasser, Steckdosen und Kochfeld-Abstände prüfen.</text>
+<text x="248.00" y="225.00" font-size="1.85" fill="#25302b" text-anchor="start" font-weight="normal" >• Nutzung beider Vereine (Schlüssel, Kosten, Zeiten) vertraglich regeln.</text>
 <text x="248.00" y="232.00" font-size="2.6" fill="#25302b" text-anchor="start" font-weight="bold" >BASIS</text>
 <text x="248.00" y="237.00" font-size="1.95" fill="#6b736d" text-anchor="start" font-weight="normal" >Bestandsplan Raum 201 Clubraum: F 147,79 m², lichte Höhe 4,75 m, Estrich, Trapezblech.</text>
 <text x="248.00" y="241.00" font-size="1.95" fill="#6b736d" text-anchor="start" font-weight="normal" >Skizze Bereichsaufteilung vom 01.11.2026; Geometrie wie Konzept v11 (room.json).</text>
 <text x="248.00" y="245.00" font-size="1.95" fill="#6b736d" text-anchor="start" font-weight="normal" >Konzeptplanung – keine Ausführungs-, Brandschutz- oder Genehmigungsplanung.</text>
-<text x="248.00" y="249.00" font-size="1.95" fill="#6b736d" text-anchor="start" font-weight="normal" >Nächste Schritte: Visualisierung 3D, Nutzungs- und Möblierungsplanung je Bereich.</text>
+<text x="248.00" y="249.00" font-size="1.95" fill="#6b736d" text-anchor="start" font-weight="normal" >Nächste Schritte: Aufmaß, Wegeprüfung und Nutzungsplanung je Bereich.</text>
 <rect x="248" y="262" width="156" height="20" fill="none" stroke="#25302b" stroke-width="0.35"/>
 <line x1="248" y1="268.5" x2="404" y2="268.5" stroke="#25302b" stroke-width="0.2"/>
 <line x1="326" y1="268.5" x2="326" y2="282" stroke="#25302b" stroke-width="0.2"/>
 <text x="250.00" y="266.60" font-size="2.2" fill="#25302b" text-anchor="start" font-weight="bold" >KS Polonia Hamburg e.V. 1988 · Clubraum 201 · Alternative B</text>
 <text x="250.00" y="273.00" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Plan: Grundriss Bereiche</text>
 <text x="250.00" y="277.30" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Maßstab 1:75 (A3) · Maße in m</text>
-<text x="250.00" y="281.00" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Planstand B-02 · 01.11.2026</text>
+<text x="250.00" y="281.00" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Planstand B-04 · 13.11.2026</text>
 <text x="328.00" y="273.00" font-size="2.0" fill="#c8102e" text-anchor="start" font-weight="bold" >Status: KONZEPT / Entwurf</text>
 <text x="328.00" y="277.30" font-size="2.0" fill="#25302b" text-anchor="start" font-weight="normal" >Alle Maße vor Ort prüfen</text>
 <text x="328.00" y="281.00" font-size="2.0" fill="#6b736d" text-anchor="start" font-weight="normal" >Ursprung: linke obere Innenecke</text>

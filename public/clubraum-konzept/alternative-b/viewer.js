@@ -1,13 +1,13 @@
 // Alternative B – Clubraum in drei Bereichen (Croatia | Polonia | gemeinsam).
-// Maße identisch mit scripts/build_grundriss_3bereiche.py (Grundriss B-02):
+// Maße identisch mit scripts/build_grundriss_3bereiche.py (Grundriss B-04):
 // Ursprung linke obere Innenecke, x nach rechts, z plan-abwärts, y nach oben, Meter.
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { GLTFExporter } from './vendor/GLTFExporter.js';
 
-const W = 11.55, D = 11.10, AW = 4.40, AD = 4.44, MID = W / 2, ZONE = 7.60;
+const W = 11.55, D = 11.10, AW = 4.40, AD = 4.44, MID = W / 2, ZONE = 8.15;
 const COLS = [[4.532, 5.6], [7.717, 5.6]];
-const BAR_Z0 = 9.35, BAR_Z1 = 9.95, BAR_X0 = 3.71, BAR_X1 = 2 * MID - 3.71, TOP = 0.93;
+const TOP = 0.93;
 const HALL_WIN = { center: 3.9, width: 2.2, height: 2.05, sill: 0.925 };
 const C = {
   floor: '#b9b8ae', wall: '#cfccc0', wallDark: '#9b9d91', oak: '#b88a55', charcoal: '#3a3637',
@@ -47,7 +47,7 @@ scene.add(sun, sun.target);
 
 const model = new THREE.Group();
 model.name = 'Clubraum_Alternative_B_drei_Bereiche';
-model.userData = { status: 'Konzept, Aufmaß erforderlich', units: 'metres', plan: 'Grundriss B-02 01.11.2026' };
+model.userData = { status: 'Konzept, Aufmaß erforderlich', units: 'metres', plan: 'Grundriss B-04' };
 scene.add(model);
 const groups = {};
 for (const n of ['base', 'zones', 'routes', 'shared', 'croatia', 'polonia', 'divider', 'lights', 'roof', 'labels']) {
@@ -290,51 +290,32 @@ logo(groups.polonia, 8.55, 0.012, 6.75, 0.9, 0).rotation.set(-Math.PI / 2, 0, 0)
 groups.polonia.children.at(-1).name = 'Bodenmarke Polonia';
 groups.polonia.children.at(-1).position.y = 0.013;
 
-// ---------------------------------------------------------------- Theke (zwei Hälften) + Küche
+// ---------------------------------------------------------------- Zwei Pantryküchen; ehemalige Thekenfläche bleibt frei
 const S = groups.shared;
-// Korpus: Croatia-Hälfte und Polonia-Hälfte mit eigener Front
-block(S, 'Theke Croatia Korpus', BAR_X0, BAR_Z0, MID, BAR_Z1, 0, TOP - 0.05, C.charcoal);
-block(S, 'Theke Polonia Korpus', MID, BAR_Z0, BAR_X1, BAR_Z1, 0, TOP - 0.05, C.charcoal);
-block(S, 'Thekenplatte Eiche', BAR_X0 - 0.03, BAR_Z0 - 0.06, BAR_X1 + 0.03, BAR_Z1, TOP - 0.05, 0.05, C.oak);
-plane(S, 'Front Polonia Vereinsrot', textTex([['', 10]], C.polRed, '#fff', 64, 64), (MID + BAR_X1) / 2, 0.45, BAR_Z0 - 0.005, BAR_X1 - MID - 0.04, 0.8, Math.PI, false);
-logo(S, (MID + BAR_X1) / 2, 0.5, BAR_Z0 - 0.01, 0.42, Math.PI);
-block(S, 'Fuge Thekenmitte', MID - 0.01, BAR_Z0 - 0.02, MID + 0.01, BAR_Z1, 0, TOP - 0.05, '#e6e2d6');
-block(S, 'Fußleiste Stahl', BAR_X0, BAR_Z0 - 0.25, BAR_X1, BAR_Z0 - 0.22, 0.2, 0.03, C.steel);
-// Croatia-Ende: Winkel zur Küche mit Hochklappe
-block(S, 'Theke Winkel Croatia', BAR_X0, BAR_Z1, BAR_X0 + 0.6, 10.25, 0, TOP, C.charcoal);
-block(S, 'Theke Winkel Croatia (unter Klappe)', BAR_X0, 11.05, BAR_X0 + 0.6, D + 0.15, 0, TOP, C.charcoal);
-block(S, 'Hochklappe Durchgang', BAR_X0, 10.25, BAR_X0 + 0.6, 11.05, TOP - 0.05, 0.05, '#c9a274');
-// Polonia-Ende: kurzer Winkel + Pendeltür
-block(S, 'Theke Winkel Polonia', BAR_X1 - 0.6, BAR_Z1, BAR_X1, 10.45, 0, TOP, C.charcoal);
-block(S, 'Theke Winkel Polonia Platte', BAR_X1 - 0.6, BAR_Z1, BAR_X1, 10.45, TOP - 0.05, 0.05, C.oak);
-block(S, 'Pendeltür Personal', BAR_X1 - 0.33, 10.47, BAR_X1 - 0.29, D - 0.03, 0.12, 0.85, C.oak);
-// Rückseite: Untertheken-Kühlschränke und Schiebefronten
-for (const [x0, name] of [[4.40, 'UK-C Untertheken-Kühlschrank Croatia'], [6.55, 'UK-P Untertheken-Kühlschrank Polonia']]) {
-  block(S, name, x0, BAR_Z1 - 0.005, x0 + 0.6, BAR_Z1 + 0.01, 0.05, 0.8, glass);
-  block(S, name + ' Rahmen', x0, BAR_Z1, x0 + 0.6, BAR_Z1 + 0.012, 0.85, 0.03, '#aeb2ab');
+for (const {name, start, sink, storage, hob} of [
+  {name: 'Croatia', start: 11.25, sink: 12.45, storage: 11.85, hob: 11.25},
+  {name: 'Polonia', start: 13.05, sink: 13.05, storage: 13.65, hob: 14.25},
+]) {
+  // Drei 60-cm-Module je Pantry. Das Kochfeld ist mobil; die Platte bleibt frei.
+  for (const [z0, kind] of [[sink, 'Spülenunterschrank'], [storage, 'Stauraum/Abfall'], [hob, 'Freie Kochfeldposition']]) {
+    block(S, `${name} ${kind}`, 3.71, z0, 4.35, z0 + 0.60, 0, TOP - 0.04, C.charcoal);
+    block(S, `${name} ${kind} Front`, 3.698, z0 + 0.02, 3.71, z0 + 0.58, 0.05, 0.79,
+      kind === 'Stauraum/Abfall' ? '#625c57' : '#4a4648');
+  }
+  block(S, `${name} Arbeitsplatte`, 3.68, start + 0.01, 4.36, start + 1.79, TOP - 0.04, 0.04, C.oak);
+  block(S, `${name} Spüle`, 3.82, sink + 0.08, 4.22, sink + 0.52, TOP - 0.01, 0.02,
+    '#c9cfd1', {metalness: 0.6, roughness: 0.3});
+  block(S, `${name} Spülbecken`, 3.86, sink + 0.12, 4.18, sink + 0.48, TOP + 0.011, 0.004, '#72858a');
+  cyl(S, `${name} Ablauf`, 4.02, TOP + 0.017, sink + 0.30, 0.018, 0.004, '#d8dfe0');
+  cyl(S, `${name} Armatur`, 4.27, TOP + 0.15, sink + 0.30, 0.015, 0.3, '#c9cfd1');
+  box(S, `${name} Armatur Auslauf`, 4.18, TOP + 0.29, sink + 0.30, 0.18, 0.02, 0.02, '#c9cfd1');
+  block(S, `${name} Wandschrank`, 3.84, storage + 0.02, 4.37, storage + 0.58, 1.55, 0.70, '#4a4648');
+  block(S, `${name} Wandschrank Tür`, 3.82, storage + 0.04, 3.84, storage + 0.56, 1.59, 0.62, C.cream);
+  block(S, `${name} Spritzschutz`, 4.36, start, 4.40, start + 1.80, TOP, 0.62, '#e2dfd6');
 }
-// Barhocker 3 je Hälfte
-for (const x of [4.25, 4.85, 5.45, 6.10, 6.70, 7.30]) {
-  cyl(S, 'Barhocker Sitz', x, 0.63, 9.08, 0.19, 0.05, x < MID ? C.charcoal : C.wine);
-  cyl(S, 'Barhocker Säule', x, 0.32, 9.08, 0.03, 0.6, C.steel);
-  cyl(S, 'Barhocker Fuß', x, 0.01, 9.08, 0.2, 0.02, C.steel);
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.012, 8, 24), mat(C.steel));
-  ring.rotation.x = Math.PI / 2; ring.position.set(x, 0.25, 9.08); S.add(ring);
-}
-// Rückwand hinter der Theke (Treppenwand): Gläserregal; N01 sitzt lt. Grundriss darüber an der Wand (≥ 2,10 m, hier nicht modelliert)
-block(S, 'Rückregal Gläser', 4.6, D - 0.3, 8.0, D - 0.02, 1.15, 0.03, C.oak);
-block(S, 'Rückregal Gläser oben', 4.6, D - 0.3, 8.0, D - 0.02, 1.0, 0.03, C.oak);
-// Küche gemeinsam an der Wasserwand (Nische, x = 3,71–4,35)
-block(S, 'Küchenzeile Unterschränke', 3.71, D + 0.15, 4.35, D + 3.75, 0, TOP - 0.04, C.charcoal);
-block(S, 'Küchen-Arbeitsplatte', 3.68, D + 0.15, 4.36, D + 3.75, TOP - 0.04, 0.04, C.oak);
-block(S, 'Spüle', 3.82, 12.85, 4.22, 13.37, TOP - 0.02, 0.02, '#c9cfd1', { metalness: 0.6, roughness: 0.3 });
-cyl(S, 'Armatur', 4.27, TOP + 0.15, 13.1, 0.015, 0.3, '#c9cfd1');
-block(S, 'Oberschrank / Regal', 4.0, D + 0.3, 4.4, D + 3.6, 1.55, 0.7, '#4a4648');
-block(S, 'Spritzschutz', 4.36, D + 0.15, 4.4, D + 3.75, TOP, 0.62, '#e2dfd6');
-for (const z0 of [11.40, 11.98]) block(S, 'Unterbau-Kühlschrank Küche', 3.70, z0, 3.72, z0 + 0.56, 0.06, 0.78, '#9aa49f');
-block(S, 'Geschirrspüler Front', 3.70, 13.50, 3.72, 14.08, 0.06, 0.78, '#cfd3d4');
+block(S, 'Trennwand zwischen den Pantrys', 2.90, 13.03, 4.40, 13.07, 0, 2.30, C.wallDark);
 // Getränkekühlschränke K1 Croatia / K2 Polonia (Glastür nach Osten)
-for (const [z0, name, c] of [[11.50, 'K1 Croatia', null], [12.18, 'K2 Polonia', C.polRed]]) {
+for (const [z0, name, c] of [[11.50, 'K1 Croatia', null], [13.75, 'K2 Polonia', C.polRed]]) {
   block(S, 'Getränkekühlschrank ' + name, 0.08, z0, 0.70, z0 + 0.6, 0, 1.85, '#e9ecec');
   block(S, name + ' Glastür', 0.70, z0 + 0.04, 0.72, z0 + 0.56, 0.12, 1.55, glass);
   if (c) plane(S, name + ' Schild', textTex([[name.split(' ')[1].toUpperCase(), 120]], c, '#fff', 512, 160), 0.725, 1.76, z0 + 0.3, 0.5, 0.15, Math.PI / 2);
@@ -395,7 +376,7 @@ for (const mode of ['walls', 'plants', 'mix', 'open']) {
 const dividerNotes = {
   walls: '6 freistehende Akustik-Stellwände à 1,20 m, ca. 2,0 m hoch, auf Rollen mit Bremse. Beidseitig Filz, Polonia-Seite mit Band in Vereinsrot.',
   plants: '6 Pflanzkübel auf Rollen à 1,20 × 0,45 m im selben Raster. Durchlässiger, wohnlicher – weniger Sicht- und Schallschutz, Pflege nötig.',
-  mix: '4 Stellwände im Lounge-/TV-Bereich (Sicht- und Schallschutz), 2 Pflanzkübel zur Theke hin – offener Übergang zum gemeinsamen Bereich.',
+  mix: '4 Stellwände im Lounge-/TV-Bereich (Sicht- und Schallschutz), 2 Pflanzkübel zum gemeinsamen Bereich hin.',
   open: 'Gemeinsames Event: Stellwände an der Nordwand zusammengeschoben – ein großer, offener Raum.',
 };
 function setDivider(mode) {
@@ -413,12 +394,6 @@ for (const x of [2.9, 8.65]) for (const z of [1.6, 4.0, 6.4]) {
   box(L, 'Lichtaustritt', x, 3.62, z, 1.14, 0.01, 0.08, lampMat);
   for (const d of [-0.4, 0.4]) box(L, 'Abhängung', x + d, 4.2, z, 0.012, 1.1, 0.012, '#3d4440');
 }
-for (const x of [4.25, 5.15, 6.4, 7.3]) {
-  const shade = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.2, 28, 1, true), mat('#1c1f1e', { side: THREE.DoubleSide }));
-  shade.position.set(x, 2.55, 9.65); shade.name = 'Pendelleuchte Theke'; L.add(shade);
-  box(L, 'Leuchtmittel', x, 2.47, 9.65, 0.1, 0.02, 0.1, lampMat);
-  box(L, 'Pendelkabel', x, 3.55, 9.65, 0.01, 1.8, 0.01, '#222');
-}
 for (const z of [11.6, 13.4]) {
   box(L, 'Küchenleuchte', 3.9, 2.7, z, 0.12, 0.05, 1.1, '#1c1f1e');
   box(L, 'Lichtaustritt', 3.9, 2.67, z, 0.08, 0.01, 1.04, lampMat);
@@ -430,9 +405,9 @@ for (let x = 0.3; x < W; x += 0.3) box(RF, 'Trapezblech', x, 4.9, D / 2, 0.065, 
 box(RF, 'Oberlicht', 7.75, 4.95, 7.95, 0.6, 0.02, 1.3, glass);
 
 // ---------------------------------------------------------------- Beschriftung
-label('CROATIA', 'Bereich frei · 43,9 m²', '#6b736d', 2.9, 3.4, 4.2);
-label('POLONIA', 'Vereinsbereich · 43,9 m²', C.polRed, 8.65, 3.4, 4.2);
-label('GEMEINSAM', 'Theke · Küche · Eingang · 60 m²', '#5d5446', 9.4, 2.6, 9.6, 0.85);
+label('CROATIA', 'Bereich frei · 47,1 m²', '#6b736d', 2.9, 3.4, 4.2);
+label('POLONIA', 'Vereinsbereich · 47,1 m²', C.polRed, 8.65, 3.4, 4.2);
+label('GEMEINSAM', 'Freifläche · Küche · 53,6 m²', '#5d5446', 9.4, 2.6, 9.85, 0.85);
 
 // ---------------------------------------------------------------- Kamera
 const state = { divider: 'walls', view: 'overview' };
@@ -440,7 +415,9 @@ const views = {
   overview: [[6.0, 13.5, 23.5], [5.8, 0.2, 6.4]],
   croatia: [[5.0, 2.6, 7.6], [2.6, 1.0, 1.8]],
   polonia: [[6.6, 2.6, 7.6], [9.0, 1.0, 1.8]],
-  bar: [[3.4, 2.7, 6.3], [6.0, 0.6, 10.1]],
+  shared: [[3.4, 2.7, 6.3], [6.0, 0.6, 10.1]],
+  pantryCroatia: [[1.35, 2.65, 11.25], [3.8, 1.35, 12.1]],
+  pantryPolonia: [[1.35, 2.65, 14.65], [3.8, 1.35, 14.0]],
   kitchen: [[2.2, 2.6, 15.3], [2.4, 0.8, 11.2]],
   top: [[5.8, 26, 7.85], [5.8, 0, 7.75]],
 };
@@ -489,5 +466,5 @@ resize();
 setDivider('walls');
 setView('overview');
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
-status.textContent = 'Konzeptmodell · Maße lt. Grundriss B-02 · vor Ort prüfen';
+status.textContent = 'Konzeptmodell · Maße lt. Grundriss B-04 · vor Ort prüfen';
 window.alternativeB = { scene, model, camera, controls, renderer, setView, setDivider, groups, ready: true };

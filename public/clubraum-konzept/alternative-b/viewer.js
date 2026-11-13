@@ -282,7 +282,7 @@ function clubArea(side) {
 clubArea('polonia');
 const mobileTV = new THREE.Group();
 mobileTV.name = 'Polonia mobiler TV auf Rollständer';
-mobileTV.userData = { status: 'Konzept', note: 'Nur am Stellplatz anschließen; Kabel nicht über Verkehrswege führen' };
+mobileTV.userData = { status: 'Konzept', note: 'Am Stellplatz G09 oder nahe P02 am Pfeiler anschließen, falls P02 umgesetzt wird; keine Kabel über Wege' };
 groups.polonia.add(mobileTV);
 box(mobileTV, 'TV 75 Zoll', 0, 1.58, 0, 1.68, .97, .07, '#121816');
 plane(mobileTV, 'TV Bild', textTex([['POLONIA', 150, -20], ['MATCHDAY', 70, 95]], '#4a1a24', '#ffffff', 1024, 592),
@@ -291,7 +291,7 @@ box(mobileTV, 'Rollständer Säule', 0, .85, -.10, .09, 1.35, .10, C.steel);
 box(mobileTV, 'Rollständer Fuß', 0, .09, -.10, .85, .08, .48, C.steel);
 for (const x of [-.36,.36]) for (const z of [-.27,.07]) cyl(mobileTV, 'Lenkrolle', x, .04, z, .04, .06, '#222');
 function setTVPosition(position) {
-  const places = { park: [6.93,.84], use: [8.05,7.35] };
+  const places = { park: [6.93,.84], use: [8.10,6.50] };
   const [x,z] = places[position];
   mobileTV.position.set(x,0,z);
   for (const b of document.querySelectorAll('#tv-positions button')) b.classList.toggle('active', b.dataset.tv === position);

@@ -507,11 +507,11 @@
       "Z_m": "5.60",
       "Hoehe_m": "0.35",
       "Anzahl": "2",
-      "Nutzung": "Flexible Nutzung im mittleren Bereich",
+      "Nutzung": "Flexible Nutzung im mittleren Bereich, eventuell mobiler TV",
       "Prioritaet": "hoch",
       "Kosten_wer": "Polonia",
       "Status": "Wunsch",
-      "Kommentar_Elektrofachplanung": "Aufputzlösung prüfen; keine Befestigung ohne statische Freigabe und keine Leitung im Verkehrsweg"
+      "Kommentar_Elektrofachplanung": "Aufputzlösung prüfen; keine Befestigung ohne statische Freigabe und keine Leitung im Verkehrsweg; mobiler TV nur an geeigneter Dose betreiben"
     },
     {
       "Wunsch_ID": "P03",

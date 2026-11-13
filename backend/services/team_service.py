@@ -388,7 +388,8 @@ async def update_team_web_profile(team_id: int, updates: Dict[str, Any]) -> bool
     """Update team web fields in database."""
     allowed = {
         "coach", "contact_person", "training_times", "training_location",
-        "spielklasse", "age_group", "webpage_url", "content"
+        "spielklasse", "age_group", "webpage_url", "content",
+        "widget_id", "external_url"
     }
     fields = {k: v for k, v in updates.items() if k in allowed and v is not None}
     if not fields:
@@ -489,6 +490,10 @@ async def sync_team_to_website(team_id: int) -> Dict[str, Any]:
                 fm["spielklasse"] = team["spielklasse"]
             if team.get("age_group"):
                 fm["ageGroup"] = team["age_group"]
+            if team.get("widget_id") is not None:
+                fm["widgetId"] = team["widget_id"] if team["widget_id"] else ""
+            if team.get("external_url") is not None:
+                fm["externalUrl"] = team["external_url"] if team["external_url"] else ""
 
             body_text = team.get("content") if team.get("content") else old_body
 
@@ -505,3 +510,70 @@ async def sync_team_to_website(team_id: int) -> Dict[str, Any]:
         "synced_files": [os.path.basename(p) for p in synced_paths],
     }
 
+
+
+# ═══════════════════════════════════════
+#  Team Announcements
+# ═══════════════════════════════════════
+
+async def get_team_announcements(team_id: int, active_only: bool = False) -> List[Dict[str, Any]]:
+    """Get announcements for a team, ordered by most recent first."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        where = "WHERE team_id = $1"
+        if active_only:
+            where += " AND is_active = TRUE"
+        rows = await conn.fetch(f"""
+            SELECT a.*, m.vorname, m.nachname
+            FROM team_announcements a
+            LEFT JOIN members m ON m.id = a.created_by
+            {where}
+            ORDER BY a.created_at DESC
+        """, team_id)
+        return [dict(r) for r in rows]
+
+
+async def create_announcement(team_id: int, title: str, content: str, created_by: int) -> Dict[str, Any]:
+    """Create a new team announcement."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            INSERT INTO team_announcements (team_id, title, content, created_by)
+            VALUES ($1, $2, $3, $4)
+            RETURNING *
+        """, team_id, title, content, created_by)
+        return dict(row)
+
+
+async def update_announcement(announcement_id: int, updates: Dict[str, Any]) -> bool:
+    """Update an existing announcement."""
+    allowed = {"title", "content", "is_active"}
+    fields = {k: v for k, v in updates.items() if k in allowed and v is not None}
+    if not fields:
+        return True
+    fields["updated_at"] = "NOW()"
+    set_parts = []
+    values = []
+    idx = 2
+    for k, v in fields.items():
+        if v == "NOW()":
+            set_parts.append(f"{k} = NOW()")
+        else:
+            set_parts.append(f"{k} = ${idx}")
+            values.append(v)
+            idx += 1
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        res = await conn.execute(
+            f"UPDATE team_announcements SET {', '.join(set_parts)} WHERE id = $1",
+            announcement_id, *values
+        )
+        return "UPDATE 1" in res
+
+
+async def delete_announcement(announcement_id: int) -> bool:
+    """Delete a team announcement."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        res = await conn.execute("DELETE FROM team_announcements WHERE id = $1", announcement_id)
+        return "DELETE 1" in res

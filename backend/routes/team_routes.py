@@ -356,3 +356,45 @@ async def get_team_public_info(team_id: int):
     }
     return {k: v for k, v in profile.items() if k in safe_fields}
 
+
+# ═══════════════════════════════════════
+#  Public Team Announcements (no auth)
+# ═══════════════════════════════════════
+
+@router.get("/announcements/by-slug/{slug}")
+async def public_team_announcements_by_slug(slug: str):
+    """Public endpoint: get active announcements by team page slug (e.g. 'e-junioren')."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT id FROM teams WHERE webpage_url ILIKE $1 OR webpage_url ILIKE $2 LIMIT 1",
+            f"%/{slug}", f"%/{slug}/"
+        )
+        if not row:
+            return []
+        tid = row["id"]
+    items = await team_service.get_team_announcements(tid, active_only=True)
+    return [
+        {
+            "id": a["id"],
+            "title": a["title"],
+            "content": a["content"],
+            "created_at": a["created_at"].isoformat() if a.get("created_at") else None,
+        }
+        for a in items
+    ]
+
+
+@router.get("/{team_id}/announcements")
+async def public_team_announcements(team_id: int):
+    """Public endpoint: get active announcements by numeric team ID."""
+    items = await team_service.get_team_announcements(team_id, active_only=True)
+    return [
+        {
+            "id": a["id"],
+            "title": a["title"],
+            "content": a["content"],
+            "created_at": a["created_at"].isoformat() if a.get("created_at") else None,
+        }
+        for a in items
+    ]

@@ -16,7 +16,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from auth import get_current_member
-from models.team_management import TeamWebProfileUpdate, TeamPhotoDelete
+from models.team_management import TeamWebProfileUpdate, TeamPhotoDelete, AnnouncementCreate, AnnouncementUpdate
 from services import member_service, team_service
 from database import get_pool
 from config import UPLOAD_DIR
@@ -333,7 +333,7 @@ async def teamadmin_page_editor(request: Request, team_id: int):
 async def teamadmin_save_page(request: Request, team_id: int, data: TeamWebProfileUpdate):
     """Update team web profile and sync to website."""
     await _require_my_team(request, team_id)
-    updates = data.model_dump(exclude_none=True)
+    updates = data.model_dump(exclude_unset=True)
     if not updates:
         raise HTTPException(status_code=400, detail="Keine Änderungen übermittelt")
     await team_service.update_team_web_profile(team_id, updates)
@@ -482,3 +482,58 @@ async def teamadmin_remove_member(request: Request, team_id: int, member_id: int
     if not ok:
         raise HTTPException(status_code=404, detail="Mitglied nicht in diesem Team gefunden")
     return JSONResponse({"success": True, "message": "Mitglied aus dem Team entfernt"})
+
+
+
+# ═══════════════════════════════════════
+#  13. Team Announcements CRUD
+# ═══════════════════════════════════════
+
+@router.get("/team/{team_id}/announcements")
+async def teamadmin_get_announcements(request: Request, team_id: int):
+    """Get all announcements for a team (admin view)."""
+    await _require_my_team(request, team_id)
+    items = await team_service.get_team_announcements(team_id, active_only=False)
+    return JSONResponse({"success": True, "announcements": [
+        {
+            "id": a["id"],
+            "title": a["title"],
+            "content": a["content"],
+            "is_active": a["is_active"],
+            "created_by_name": f"{a.get('vorname', '')} {a.get('nachname', '')}".strip() if a.get("nachname") else None,
+            "created_at": a["created_at"].isoformat() if a.get("created_at") else None,
+            "updated_at": a["updated_at"].isoformat() if a.get("updated_at") else None,
+        }
+        for a in items
+    ]})
+
+
+@router.post("/team/{team_id}/announcements")
+async def teamadmin_create_announcement(request: Request, team_id: int, data: AnnouncementCreate):
+    """Create a new announcement."""
+    member = await _require_my_team(request, team_id)
+    item = await team_service.create_announcement(team_id, data.title, data.content, member["member_id"])
+    return JSONResponse({"success": True, "id": item["id"], "message": "Meldung erstellt"})
+
+
+@router.put("/team/{team_id}/announcements/{ann_id}")
+async def teamadmin_update_announcement(request: Request, team_id: int, ann_id: int, data: AnnouncementUpdate):
+    """Update an announcement."""
+    await _require_my_team(request, team_id)
+    updates = data.model_dump(exclude_none=True)
+    if not updates:
+        raise HTTPException(status_code=400, detail="Keine Änderungen übermittelt")
+    ok = await team_service.update_announcement(ann_id, updates)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Meldung nicht gefunden")
+    return JSONResponse({"success": True, "message": "Meldung aktualisiert"})
+
+
+@router.delete("/team/{team_id}/announcements/{ann_id}")
+async def teamadmin_delete_announcement(request: Request, team_id: int, ann_id: int):
+    """Delete an announcement."""
+    await _require_my_team(request, team_id)
+    ok = await team_service.delete_announcement(ann_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Meldung nicht gefunden")
+    return JSONResponse({"success": True, "message": "Meldung gelöscht"})

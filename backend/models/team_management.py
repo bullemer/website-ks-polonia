@@ -88,8 +88,22 @@ class TeamWebProfileUpdate(BaseModel):
     age_group: Optional[str] = None
     webpage_url: Optional[str] = None
     content: Optional[str] = None
+    widget_id: Optional[str] = None
+    external_url: Optional[str] = None
 
 
 class TeamPhotoDelete(BaseModel):
     photo_src: str
+
+
+# --- Team Announcements ---
+
+class AnnouncementCreate(BaseModel):
+    title: str = Field(..., min_length=2, max_length=255)
+    content: str = Field("", max_length=2000)
+
+class AnnouncementUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=2, max_length=255)
+    content: Optional[str] = Field(None, max_length=2000)
+    is_active: Optional[bool] = None
 

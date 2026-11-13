@@ -78,6 +78,12 @@ const teamSchema = {
             <section class="prose">
                 <Content />
             </section>
+
+            <!-- Team Announcements (loaded client-side from API) -->
+            <section class="team-announcements mt-8" id="team-announcements" style="display:none" data-team-slug={team.id}>
+                <h2>📢 Aktuelle Meldungen</h2>
+                <div class="announcements-list" id="announcements-list"></div>
+            </section>
             
             <section class="results-section mt-8">
                 <h2>Aktuelle Ergebnisse & Spielplan</h2>
@@ -577,6 +583,41 @@ const teamSchema = {
         .team-lightbox-prev { left: 0.75rem; }
         .team-lightbox-next { right: 0.75rem; }
     }
+
+    /* Team Announcements */
+    .team-announcements h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .announcements-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .announcement-card {
+        background: linear-gradient(135deg, #fff9c4 0%, #fff3e0 100%);
+        border: 1px solid #f9a825;
+        border-left: 4px solid #f57f17;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        color: #333;
+    }
+    .announcement-title {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 0.3rem;
+        color: #e65100;
+    }
+    .announcement-content {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: #555;
+    }
+    .announcement-date {
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 0.4rem;
+    }
 </style>
 
 <!-- Team Gallery Lightbox -->
@@ -635,5 +676,28 @@ const teamSchema = {
             if (e.key === 'ArrowLeft') navTeamLB(-1);
             if (e.key === 'ArrowRight') navTeamLB(1);
         });
+    }
+</script>
+
+<script>
+    // Load team announcements from API
+    const annSection = document.getElementById('team-announcements');
+    const annList = document.getElementById('announcements-list');
+    if (annSection && annList) {
+        const slug = annSection.getAttribute('data-team-slug');
+        fetch(`/api/teams/announcements/by-slug/${slug}`)
+            .then(r => r.json())
+            .then(items => {
+                if (!items || items.length === 0) return;
+                annSection.style.display = 'block';
+                annList.innerHTML = items.map((a: {title: string; content: string; created_at: string}) => `
+                    <div class="announcement-card">
+                        <div class="announcement-title">📌 ${a.title}</div>
+                        ${a.content ? `<div class="announcement-content">${a.content}</div>` : ''}
+                        <div class="announcement-date">${a.created_at ? new Date(a.created_at).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : ''}</div>
+                    </div>
+                `).join('');
+            })
+            .catch(() => {});
     }
 </script>

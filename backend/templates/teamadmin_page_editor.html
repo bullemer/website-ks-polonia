@@ -27,6 +27,14 @@
         flex-wrap: wrap;
         gap: 0.75rem;
     }
+    .section-desc {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        background: rgba(0,0,0,0.1);
+        border-bottom: 1px solid var(--border);
+        line-height: 1.5;
+    }
 
     .form-grid {
         display: grid;
@@ -43,7 +51,13 @@
         letter-spacing: 0.05em;
         color: var(--text-muted);
     }
-    .form-group input, .form-group textarea {
+    .form-group .hint {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        opacity: 0.8;
+        margin-top: -0.1rem;
+    }
+    .form-group input, .form-group textarea, .form-group select {
         background: var(--bg);
         border: 1px solid var(--border);
         color: var(--text);
@@ -59,7 +73,8 @@
         min-height: 160px;
         line-height: 1.5;
     }
-    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+    .form-group textarea.large { min-height: 250px; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
 
     .form-actions {
         padding: 1.25rem 1.5rem;
@@ -148,6 +163,48 @@
         -webkit-box-orient: vertical;
     }
 
+    /* Announcements */
+    .ann-list { padding: 1rem 1.5rem; }
+    .ann-item {
+        background: rgba(0,0,0,0.2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .ann-item.inactive { opacity: 0.5; }
+    .ann-item .ann-body { flex: 1; min-width: 0; }
+    .ann-item .ann-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; }
+    .ann-item .ann-content { font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+    .ann-item .ann-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem; opacity: 0.7; }
+    .ann-item .ann-actions { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
+    .ann-form { padding: 1.25rem 1.5rem; background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--border); }
+    .ann-form-grid { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; align-items: end; }
+    .ann-form-grid .form-group { margin: 0; }
+    .ann-form .ann-form-row { display: flex; gap: 0.75rem; align-items: end; flex-wrap: wrap; }
+    .ann-form .ann-form-row .form-group { flex: 1; min-width: 200px; }
+    .ann-empty { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem; }
+
+    /* Widget preview */
+    .widget-preview {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--border);
+    }
+    .widget-preview-box {
+        background: rgba(0,0,0,0.2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+    .widget-preview-box a { color: var(--primary); }
+
     .btn {
         display: inline-flex;
         align-items: center;
@@ -169,6 +226,8 @@
     .btn-outline:hover { background: var(--surface-hover); border-color: var(--text-muted); color: #fff; }
     .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
     .btn-danger:hover { background: #ef4444; color: #fff; }
+    .btn-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; }
+    .btn-success:hover { background: #22c55e; color: #fff; }
     .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
 
     .empty-gallery {
@@ -188,6 +247,29 @@
     }
     .toast.show { opacity: 1; transform: translateY(0); }
     .toast.error { background: var(--danger); }
+
+    .tab-bar {
+        display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 0;
+        padding: 0 1.5rem;
+        background: rgba(0,0,0,0.1);
+    }
+    .tab-btn {
+        padding: 0.85rem 1.3rem;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: inherit;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 {% endblock %}
 
 {% block sidebar_logo %}
@@ -219,7 +301,7 @@
 <div class="page-header">
     <div>
         <h1>Teamseite bearbeiten – {{ team.mannschaftsname }}</h1>
-        <p class="subtitle">Bearbeite Trainingszeiten, Trainer, Ansprechpartner und die Fotogalerie deiner Mannschaft.</p>
+        <p class="subtitle">Verwalte Steckbrief, fussball.de Widget, Meldungen, Fotos und Seiteninhalt deiner Mannschaft.</p>
     </div>
     {% if team.webpage_url %}
     <div>
@@ -228,95 +310,226 @@
     {% endif %}
 </div>
 
-<!-- Form section -->
-<div class="section">
-    <div class="section-title">
-        <span>⚙️ Trainingszeiten & Steckbrief</span>
+<!-- ═══ Tab Navigation ═══ -->
+<div class="section" style="overflow: visible;">
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="steckbrief" onclick="switchTab(this)">⚙️ Steckbrief</button>
+        <button class="tab-btn" data-tab="widget" onclick="switchTab(this)">📊 fussball.de Widget</button>
+        <button class="tab-btn" data-tab="content" onclick="switchTab(this)">📝 Seiteninhalt</button>
+        <button class="tab-btn" data-tab="announcements" onclick="switchTab(this)">📢 Meldungen</button>
+        <button class="tab-btn" data-tab="gallery" onclick="switchTab(this)">📸 Galerie</button>
     </div>
-    <form id="teamPageForm" onsubmit="saveTeamPage(event)">
-        <div class="form-grid">
-            <div class="form-group">
-                <label for="coachInput">🏋️ Trainer / Coach</label>
-                <input type="text" id="coachInput" name="coach" value="{{ team.coach or '' }}" placeholder="z. B. Max Mustermann, Piotr Nowak">
-            </div>
-
-            <div class="form-group">
-                <label for="contactInput">📋 Ansprechpartner / Betreuer</label>
-                <input type="text" id="contactInput" name="contact_person" value="{{ team.contact_person or '' }}" placeholder="z. B. Erika Musterfrau (0170-1234567)">
-            </div>
-
-            <div class="form-group">
-                <label for="timesInput">⏱️ Trainingszeiten</label>
-                <input type="text" id="timesInput" name="training_times" value="{{ team.training_times or '' }}" placeholder="z. B. Dienstag & Donnerstag 18:00 – 19:30 Uhr">
-            </div>
-
-            <div class="form-group">
-                <label for="locationInput">📍 Trainingsort</label>
-                <input type="text" id="locationInput" name="training_location" value="{{ team.training_location or '' }}" placeholder="z. B. Sportplatz Finkenau 38, 22081 Hamburg">
-            </div>
-
-            <div class="form-group">
-                <label for="spielklasseInput">🏆 Spielklasse / Liga</label>
-                <input type="text" id="spielklasseInput" name="spielklasse" value="{{ team.spielklasse or '' }}" placeholder="z. B. Kreisklasse A, Bezirksliga">
-            </div>
-
-            <div class="form-group">
-                <label for="ageGroupInput">👶 Altersklasse / Jahrgänge</label>
-                <input type="text" id="ageGroupInput" name="age_group" value="{{ team.age_group or '' }}" placeholder="z. B. U12 (Jahrgang 2014/2015)">
-            </div>
-
-            <div class="form-group full-width">
-                <label for="contentInput">📝 Beschreibung / Inhalt</label>
-                <textarea id="contentInput" name="content" placeholder="Beschreibe die Mannschaft, Neuigkeiten, Philosophie oder Willkommenstext...">{{ team.content or '' }}</textarea>
-            </div>
-        </div>
-
-        <div class="form-actions">
-            <a href="/api/teamadmin/team/{{ tid }}" class="btn btn-outline">Zurück zum Kader</a>
-            <button type="submit" class="btn btn-primary" id="savePageBtn">💾 Änderungen speichern</button>
-        </div>
-    </form>
 </div>
 
-<!-- Gallery section -->
-<div class="section">
-    <div class="section-title">
-        <span>📸 Galerie</span>
-        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" id="photoCount">
-            {{ team.gallery|length if team.gallery else 0 }} Fotos
-        </span>
+<!-- ═══ Tab 1: Steckbrief (Team Profile) ═══ -->
+<div class="tab-content active" id="tab-steckbrief">
+    <div class="section">
+        <div class="section-title">
+            <span>⚙️ Trainingszeiten & Steckbrief</span>
+        </div>
+        <div class="section-desc">
+            Diese Informationen erscheinen in der Seitenleiste der Teamseite auf ks-polonia.de.
+        </div>
+        <form id="teamProfileForm" onsubmit="saveProfile(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="coachInput">🏋️ Trainer / Coach</label>
+                    <input type="text" id="coachInput" name="coach" value="{{ team.coach or '' }}" placeholder="z. B. Max Mustermann, Piotr Nowak">
+                </div>
+
+                <div class="form-group">
+                    <label for="contactInput">📋 Ansprechpartner / Betreuer</label>
+                    <input type="text" id="contactInput" name="contact_person" value="{{ team.contact_person or '' }}" placeholder="z. B. Erika Musterfrau (0170-1234567)">
+                </div>
+
+                <div class="form-group">
+                    <label for="timesInput">⏱️ Trainingszeiten</label>
+                    <input type="text" id="timesInput" name="training_times" value="{{ team.training_times or '' }}" placeholder="z. B. Dienstag & Donnerstag 18:00 – 19:30 Uhr">
+                </div>
+
+                <div class="form-group">
+                    <label for="locationInput">📍 Trainingsort</label>
+                    <input type="text" id="locationInput" name="training_location" value="{{ team.training_location or '' }}" placeholder="z. B. Sportplatz Finkenau 38, 22081 Hamburg">
+                </div>
+
+                <div class="form-group">
+                    <label for="spielklasseInput">🏆 Spielklasse / Liga</label>
+                    <input type="text" id="spielklasseInput" name="spielklasse" value="{{ team.spielklasse or '' }}" placeholder="z. B. Kreisklasse A, Bezirksliga">
+                </div>
+
+                <div class="form-group">
+                    <label for="ageGroupInput">👶 Altersklasse / Jahrgänge</label>
+                    <input type="text" id="ageGroupInput" name="age_group" value="{{ team.age_group or '' }}" placeholder="z. B. U12 (Jahrgang 2014/2015)">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="/api/teamadmin/team/{{ tid }}" class="btn btn-outline">Zurück zum Kader</a>
+                <button type="submit" class="btn btn-primary" id="saveProfileBtn">💾 Steckbrief speichern</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- Upload form -->
-    <form id="photoUploadForm" onsubmit="uploadPhoto(event)" class="upload-bar">
-        <input type="file" id="photoFileInput" accept="image/png,image/jpeg,image/webp,image/jpg" required>
-        <input type="text" id="photoCaptionInput" placeholder="Bildunterschrift (z.B. Mannschaftsausflug, Turniersieg 2026)">
-        <button type="submit" class="btn btn-primary" id="uploadPhotoBtn">📤 Hochladen</button>
-    </form>
-
-    <!-- Photo grid -->
-    <div class="gallery-grid" id="galleryGrid">
-        {% if team.gallery and team.gallery|length > 0 %}
-            {% for img in team.gallery %}
-            <div class="photo-card" id="photo-card-{{ loop.index0 }}">
-                <div class="photo-preview">
-                    <img src="{{ img.src }}" alt="{{ img.caption or 'Teamfoto' }}" loading="lazy">
+<!-- ═══ Tab 2: fussball.de Widget ═══ -->
+<div class="tab-content" id="tab-widget">
+    <div class="section">
+        <div class="section-title">
+            <span>📊 fussball.de Widget</span>
+        </div>
+        <div class="section-desc">
+            Hier kannst du die fussball.de Widget-ID eintragen. Das Widget zeigt Tabelle, Spielplan und Ergebnisse auf eurer Teamseite an.<br>
+            <strong>So findest du die Widget-ID:</strong> Gehe auf <a href="https://www.fussball.de" target="_blank" style="color:var(--primary)">fussball.de</a> → deine Mannschaft → „Widget generieren" → die ID steht im generierten Code (z.B. <code>data-id="32c8e0b6-4b09-..."</code>).
+        </div>
+        <form id="widgetForm" onsubmit="saveWidget(event)">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="widgetIdInput">🔗 Widget-ID (UUID)</label>
+                    <input type="text" id="widgetIdInput" name="widget_id"
+                           value="{{ team.widget_id or '' }}"
+                           placeholder="z. B. 32c8e0b6-4b09-4864-9140-cdaa801186c1"
+                           pattern="[0-9a-fA-F-]{36}"
+                           style="font-family: monospace;">
+                    <span class="hint">Die Widget-ID ist eine UUID im Format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</span>
                 </div>
-                <div class="photo-info">
-                    <div class="photo-caption">{{ img.caption or 'Keine Bildunterschrift' }}</div>
-                    <button type="button" class="btn btn-danger btn-sm"
-                            data-photo-src="{{ img.src }}"
-                            onclick="deletePhoto(this)">
-                        🗑️ Foto löschen
-                    </button>
+
+                <div class="form-group full-width">
+                    <label for="externalUrlInput">🌐 fussball.de Mannschaftsseite (Link)</label>
+                    <input type="url" id="externalUrlInput" name="external_url"
+                           value="{{ team.external_url or '' }}"
+                           placeholder="https://www.fussball.de/mannschaft/...">
+                    <span class="hint">Direktlink zur Mannschaftsseite auf fussball.de</span>
                 </div>
             </div>
-            {% endfor %}
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-danger btn-sm" onclick="clearWidget()" id="clearWidgetBtn"
+                        {% if not team.widget_id %}style="display:none"{% endif %}>
+                    🗑️ Widget entfernen
+                </button>
+                <button type="submit" class="btn btn-primary" id="saveWidgetBtn">💾 Widget speichern</button>
+            </div>
+        </form>
+
+        {% if team.widget_id %}
+        <div class="widget-preview">
+            <div class="widget-preview-box">
+                ✅ Widget aktiv — ID: <code>{{ team.widget_id }}</code><br>
+                <small>Das Widget wird auf der <a href="{{ team.webpage_url or '#' }}" target="_blank">Teamseite</a> angezeigt.</small>
+            </div>
+        </div>
         {% else %}
-            <div class="empty-gallery" id="emptyGalleryMsg">
-                Noch keine Fotos in der Galerie vorhanden. Lade oben ein Foto hoch.
+        <div class="widget-preview">
+            <div class="widget-preview-box">
+                ⚠️ Kein Widget konfiguriert — trage oben eine Widget-ID ein, um Tabelle & Spielplan anzuzeigen.
             </div>
+        </div>
         {% endif %}
+    </div>
+</div>
+
+<!-- ═══ Tab 3: Seiteninhalt ═══ -->
+<div class="tab-content" id="tab-content">
+    <div class="section">
+        <div class="section-title">
+            <span>📝 Seiteninhalt / Beschreibung</span>
+        </div>
+        <div class="section-desc">
+            Der Haupttext eurer Teamseite. Hier könnt ihr eure Mannschaft vorstellen, Philosophie beschreiben, Erfolge auflisten usw.
+            Du kannst <strong>Markdown</strong> verwenden: <code>**fett**</code>, <code>## Überschrift</code>, <code>- Liste</code>, <code>[Link](url)</code>.
+        </div>
+        <form id="contentForm" onsubmit="saveContent(event)">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="contentInput">📝 Beschreibung / Inhalt</label>
+                    <textarea id="contentInput" name="content" class="large"
+                              placeholder="## Unsere Mannschaft&#10;&#10;Beschreibt eure Mannschaft, Philosophie, Willkommenstext...&#10;&#10;**Tipps:**&#10;- Nutzt ## für Überschriften&#10;- **fett** für Hervorhebungen&#10;- Listet Erfolge auf&#10;- Erzählt eure Geschichte!">{{ team.content or '' }}</textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="saveContentBtn">💾 Inhalt speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ═══ Tab 4: Meldungen / Announcements ═══ -->
+<div class="tab-content" id="tab-announcements">
+    <div class="section">
+        <div class="section-title">
+            <span>📢 Meldungen & Neuigkeiten</span>
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" id="annCount">wird geladen…</span>
+        </div>
+        <div class="section-desc">
+            Meldungen erscheinen auf eurer Teamseite und auf der Vereinshomepage — z.B. „Spieler gesucht", Absagen, Infos für Eltern oder ähnliches.
+        </div>
+
+        <!-- New announcement form -->
+        <div class="ann-form">
+            <div class="ann-form-row">
+                <div class="form-group" style="flex:2;">
+                    <label for="annTitleInput">Titel</label>
+                    <input type="text" id="annTitleInput" placeholder="z. B. Spieler gesucht!, Training fällt aus, ...">
+                </div>
+                <div class="form-group" style="flex:3;">
+                    <label for="annContentInput">Nachricht</label>
+                    <input type="text" id="annContentInput" placeholder="Detailtext (optional)">
+                </div>
+                <div style="padding-bottom: 0.4rem;">
+                    <button type="button" class="btn btn-primary" onclick="createAnnouncement()">➕ Meldung erstellen</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Announcement list (loaded via JS) -->
+        <div class="ann-list" id="annList">
+            <div class="ann-empty">Lade Meldungen…</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Tab 5: Galerie ═══ -->
+<div class="tab-content" id="tab-gallery">
+    <div class="section">
+        <div class="section-title">
+            <span>📸 Galerie</span>
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" id="photoCount">
+                {{ team.gallery|length if team.gallery else 0 }} Fotos
+            </span>
+        </div>
+
+        <!-- Upload form -->
+        <form id="photoUploadForm" onsubmit="uploadPhoto(event)" class="upload-bar">
+            <input type="file" id="photoFileInput" accept="image/png,image/jpeg,image/webp,image/jpg" required>
+            <input type="text" id="photoCaptionInput" placeholder="Bildunterschrift (z.B. Mannschaftsausflug, Turniersieg 2026)">
+            <button type="submit" class="btn btn-primary" id="uploadPhotoBtn">📤 Hochladen</button>
+        </form>
+
+        <!-- Photo grid -->
+        <div class="gallery-grid" id="galleryGrid">
+            {% if team.gallery and team.gallery|length > 0 %}
+                {% for img in team.gallery %}
+                <div class="photo-card" id="photo-card-{{ loop.index0 }}">
+                    <div class="photo-preview">
+                        <img src="{{ img.src }}" alt="{{ img.caption or 'Teamfoto' }}" loading="lazy">
+                    </div>
+                    <div class="photo-info">
+                        <div class="photo-caption">{{ img.caption or 'Keine Bildunterschrift' }}</div>
+                        <button type="button" class="btn btn-danger btn-sm"
+                                data-photo-src="{{ img.src }}"
+                                onclick="deletePhoto(this)">
+                            🗑️ Foto löschen
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-gallery" id="emptyGalleryMsg">
+                    Noch keine Fotos in der Galerie vorhanden. Lade oben ein Foto hoch.
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
@@ -327,6 +540,17 @@
 <script>
 const teamId = {{ tid }};
 
+/* ═══ Tabs ═══ */
+function switchTab(btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.getAttribute('data-tab');
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'announcements') loadAnnouncements();
+}
+
+/* ═══ Toast ═══ */
 function showToast(msg, isError = false) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -335,12 +559,11 @@ function showToast(msg, isError = false) {
     setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-async function saveTeamPage(e) {
+/* ═══ Save Profile (Steckbrief) ═══ */
+async function saveProfile(e) {
     e.preventDefault();
-    const btn = document.getElementById('savePageBtn');
-    btn.disabled = true;
-    btn.textContent = 'Speichere...';
-
+    const btn = document.getElementById('saveProfileBtn');
+    btn.disabled = true; btn.textContent = 'Speichere…';
     const payload = {
         coach: document.getElementById('coachInput').value.trim(),
         contact_person: document.getElementById('contactInput').value.trim(),
@@ -348,89 +571,191 @@ async function saveTeamPage(e) {
         training_location: document.getElementById('locationInput').value.trim(),
         spielklasse: document.getElementById('spielklasseInput').value.trim(),
         age_group: document.getElementById('ageGroupInput').value.trim(),
-        content: document.getElementById('contentInput').value.trim()
     };
-
     try {
         const resp = await fetch(`/api/teamadmin/team/${teamId}/page`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) showToast('✅ Steckbrief gespeichert & synchronisiert');
+        else showToast(data.detail || 'Fehler beim Speichern', true);
+    } catch { showToast('Netzwerkfehler', true); }
+    finally { btn.disabled = false; btn.textContent = '💾 Steckbrief speichern'; }
+}
+
+/* ═══ Save Widget ═══ */
+async function saveWidget(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveWidgetBtn');
+    btn.disabled = true; btn.textContent = 'Speichere…';
+    const payload = {
+        widget_id: document.getElementById('widgetIdInput').value.trim(),
+        external_url: document.getElementById('externalUrlInput').value.trim(),
+    };
+    try {
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/page`, {
+            method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
         });
         const data = await resp.json();
         if (resp.ok && data.success) {
-            showToast('✅ Teamseite erfolgreich gespeichert & synchronisiert');
-        } else {
-            showToast(data.detail || 'Fehler beim Speichern', true);
+            showToast('✅ Widget-Einstellungen gespeichert');
+            if (payload.widget_id) document.getElementById('clearWidgetBtn').style.display = '';
+            else document.getElementById('clearWidgetBtn').style.display = 'none';
         }
-    } catch (err) {
-        showToast('Netzwerkfehler beim Speichern', true);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = '💾 Änderungen speichern';
-    }
+        else showToast(data.detail || 'Fehler', true);
+    } catch { showToast('Netzwerkfehler', true); }
+    finally { btn.disabled = false; btn.textContent = '💾 Widget speichern'; }
 }
 
+async function clearWidget() {
+    if (!confirm('fussball.de Widget wirklich entfernen?')) return;
+    document.getElementById('widgetIdInput').value = '';
+    document.getElementById('saveWidgetBtn').click();
+}
+
+/* ═══ Save Content ═══ */
+async function saveContent(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveContentBtn');
+    btn.disabled = true; btn.textContent = 'Speichere…';
+    const payload = {
+        content: document.getElementById('contentInput').value.trim(),
+    };
+    try {
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/page`, {
+            method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) showToast('✅ Seiteninhalt gespeichert & synchronisiert');
+        else showToast(data.detail || 'Fehler', true);
+    } catch { showToast('Netzwerkfehler', true); }
+    finally { btn.disabled = false; btn.textContent = '💾 Inhalt speichern'; }
+}
+
+/* ═══ Announcements ═══ */
+async function loadAnnouncements() {
+    try {
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/announcements`);
+        const data = await resp.json();
+        if (!data.success) return;
+        const list = document.getElementById('annList');
+        const count = document.getElementById('annCount');
+        const items = data.announcements || [];
+        count.textContent = items.length + ' Meldung' + (items.length !== 1 ? 'en' : '');
+        if (items.length === 0) {
+            list.innerHTML = '<div class="ann-empty">Noch keine Meldungen vorhanden. Erstelle oben eine neue Meldung.</div>';
+            return;
+        }
+        list.innerHTML = items.map(a => `
+            <div class="ann-item ${a.is_active ? '' : 'inactive'}" id="ann-${a.id}">
+                <div class="ann-body">
+                    <div class="ann-title">${a.is_active ? '' : '🚫 '}${escHtml(a.title)}</div>
+                    ${a.content ? `<div class="ann-content">${escHtml(a.content)}</div>` : ''}
+                    <div class="ann-meta">
+                        ${a.created_by_name ? 'von ' + escHtml(a.created_by_name) + ' · ' : ''}
+                        ${a.created_at ? new Date(a.created_at).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : ''}
+                        ${a.is_active ? '' : ' · Deaktiviert'}
+                    </div>
+                </div>
+                <div class="ann-actions">
+                    <button class="btn btn-sm ${a.is_active ? 'btn-outline' : 'btn-success'}"
+                            onclick="toggleAnnouncement(${a.id}, ${!a.is_active})"
+                            title="${a.is_active ? 'Deaktivieren' : 'Aktivieren'}">
+                        ${a.is_active ? '⏸️' : '▶️'}
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteAnnouncement(${a.id})" title="Löschen">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    } catch { document.getElementById('annList').innerHTML = '<div class="ann-empty">Fehler beim Laden.</div>'; }
+}
+
+function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+async function createAnnouncement() {
+    const title = document.getElementById('annTitleInput').value.trim();
+    if (!title) { showToast('Bitte Titel eingeben', true); return; }
+    const content = document.getElementById('annContentInput').value.trim();
+    try {
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/announcements`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ title, content })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showToast('✅ Meldung erstellt');
+            document.getElementById('annTitleInput').value = '';
+            document.getElementById('annContentInput').value = '';
+            loadAnnouncements();
+        } else showToast(data.detail || 'Fehler', true);
+    } catch { showToast('Netzwerkfehler', true); }
+}
+
+async function toggleAnnouncement(id, activate) {
+    try {
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/announcements/${id}`, {
+            method: 'PUT', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ is_active: activate })
+        });
+        if (resp.ok) { showToast(activate ? 'Meldung aktiviert' : 'Meldung deaktiviert'); loadAnnouncements(); }
+        else showToast('Fehler', true);
+    } catch { showToast('Netzwerkfehler', true); }
+}
+
+async function deleteAnnouncement(id) {
+    if (!confirm('Meldung wirklich löschen?')) return;
+    try {
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/announcements/${id}`, { method: 'DELETE' });
+        if (resp.ok) { showToast('Meldung gelöscht'); loadAnnouncements(); }
+        else showToast('Fehler', true);
+    } catch { showToast('Netzwerkfehler', true); }
+}
+
+/* ═══ Gallery ═══ */
 async function uploadPhoto(e) {
     e.preventDefault();
     const fileInput = document.getElementById('photoFileInput');
     const captionInput = document.getElementById('photoCaptionInput');
-
-    if (!fileInput.files || fileInput.files.length === 0) {
-        showToast('Bitte wähle ein Bild aus.', true);
-        return;
-    }
-
+    if (!fileInput.files || fileInput.files.length === 0) { showToast('Bitte Bild auswählen.', true); return; }
     const btn = document.getElementById('uploadPhotoBtn');
-    btn.disabled = true;
-    btn.textContent = 'Lade hoch...';
-
+    btn.disabled = true; btn.textContent = 'Lade hoch…';
     const formData = new FormData();
     formData.append('photo', fileInput.files[0]);
     formData.append('caption', captionInput.value.trim());
-
     try {
-        const resp = await fetch(`/api/teamadmin/team/${teamId}/photos`, {
-            method: 'POST',
-            body: formData
-        });
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/photos`, { method: 'POST', body: formData });
         const data = await resp.json();
         if (resp.ok && data.success) {
-            showToast('✅ Foto erfolgreich hochgeladen');
-            fileInput.value = '';
-            captionInput.value = '';
+            showToast('✅ Foto hochgeladen');
+            fileInput.value = ''; captionInput.value = '';
             setTimeout(() => location.reload(), 700);
-        } else {
-            showToast(data.detail || 'Fehler beim Hochladen', true);
-        }
-    } catch (err) {
-        showToast('Netzwerkfehler beim Upload', true);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = '📤 Hochladen';
-    }
+        } else showToast(data.detail || 'Fehler', true);
+    } catch { showToast('Netzwerkfehler', true); }
+    finally { btn.disabled = false; btn.textContent = '📤 Hochladen'; }
 }
 
 async function deletePhoto(btn) {
     const photoSrc = btn.getAttribute('data-photo-src');
-    if (!confirm('Dieses Foto wirklich aus der Galerie löschen?')) return;
-
+    if (!confirm('Foto wirklich löschen?')) return;
     try {
         const resp = await fetch(`/api/teamadmin/team/${teamId}/photos`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'DELETE', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ photo_src: photoSrc })
         });
         const data = await resp.json();
-        if (resp.ok && data.success) {
-            showToast('Foto gelöscht');
-            setTimeout(() => location.reload(), 600);
-        } else {
-            showToast(data.detail || 'Fehler beim Löschen', true);
-        }
-    } catch (err) {
-        showToast('Netzwerkfehler beim Löschen', true);
-    }
+        if (resp.ok && data.success) { showToast('Foto gelöscht'); setTimeout(() => location.reload(), 600); }
+        else showToast(data.detail || 'Fehler', true);
+    } catch { showToast('Netzwerkfehler', true); }
 }
+
+/* ═══ Init ═══ */
+document.addEventListener('DOMContentLoaded', () => {
+    // Pre-load announcements if tab is active
+    if (document.querySelector('.tab-btn.active[data-tab="announcements"]')) loadAnnouncements();
+});
 </script>
 {% endblock %}

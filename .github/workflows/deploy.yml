@@ -123,21 +123,3 @@ jobs:
           HOST=$(echo "$SSH_HOST" | xargs)
           USER=$(echo "$SSH_USER" | xargs)
           ssh -p 222 "$USER@$HOST" python3 - "$GITHUB_SHA" < scripts/restart_fcgi.py
-
-      # ═══════════════════════════════════════
-      #  ONE-TIME: Send Teamoffiziell Emails
-      #  Remove this step after first successful run!
-      # ═══════════════════════════════════════
-      - name: Send Teamoffiziell Login Emails
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-        run: |
-          HOST=$(echo "$SSH_HOST" | xargs)
-          USER=$(echo "$SSH_USER" | xargs)
-          ssh -p 222 "$USER@$HOST" <<'ENDSSH'
-            set -e
-            source /usr/home/trusteei/virtualenvs/kspolonia/bin/activate
-            cd /usr/home/trusteei/flaskprojects/kspolonia/backend
-            python3 send_teamoffiziell_emails.py
-          ENDSSH

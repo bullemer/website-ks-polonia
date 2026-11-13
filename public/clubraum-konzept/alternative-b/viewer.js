@@ -50,7 +50,7 @@ model.name = 'Clubraum_Alternative_B_drei_Bereiche';
 model.userData = { status: 'Konzept, Aufmaß erforderlich', units: 'metres', plan: 'Grundriss B-05' };
 scene.add(model);
 const groups = {};
-for (const n of ['base', 'zones', 'routes', 'shared', 'croatia', 'polonia', 'divider', 'lights', 'electroBase', 'electroWish', 'network', 'roof', 'labels']) {
+for (const n of ['base', 'zones', 'routes', 'shared', 'croatia', 'polonia', 'divider', 'lights', 'electroBase', 'electroWish', 'electroOption', 'network', 'roof', 'labels']) {
   groups[n] = new THREE.Group();
   groups[n].name = n;
   model.add(groups[n]);
@@ -399,7 +399,7 @@ function setDivider(mode) {
 
 // ---------------------------------------------------------------- Elektro-Bedarfsplan E-02: gemeinsame Basis und Polonia-Wünsche
 const electrical = await (await fetch('./elektro-modell.json')).json();
-const baseDevices = groups.electroBase, wishDevices = groups.electroWish, network = groups.network;
+const baseDevices = groups.electroBase, wishDevices = groups.electroWish, optionDevices = groups.electroOption, network = groups.network;
 const lightMeshes = new Map();
 function deviceTex(id, kind, color, count) {
   return canvasTex(256, 256, (ctx) => {
@@ -411,6 +411,8 @@ function deviceTex(id, kind, color, count) {
   });
 }
 function surface(x, z, id) {
+  if (id === 'A01') return [x, 15.79, 0];
+  if (id === 'A02') return [x, 15.45, Math.PI];
   if (id === 'P01') return [7.86, 5.39, Math.PI / 2];
   if (id === 'P02') return [7.86, 5.81, Math.PI / 2];
   if (id === 'P07') return [7.58, 5.60, -Math.PI / 2];
@@ -436,6 +438,7 @@ for (const row of electrical.basis) {
 for (const row of electrical.poloniaWuensche) {
   if (row.Wunsch_ID !== 'P06') device(wishDevices, row, row.Wunsch_ID, '#c8105d');
 }
+for (const row of electrical.aussenOption) device(optionDevices, row, row.Option_ID, '#bb6a18');
 const mood = new THREE.Group();
 mood.name = 'P06 RGBW indirektes Stimmungslicht Nord- und Ostwand';
 mood.userData = { id: 'P06', status: 'Polonia-Wunsch', note: 'Zwei schematische Abschnitte; Profile, Treiber und Steuerung durch Fachplanung' };
@@ -530,7 +533,8 @@ for (const b of document.querySelectorAll('#tv-positions button')) b.onclick = (
 for (const b of document.querySelectorAll('#mood-colors button')) b.onclick = () => setMood(b.dataset.mood);
 $('#mood-brightness').oninput = e => setMoodBrightness(e.target.value);
 const toggles = { 't-labels': 'labels', 't-zones': 'zones', 't-routes': 'routes', 't-lights': 'lights',
-  't-electro-base': 'electroBase', 't-electro-wish': 'electroWish', 't-network': 'network', 't-roof': 'roof' };
+  't-electro-base': 'electroBase', 't-electro-wish': 'electroWish', 't-electro-option': 'electroOption',
+  't-network': 'network', 't-roof': 'roof' };
 for (const [id, g] of Object.entries(toggles)) {
   $('#' + id).onchange = e => { groups[g].visible = e.target.checked; };
   groups[g].visible = $('#' + id).checked;
@@ -542,7 +546,7 @@ for (const b of document.querySelectorAll('#polonia-lights button')) b.onclick =
 };
 
 $('#export').onclick = () => {
-  const saved = Object.fromEntries(['labels', 'lights', 'electroBase', 'electroWish', 'network'].map(k => [k, groups[k].visible]));
+  const saved = Object.fromEntries(['labels', 'lights', 'electroBase', 'electroWish', 'electroOption', 'network'].map(k => [k, groups[k].visible]));
   const lightState = Object.fromEntries(['L04', 'L05', 'L06'].map(k => [k, lightMeshes.get(k).visible]));
   const moodWas = mood.visible;
   const restore = () => {
@@ -551,7 +555,7 @@ $('#export').onclick = () => {
     mood.visible = moodWas;
   };
   groups.labels.visible = false; // Sprites nicht exportieren
-  for (const k of ['lights', 'electroBase', 'electroWish', 'network']) groups[k].visible = true;
+  for (const k of ['lights', 'electroBase', 'electroWish', 'electroOption', 'network']) groups[k].visible = true;
   for (const k of ['L04', 'L05', 'L06']) lightMeshes.get(k).visible = true;
   mood.visible = true;
   new GLTFExporter().parse(model, (glb) => {

@@ -602,5 +602,35 @@
       "Status": "Wunsch",
       "Kommentar_Elektrofachplanung": "Bedienung neben P01 am Holzpfeiler oder geeignete Alternative; Platz, Montage und Leitung/Steuerung fachlich prüfen"
     }
+  ],
+  "aussenOption": [
+    {
+      "Option_ID": "A01",
+      "Typ": "Steckdose",
+      "Bereich": "Außen bei Ausgang 1",
+      "X_m": "3.25",
+      "Z_m": "15.72",
+      "Hoehe_m": "0.55",
+      "Anzahl": "1",
+      "Funktion": "Feste Außensteckdose für Terrasse und Außenanlage",
+      "Hinweis": "Witterungsgeeignete Ausführung und Schutzmaßnahmen durch Fachbetrieb; genaue Außenwandposition und Durchdringung prüfen",
+      "Croatia_Entscheid": "offen",
+      "Polonia_Entscheid": "offen",
+      "Status": "Angebotsoption"
+    },
+    {
+      "Option_ID": "A02",
+      "Typ": "Schalter",
+      "Bereich": "Gemeinsam innen bei Ausgang 1",
+      "X_m": "3.85",
+      "Z_m": "15.46",
+      "Hoehe_m": "1.05",
+      "Anzahl": "1",
+      "Funktion": "Innenliegende Schaltmöglichkeit für Außensteckdose A01",
+      "Hinweis": "Schaltstelle nur innen zugänglich; geeignete Schalt-/Trennfunktion, Kennzeichnung und Last durch Fachbetrieb festlegen",
+      "Croatia_Entscheid": "offen",
+      "Polonia_Entscheid": "offen",
+      "Status": "Angebotsoption"
+    }
   ]
 }

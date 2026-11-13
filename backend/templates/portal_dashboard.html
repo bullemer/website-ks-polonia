@@ -126,6 +126,16 @@
     <div class="content">
         <div id="globalAlert" class="alert"></div>
 
+        {% if has_team_admin %}
+        <div style="background: linear-gradient(135deg, var(--s), #f9f0f2); border: 1px solid var(--p); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: .75rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div>
+                <span style="font-size: 1.1rem; font-weight: 600;">🛡️ Team-Verwaltung</span>
+                <p style="color: var(--tm); font-size: 0.85rem; margin-top: 0.25rem;">Verwalte dein Team: Kader, Beiträge &amp; Teamseite</p>
+            </div>
+            <a href="/api/teamadmin/" style="background: var(--p); color: #fff; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; white-space: nowrap;">Team verwalten →</a>
+        </div>
+        {% endif %}
+
         <!-- Desktop tabs -->
         <div class="dtabs">
             <button class="dtab active" onclick="go('ausweis')">🪪 Ausweis</button>

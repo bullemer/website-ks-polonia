@@ -41,6 +41,7 @@ from routes.portal_routes import router as portal_router
 from routes.ticket_routes import router as ticket_router
 from routes.team_routes import router as team_router
 from routes.claim_routes import router as claim_router
+from routes.teamadmin_routes import router as teamadmin_router
 
 # ═══════════════════════════════════════
 #  APP SETUP
@@ -88,6 +89,7 @@ app.include_router(portal_router)
 app.include_router(ticket_router)
 app.include_router(team_router)
 app.include_router(claim_router)
+app.include_router(teamadmin_router)
 
 
 # ═══════════════════════════════════════

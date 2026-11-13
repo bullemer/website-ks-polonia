@@ -1,0 +1,436 @@
+{% extends "admin_base.html" %}
+
+{% set tid = team.id or team_id %}
+{% set active_nav = 'team_' ~ tid|string %}
+
+{% block title %}Teamseite bearbeiten – {{ team.mannschaftsname or 'Team' }} – KS Polonia{% endblock %}
+
+{% block extra_style %}
+    .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--primary); }
+    .breadcrumb .sep { opacity: 0.4; }
+
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.7rem; font-weight: 700; color: #fff; }
+    .page-header .subtitle { font-size: 0.95rem; color: var(--text-muted); font-weight: 400; margin-top: 0.25rem; }
+
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 1.75rem; overflow: hidden; }
+    .section-title {
+        padding: 1.1rem 1.5rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+        padding: 1.5rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-group label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+    }
+    .form-group input, .form-group textarea {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 0.65rem 0.85rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        transition: border-color 0.15s;
+    }
+    .form-group textarea {
+        font-family: inherit;
+        resize: vertical;
+        min-height: 160px;
+        line-height: 1.5;
+    }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+
+    .form-actions {
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.15);
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    /* Gallery */
+    .upload-bar {
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.15);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .upload-bar input[type="file"] {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.82rem;
+    }
+    .upload-bar input[type="text"] {
+        flex: 1;
+        min-width: 220px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 0.6rem 0.85rem;
+        border-radius: 8px;
+        font-size: 0.88rem;
+    }
+    .upload-bar input[type="text"]:focus { outline: none; border-color: var(--primary); }
+
+    .gallery-grid {
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 1.25rem;
+    }
+    .photo-card {
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.15s, transform 0.15s;
+    }
+    .photo-card:hover { border-color: var(--primary); }
+    .photo-preview {
+        height: 150px;
+        overflow: hidden;
+        background: #000;
+        position: relative;
+    }
+    .photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .photo-info {
+        padding: 0.85rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 0.6rem;
+    }
+    .photo-caption {
+        font-size: 0.82rem;
+        color: var(--text);
+        line-height: 1.35;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.15s;
+        font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--surface-hover); border-color: var(--text-muted); color: #fff; }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
+    .btn-danger:hover { background: #ef4444; color: #fff; }
+    .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
+
+    .empty-gallery {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: var(--text-muted);
+    }
+
+    .toast {
+        position: fixed; bottom: 2rem; right: 2rem;
+        background: var(--success); color: #fff;
+        padding: 0.8rem 1.5rem; border-radius: 10px;
+        font-weight: 600; font-size: 0.9rem;
+        z-index: 3000; opacity: 0; transform: translateY(20px);
+        transition: all 0.3s; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: var(--danger); }
+{% endblock %}
+
+{% block sidebar_logo %}
+<div class="sidebar-logo"><h2>Team-Verwaltung</h2><span>KS Polonia</span></div>
+{% endblock %}
+
+{% block sidebar_nav %}
+{% set nav_teams = sidebar_teams if (sidebar_teams is defined and sidebar_teams) else [team] %}
+<a href="/api/teamadmin/" class="nav-link"><span class="icon">📊</span> Übersicht</a>
+{% for t in nav_teams %}
+{% set this_tid = t.id or t.team_id %}
+{% if this_tid %}
+<a href="/api/teamadmin/team/{{ this_tid }}" class="nav-link{% if this_tid|string == tid|string %} active{% endif %}"><span class="icon">{{ t.division_icon or '⚽' }}</span> {{ t.mannschaftsname }}</a>
+{% endif %}
+{% endfor %}
+<a href="/api/portal" class="nav-link"><span class="icon">👤</span> Mein Portal</a>
+<a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
+{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="/api/teamadmin/">Übersicht</a>
+    <span class="sep">›</span>
+    <a href="/api/teamadmin/team/{{ tid }}">{{ team.mannschaftsname or 'Team' }}</a>
+    <span class="sep">›</span>
+    <span>Teamseite bearbeiten</span>
+</div>
+
+<div class="page-header">
+    <div>
+        <h1>Teamseite bearbeiten – {{ team.mannschaftsname }}</h1>
+        <p class="subtitle">Bearbeite Trainingszeiten, Trainer, Ansprechpartner und die Fotogalerie deiner Mannschaft.</p>
+    </div>
+    {% if team.webpage_url %}
+    <div>
+        <a href="{{ team.webpage_url }}" target="_blank" class="btn btn-outline">Teamseite ansehen ↗</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Form section -->
+<div class="section">
+    <div class="section-title">
+        <span>⚙️ Trainingszeiten & Steckbrief</span>
+    </div>
+    <form id="teamPageForm" onsubmit="saveTeamPage(event)">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="coachInput">🏋️ Trainer / Coach</label>
+                <input type="text" id="coachInput" name="coach" value="{{ team.coach or '' }}" placeholder="z. B. Max Mustermann, Piotr Nowak">
+            </div>
+
+            <div class="form-group">
+                <label for="contactInput">📋 Ansprechpartner / Betreuer</label>
+                <input type="text" id="contactInput" name="contact_person" value="{{ team.contact_person or '' }}" placeholder="z. B. Erika Musterfrau (0170-1234567)">
+            </div>
+
+            <div class="form-group">
+                <label for="timesInput">⏱️ Trainingszeiten</label>
+                <input type="text" id="timesInput" name="training_times" value="{{ team.training_times or '' }}" placeholder="z. B. Dienstag & Donnerstag 18:00 – 19:30 Uhr">
+            </div>
+
+            <div class="form-group">
+                <label for="locationInput">📍 Trainingsort</label>
+                <input type="text" id="locationInput" name="training_location" value="{{ team.training_location or '' }}" placeholder="z. B. Sportplatz Finkenau 38, 22081 Hamburg">
+            </div>
+
+            <div class="form-group">
+                <label for="spielklasseInput">🏆 Spielklasse / Liga</label>
+                <input type="text" id="spielklasseInput" name="spielklasse" value="{{ team.spielklasse or '' }}" placeholder="z. B. Kreisklasse A, Bezirksliga">
+            </div>
+
+            <div class="form-group">
+                <label for="ageGroupInput">👶 Altersklasse / Jahrgänge</label>
+                <input type="text" id="ageGroupInput" name="age_group" value="{{ team.age_group or '' }}" placeholder="z. B. U12 (Jahrgang 2014/2015)">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="contentInput">📝 Beschreibung / Inhalt</label>
+                <textarea id="contentInput" name="content" placeholder="Beschreibe die Mannschaft, Neuigkeiten, Philosophie oder Willkommenstext...">{{ team.content or '' }}</textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="/api/teamadmin/team/{{ tid }}" class="btn btn-outline">Zurück zum Kader</a>
+            <button type="submit" class="btn btn-primary" id="savePageBtn">💾 Änderungen speichern</button>
+        </div>
+    </form>
+</div>
+
+<!-- Gallery section -->
+<div class="section">
+    <div class="section-title">
+        <span>📸 Galerie</span>
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" id="photoCount">
+            {{ team.gallery|length if team.gallery else 0 }} Fotos
+        </span>
+    </div>
+
+    <!-- Upload form -->
+    <form id="photoUploadForm" onsubmit="uploadPhoto(event)" class="upload-bar">
+        <input type="file" id="photoFileInput" accept="image/png,image/jpeg,image/webp,image/jpg" required>
+        <input type="text" id="photoCaptionInput" placeholder="Bildunterschrift (z.B. Mannschaftsausflug, Turniersieg 2026)">
+        <button type="submit" class="btn btn-primary" id="uploadPhotoBtn">📤 Hochladen</button>
+    </form>
+
+    <!-- Photo grid -->
+    <div class="gallery-grid" id="galleryGrid">
+        {% if team.gallery and team.gallery|length > 0 %}
+            {% for img in team.gallery %}
+            <div class="photo-card" id="photo-card-{{ loop.index0 }}">
+                <div class="photo-preview">
+                    <img src="{{ img.src }}" alt="{{ img.caption or 'Teamfoto' }}" loading="lazy">
+                </div>
+                <div class="photo-info">
+                    <div class="photo-caption">{{ img.caption or 'Keine Bildunterschrift' }}</div>
+                    <button type="button" class="btn btn-danger btn-sm"
+                            data-photo-src="{{ img.src }}"
+                            onclick="deletePhoto(this)">
+                        🗑️ Foto löschen
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-gallery" id="emptyGalleryMsg">
+                Noch keine Fotos in der Galerie vorhanden. Lade oben ein Foto hoch.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const teamId = {{ tid }};
+
+function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function saveTeamPage(e) {
+    e.preventDefault();
+    const btn = document.getElementById('savePageBtn');
+    btn.disabled = true;
+    btn.textContent = 'Speichere...';
+
+    const payload = {
+        coach: document.getElementById('coachInput').value.trim(),
+        contact_person: document.getElementById('contactInput').value.trim(),
+        training_times: document.getElementById('timesInput').value.trim(),
+        training_location: document.getElementById('locationInput').value.trim(),
+        spielklasse: document.getElementById('spielklasseInput').value.trim(),
+        age_group: document.getElementById('ageGroupInput').value.trim(),
+        content: document.getElementById('contentInput').value.trim()
+    };
+
+    try {
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/page`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showToast('✅ Teamseite erfolgreich gespeichert & synchronisiert');
+        } else {
+            showToast(data.detail || 'Fehler beim Speichern', true);
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler beim Speichern', true);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Änderungen speichern';
+    }
+}
+
+async function uploadPhoto(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('photoFileInput');
+    const captionInput = document.getElementById('photoCaptionInput');
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('Bitte wähle ein Bild aus.', true);
+        return;
+    }
+
+    const btn = document.getElementById('uploadPhotoBtn');
+    btn.disabled = true;
+    btn.textContent = 'Lade hoch...';
+
+    const formData = new FormData();
+    formData.append('photo', fileInput.files[0]);
+    formData.append('caption', captionInput.value.trim());
+
+    try {
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/photos`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showToast('✅ Foto erfolgreich hochgeladen');
+            fileInput.value = '';
+            captionInput.value = '';
+            setTimeout(() => location.reload(), 700);
+        } else {
+            showToast(data.detail || 'Fehler beim Hochladen', true);
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler beim Upload', true);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '📤 Hochladen';
+    }
+}
+
+async function deletePhoto(btn) {
+    const photoSrc = btn.getAttribute('data-photo-src');
+    if (!confirm('Dieses Foto wirklich aus der Galerie löschen?')) return;
+
+    try {
+        const resp = await fetch(`/api/teamadmin/team/${teamId}/photos`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ photo_src: photoSrc })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showToast('Foto gelöscht');
+            setTimeout(() => location.reload(), 600);
+        } else {
+            showToast(data.detail || 'Fehler beim Löschen', true);
+        }
+    } catch (err) {
+        showToast('Netzwerkfehler beim Löschen', true);
+    }
+}
+</script>
+{% endblock %}

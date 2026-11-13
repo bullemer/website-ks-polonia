@@ -1,0 +1,168 @@
+{% extends "admin_base.html" %}
+
+{% set active_nav = 'dashboard' %}
+
+{% block title %}Meine Teams – Team-Verwaltung – KS Polonia{% endblock %}
+
+{% block extra_style %}
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .page-header .subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.35rem; }
+
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .team-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.6rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 1.25rem;
+        transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .team-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .team-card-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .team-card-icon {
+        font-size: 2rem;
+        width: 52px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(220, 20, 60, 0.12);
+        border: 1px solid rgba(220, 20, 60, 0.25);
+        border-radius: 12px;
+    }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        color: var(--text);
+    }
+    .badge-primary { background: rgba(220, 20, 60, 0.15); border-color: rgba(220, 20, 60, 0.3); color: #ff6b81; }
+    .team-card-title { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; line-height: 1.3; }
+    .team-card-sub { font-size: 0.88rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; }
+    
+    .team-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+    }
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.15s;
+        font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--surface-hover); border-color: var(--text-muted); color: #fff; }
+
+    .empty-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 3.5rem 2rem;
+        text-align: center;
+        color: var(--text-muted);
+    }
+    .empty-card .icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.8; }
+    .empty-card h3 { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+    .empty-card p { font-size: 0.95rem; max-width: 480px; margin: 0 auto 1.5rem; }
+{% endblock %}
+
+{% block sidebar_logo %}
+<div class="sidebar-logo"><h2>Team-Verwaltung</h2><span>KS Polonia</span></div>
+{% endblock %}
+
+{% block sidebar_nav %}
+{% set nav_teams = sidebar_teams if (sidebar_teams is defined and sidebar_teams) else (teams if (teams is defined and teams) else []) %}
+<a href="/api/teamadmin/" class="nav-link active"><span class="icon">📊</span> Übersicht</a>
+{% for t in nav_teams %}
+{% set tid = t.id or t.team_id %}
+{% if tid %}
+<a href="/api/teamadmin/team/{{ tid }}" class="nav-link"><span class="icon">{{ t.division_icon or '⚽' }}</span> {{ t.mannschaftsname }}</a>
+{% endif %}
+{% endfor %}
+<a href="/api/portal" class="nav-link"><span class="icon">👤</span> Mein Portal</a>
+<a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Meine Teams</h1>
+        <p class="subtitle">Hallo {{ member.vorname if member and member.vorname else 'Teamoffizieller' }}, hier verwaltest du deine Mannschaften, Spieler und Beiträge.</p>
+    </div>
+</div>
+
+{% if teams and teams|length > 0 %}
+<div class="team-grid">
+    {% for t in teams %}
+    {% set tid = t.id or t.team_id %}
+    <div class="team-card">
+        <div class="team-card-header">
+            <div class="team-card-icon">{{ t.division_icon or '⚽' }}</div>
+            <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+                {% if t.team_role %}
+                <span class="badge badge-primary">
+                    {% if t.team_role == 'trainer' %}🎯 Trainer
+                    {% elif t.team_role == 'co-trainer' %}🎯 Co-Trainer
+                    {% elif t.team_role == 'teamoffizieller' %}🛡️ Offizieller
+                    {% elif t.team_role == 'manager' %}📋 Manager
+                    {% else %}{{ t.team_role|capitalize }}{% endif %}
+                </span>
+                {% endif %}
+                <span class="badge">👥 {{ t.member_count or 0 }} Kader</span>
+            </div>
+        </div>
+        <div class="team-card-body">
+            <h2 class="team-card-title">{{ t.mannschaftsname }}</h2>
+            <div class="team-card-sub">
+                <span>{{ t.division_name or 'KS Polonia' }}</span>
+                {% if t.spielklasse %}
+                <span>·</span>
+                <span>{{ t.spielklasse }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="team-actions">
+            <a href="/api/teamadmin/team/{{ tid }}" class="btn btn-primary">👥 Kader</a>
+            <a href="/api/teamadmin/team/{{ tid }}/beitraege" class="btn btn-outline">💰 Beiträge</a>
+            <a href="/api/teamadmin/team/{{ tid }}/page" class="btn btn-outline">🌐 Teamseite</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-card">
+    <div class="icon">⚽</div>
+    <h3>Keine Teams zugewiesen</h3>
+    <p>Du bist keinem Team als Trainer/Betreuer zugeordnet.</p>
+    <a href="/api/portal" class="btn btn-outline">Zum Mitgliederportal</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -65,6 +65,9 @@ async def portal_dashboard(request: Request):
                 "is_team_admin": is_ta,
             })
 
+    # Check if member has any team admin role
+    has_team_admin = any(t.get("is_team_admin") for t in teams_enriched)
+
     # Document upload status
     has_id_front = bool(member.get("id_front_path"))
     has_id_back = bool(member.get("id_back_path"))
@@ -89,5 +92,6 @@ async def portal_dashboard(request: Request):
         "is_superadmin": current.get("is_superadmin", False),
         "has_id_front": has_id_front,
         "has_id_back": has_id_back,
+        "has_team_admin": has_team_admin,
     })
 

@@ -107,3 +107,23 @@ class AnnouncementUpdate(BaseModel):
     content: Optional[str] = Field(None, max_length=2000)
     is_active: Optional[bool] = None
 
+
+# --- News Articles ---
+
+class NewsArticleCreate(BaseModel):
+    title: str = Field(..., min_length=3, max_length=500)
+    summary: str = Field("", max_length=1000)
+    content: str = Field("", max_length=50000)
+    category: str = Field("Allgemein")
+    team_id: Optional[int] = None
+    is_published: bool = False
+
+class NewsArticleUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=3, max_length=500)
+    summary: Optional[str] = Field(None, max_length=1000)
+    content: Optional[str] = Field(None, max_length=50000)
+    category: Optional[str] = None
+    cover_image: Optional[str] = None
+    team_id: Optional[int] = None
+    is_published: Optional[bool] = None
+

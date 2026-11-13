@@ -1,0 +1,373 @@
+{% extends "admin_base.html" %}
+
+{% set active_nav = 'news' %}
+
+{% block title %}Nachrichten verwalten – KS Polonia{% endblock %}
+
+{% block extra_style %}
+    .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--primary); }
+    .breadcrumb .sep { opacity: 0.4; }
+
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.7rem; font-weight: 700; color: #fff; }
+    .page-header .subtitle { font-size: 0.95rem; color: var(--text-muted); font-weight: 400; margin-top: 0.25rem; }
+
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 1.75rem; overflow: hidden; }
+    .section-title {
+        padding: 1.1rem 1.5rem;
+        font-size: 1.05rem; font-weight: 700;
+        border-bottom: 1px solid var(--border);
+        display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;
+    }
+
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; padding: 1.5rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-group label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .form-group .hint { font-size: 0.72rem; color: var(--text-muted); opacity: 0.8; }
+    .form-group input, .form-group textarea, .form-group select {
+        background: var(--bg); border: 1px solid var(--border); color: var(--text);
+        padding: 0.65rem 0.85rem; border-radius: 8px; font-size: 0.9rem; font-family: inherit; transition: border-color 0.15s;
+    }
+    .form-group textarea { resize: vertical; min-height: 300px; line-height: 1.6; font-family: monospace; font-size: 0.88rem; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+
+    .form-actions {
+        padding: 1.25rem 1.5rem; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border);
+        display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .form-actions .right { display: flex; gap: 0.75rem; }
+
+    .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+        padding: 0.6rem 1.2rem; border-radius: 8px; border: none; cursor: pointer;
+        font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; }
+    .btn-success:hover { background: #22c55e; color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--surface-hover); border-color: var(--text-muted); color: #fff; }
+    .btn-danger { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+    .btn-danger:hover { background: #ef4444; color: #fff; }
+    .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
+
+    /* News list */
+    .news-table { width: 100%; border-collapse: collapse; }
+    .news-table th { text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .news-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.88rem; vertical-align: middle; }
+    .news-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .news-title-cell a { color: var(--text); text-decoration: none; font-weight: 600; }
+    .news-title-cell a:hover { color: var(--primary); }
+    .news-title-cell .news-summary { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; }
+    .status-published { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .status-draft { background: rgba(234,179,8,0.15); color: #eab308; }
+    .news-actions { display: flex; gap: 0.4rem; }
+
+    .empty-msg { text-align: center; padding: 3rem 1.5rem; color: var(--text-muted); }
+
+    /* Upload */
+    .cover-upload { display: flex; gap: 1rem; align-items: flex-start; }
+    .cover-preview { width: 120px; height: 80px; border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid var(--border); flex-shrink: 0; }
+    .cover-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .cover-preview-empty { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.7rem; }
+
+    .toast {
+        position: fixed; bottom: 2rem; right: 2rem;
+        background: var(--success); color: #fff;
+        padding: 0.8rem 1.5rem; border-radius: 10px;
+        font-weight: 600; font-size: 0.9rem;
+        z-index: 3000; opacity: 0; transform: translateY(20px);
+        transition: all 0.3s; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: var(--danger); }
+{% endblock %}
+
+{% block sidebar_logo %}
+<div class="sidebar-logo"><h2>Team-Verwaltung</h2><span>KS Polonia</span></div>
+{% endblock %}
+
+{% block sidebar_nav %}
+{% set nav_teams = sidebar_teams if (sidebar_teams is defined and sidebar_teams) else [] %}
+<a href="/api/teamadmin/" class="nav-link"><span class="icon">📊</span> Übersicht</a>
+{% for t in nav_teams %}
+{% set this_tid = t.id or t.team_id %}
+{% if this_tid %}
+<a href="/api/teamadmin/team/{{ this_tid }}" class="nav-link"><span class="icon">{{ t.division_icon or '⚽' }}</span> {{ t.mannschaftsname }}</a>
+{% endif %}
+{% endfor %}
+<a href="/api/teamadmin/news" class="nav-link active"><span class="icon">📰</span> Nachrichten</a>
+<a href="/api/portal" class="nav-link"><span class="icon">👤</span> Mein Portal</a>
+<a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
+{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="/api/teamadmin/">Übersicht</a>
+    <span class="sep">›</span>
+    <span>Nachrichten</span>
+</div>
+
+{% if mode == 'list' %}
+<!-- ═══ News List ═══ -->
+<div class="page-header">
+    <div>
+        <h1>📰 Nachrichten verwalten</h1>
+        <p class="subtitle">Schreibe Vereinsnachrichten und Berichte, die auf der Homepage und /news angezeigt werden.</p>
+    </div>
+    <div>
+        <a href="/api/teamadmin/news/new" class="btn btn-primary">✏️ Neuen Artikel schreiben</a>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-title">
+        <span>Deine Artikel</span>
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">{{ articles|length }} Artikel</span>
+    </div>
+    {% if articles and articles|length > 0 %}
+    <table class="news-table">
+        <thead>
+            <tr>
+                <th>Titel</th>
+                <th>Kategorie</th>
+                <th>Team</th>
+                <th>Status</th>
+                <th>Datum</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in articles %}
+            <tr>
+                <td class="news-title-cell">
+                    <a href="/api/teamadmin/news/{{ a.id }}">{{ a.title }}</a>
+                    {% if a.summary %}<div class="news-summary">{{ a.summary[:100] }}</div>{% endif %}
+                </td>
+                <td>{{ a.category or 'Allgemein' }}</td>
+                <td>{{ a.team_name or '—' }}</td>
+                <td>
+                    {% if a.is_published %}
+                    <span class="status-badge status-published">✅ Veröffentlicht</span>
+                    {% else %}
+                    <span class="status-badge status-draft">📝 Entwurf</span>
+                    {% endif %}
+                </td>
+                <td style="font-size: 0.82rem; color: var(--text-muted);">
+                    {% if a.published_at %}{{ a.published_at.strftime('%d.%m.%Y') }}{% elif a.created_at %}{{ a.created_at.strftime('%d.%m.%Y') }}{% endif %}
+                </td>
+                <td>
+                    <div class="news-actions">
+                        <a href="/api/teamadmin/news/{{ a.id }}" class="btn btn-outline btn-sm">✏️</a>
+                        <button class="btn btn-danger btn-sm" onclick="deleteArticle({{ a.id }})">🗑️</button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-msg">
+        <p>Noch keine Artikel geschrieben.</p>
+        <p style="margin-top: 0.5rem;"><a href="/api/teamadmin/news/new" style="color: var(--primary);">Jetzt den ersten Artikel schreiben →</a></p>
+    </div>
+    {% endif %}
+</div>
+
+{% elif mode == 'edit' %}
+<!-- ═══ News Editor ═══ -->
+<div class="page-header">
+    <div>
+        <h1>{% if article %}Artikel bearbeiten{% else %}✏️ Neuen Artikel schreiben{% endif %}</h1>
+        <p class="subtitle">Schreibe einen Nachrichtenartikel für die Vereinswebseite. Du kannst Markdown verwenden.</p>
+    </div>
+    {% if article and article.is_published and article.slug %}
+    <div>
+        <a href="/news/portal-{{ article.slug }}" target="_blank" class="btn btn-outline">Artikel ansehen ↗</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="section">
+    <div class="section-title">
+        <span>{% if article %}{{ article.title }}{% else %}Neuer Artikel{% endif %}</span>
+        {% if article %}
+        <span class="status-badge {% if article.is_published %}status-published{% else %}status-draft{% endif %}">
+            {% if article.is_published %}✅ Veröffentlicht{% else %}📝 Entwurf{% endif %}
+        </span>
+        {% endif %}
+    </div>
+    <form id="newsForm" onsubmit="saveArticle(event)">
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label for="titleInput">📌 Titel</label>
+                <input type="text" id="titleInput" name="title" required
+                       value="{{ article.title if article else '' }}"
+                       placeholder="z. B. Durchmarsch in die Bezirksliga! oder Spieler gesucht: 1. Herren">
+            </div>
+
+            <div class="form-group">
+                <label for="categorySelect">📁 Kategorie</label>
+                <select id="categorySelect" name="category">
+                    {% for cat in ['Allgemein', 'Kinder', 'Merchandising', 'Spielbericht', 'Vereinsleben'] %}
+                    <option value="{{ cat }}" {% if article and article.category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="teamSelect">⚽ Verknüpftes Team (optional)</label>
+                <select id="teamSelect" name="team_id">
+                    <option value="">— Kein Team —</option>
+                    {% for t in all_teams %}
+                    <option value="{{ t.id }}" {% if article and article.team_id == t.id %}selected{% endif %}>{{ t.mannschaftsname }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="summaryInput">📋 Zusammenfassung</label>
+                <input type="text" id="summaryInput" name="summary"
+                       value="{{ article.summary if article else '' }}"
+                       placeholder="Kurze Zusammenfassung (erscheint in der Nachrichtenübersicht und als Meta-Description)">
+                <span class="hint">Max. 200 Zeichen, wird in der Vorschau angezeigt</span>
+            </div>
+
+            <div class="form-group full-width">
+                <label>🖼️ Titelbild</label>
+                <div class="cover-upload">
+                    <div class="cover-preview" id="coverPreview">
+                        {% if article and article.cover_image %}
+                        <img src="{{ article.cover_image }}" alt="Cover">
+                        {% else %}
+                        <div class="cover-preview-empty">Kein Bild</div>
+                        {% endif %}
+                    </div>
+                    <div style="flex: 1;">
+                        <input type="file" id="coverFileInput" accept="image/png,image/jpeg,image/webp"
+                               style="background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.5rem; border-radius: 8px; font-size: 0.82rem; width: 100%;">
+                        <span class="hint" style="display: block; margin-top: 0.3rem;">JPG, PNG oder WebP. Empfohlen: 1200 × 630 px</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="contentInput">📝 Artikelinhalt (Markdown)</label>
+                <textarea id="contentInput" name="content"
+                          placeholder="## Überschrift&#10;&#10;Dein Artikeltext hier...&#10;&#10;**Fett**, *Kursiv*, [Link](https://...), ![Bild](url)&#10;&#10;- Aufzählung&#10;- Punkt 2">{{ article.content if article else '' }}</textarea>
+                <span class="hint">Nutze Markdown: ## Überschrift, **fett**, *kursiv*, [Link](url), ![Bild](url), - Liste</span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <div>
+                {% if article %}
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteArticle({{ article.id }})">🗑️ Artikel löschen</button>
+                {% endif %}
+            </div>
+            <div class="right">
+                <a href="/api/teamadmin/news" class="btn btn-outline">← Zurück</a>
+                <button type="submit" class="btn btn-outline" id="saveDraftBtn" data-publish="false">💾 Als Entwurf speichern</button>
+                <button type="submit" class="btn btn-success" id="publishBtn" data-publish="true">🚀 Veröffentlichen</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const articleId = {{ article.id if article else 'null' }};
+
+function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+let publishOnSave = false;
+
+document.querySelectorAll('[data-publish]').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        publishOnSave = this.getAttribute('data-publish') === 'true';
+    });
+});
+
+async function saveArticle(e) {
+    e.preventDefault();
+    const title = document.getElementById('titleInput').value.trim();
+    if (!title) { showToast('Bitte Titel eingeben', true); return; }
+
+    const payload = {
+        title: title,
+        summary: document.getElementById('summaryInput').value.trim(),
+        content: document.getElementById('contentInput').value,
+        category: document.getElementById('categorySelect').value,
+        team_id: document.getElementById('teamSelect').value ? parseInt(document.getElementById('teamSelect').value) : null,
+        is_published: publishOnSave,
+    };
+
+    // Upload cover image first if selected
+    const fileInput = document.getElementById('coverFileInput');
+    if (fileInput.files && fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('photo', fileInput.files[0]);
+        formData.append('caption', 'news-cover');
+        try {
+            // Use the generic team photo upload for the first team, or just upload
+            const uploadResp = await fetch('/api/teamadmin/news/upload-cover', {
+                method: 'POST',
+                body: formData
+            });
+            const uploadData = await uploadResp.json();
+            if (uploadResp.ok && uploadData.url) {
+                payload.cover_image = uploadData.url;
+            }
+        } catch {}
+    }
+
+    const url = articleId ? `/api/teamadmin/news/${articleId}` : '/api/teamadmin/news';
+    const method = articleId ? 'PUT' : 'POST';
+
+    try {
+        const resp = await fetch(url, {
+            method: method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+            showToast(publishOnSave ? '✅ Artikel veröffentlicht!' : '✅ Entwurf gespeichert');
+            if (!articleId && data.id) {
+                setTimeout(() => window.location.href = `/api/teamadmin/news/${data.id}`, 800);
+            } else {
+                setTimeout(() => location.reload(), 800);
+            }
+        } else {
+            showToast(data.detail || 'Fehler beim Speichern', true);
+        }
+    } catch { showToast('Netzwerkfehler', true); }
+}
+
+async function deleteArticle(id) {
+    if (!confirm('Artikel wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) return;
+    try {
+        const resp = await fetch(`/api/teamadmin/news/${id}`, { method: 'DELETE' });
+        if (resp.ok) {
+            showToast('Artikel gelöscht');
+            setTimeout(() => window.location.href = '/api/teamadmin/news', 600);
+        } else showToast('Fehler', true);
+    } catch { showToast('Netzwerkfehler', true); }
+}
+</script>
+{% endblock %}

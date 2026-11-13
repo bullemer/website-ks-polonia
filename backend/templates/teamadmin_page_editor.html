@@ -285,6 +285,7 @@
 <a href="/api/teamadmin/team/{{ this_tid }}" class="nav-link{% if this_tid|string == tid|string %} active{% endif %}"><span class="icon">{{ t.division_icon or '⚽' }}</span> {{ t.mannschaftsname }}</a>
 {% endif %}
 {% endfor %}
+<a href="/api/teamadmin/news" class="nav-link"><span class="icon">📰</span> Nachrichten</a>
 <a href="/api/portal" class="nav-link"><span class="icon">👤</span> Mein Portal</a>
 <a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
 {% endblock %}

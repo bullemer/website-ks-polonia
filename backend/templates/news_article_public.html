@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ article.title }} | KS Polonia Hamburg</title>
+    <meta name="description" content="{{ article.summary or (article.content[:155] + '...') if article.content else article.title }}">
+    <meta property="og:title" content="{{ article.title }}">
+    <meta property="og:description" content="{{ article.summary or '' }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://www.ks-polonia.de/api/news/article/{{ article.slug }}">
+    {% if article.cover_image %}<meta property="og:image" content="https://www.ks-polonia.de{{ article.cover_image }}">{% endif %}
+    <meta property="article:published_time" content="{{ article.published_at.isoformat() if article.published_at else '' }}">
+    <link rel="canonical" href="https://www.ks-polonia.de/api/news/article/{{ article.slug }}">
+    <link rel="icon" type="image/png" href="/logo.png">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "headline": "{{ article.title }}",
+        "description": "{{ article.summary or '' }}",
+        {% if article.published_at %}"datePublished": "{{ article.published_at.isoformat() }}",{% endif %}
+        "author": { "@type": "Person", "name": "{{ article.author_name or 'KS Polonia Hamburg' }}" },
+        "publisher": { "@type": "Organization", "name": "KS Polonia Hamburg", "logo": { "@type": "ImageObject", "url": "https://www.ks-polonia.de/logo.png" } }
+        {% if article.cover_image %},"image": ["https://www.ks-polonia.de{{ article.cover_image }}"]{% endif %}
+    }
+    </script>
+    <style>
+        :root {
+            --c-bg: #ffffff; --c-text: #1a1a2e; --c-muted: #6b7280; --c-primary: #DC143C;
+            --c-border: #e5e7eb; --c-surface: #f9fafb;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--c-text); background: var(--c-bg); line-height: 1.7; }
+        .site-header { background: #1a1a2e; color: #fff; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; }
+        .site-header img { height: 36px; }
+        .site-header a { color: #fff; text-decoration: none; font-weight: 700; font-size: 1.1rem; }
+        .container { max-width: 780px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .back-link { display: inline-block; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--c-muted); text-decoration: none; }
+        .back-link:hover { color: var(--c-primary); }
+        h1 { font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 1rem; letter-spacing: -0.02em; }
+        .article-meta { display: flex; align-items: center; gap: 0.75rem; font-size: 0.85rem; color: var(--c-muted); margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--c-border); flex-wrap: wrap; }
+        .category { background: rgba(220,20,60,0.08); color: var(--c-primary); padding: 0.15rem 0.6rem; border-radius: 4px; font-weight: 600; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.03em; }
+        .cover-img { width: 100%; max-height: 420px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; }
+        .article-body { font-size: 1.05rem; line-height: 1.8; }
+        .article-body h2 { font-size: 1.5rem; margin: 2rem 0 0.75rem; font-weight: 700; }
+        .article-body h3 { font-size: 1.25rem; margin: 1.5rem 0 0.5rem; font-weight: 700; }
+        .article-body p { margin-bottom: 1rem; }
+        .article-body ul, .article-body ol { margin: 0.5rem 0 1rem 1.5rem; }
+        .article-body li { margin-bottom: 0.3rem; }
+        .article-body a { color: var(--c-primary); }
+        .article-body img { max-width: 100%; height: auto; border-radius: 8px; margin: 1rem 0; }
+        .article-body hr { margin: 2rem 0; border: none; border-top: 1px solid var(--c-border); }
+        .article-body blockquote { border-left: 3px solid var(--c-primary); padding-left: 1rem; margin: 1rem 0; color: var(--c-muted); font-style: italic; }
+        .article-body strong { font-weight: 700; }
+        .footer { text-align: center; padding: 2rem; color: var(--c-muted); font-size: 0.82rem; border-top: 1px solid var(--c-border); margin-top: 3rem; }
+        .footer a { color: var(--c-primary); text-decoration: none; }
+        @media (max-width: 768px) { h1 { font-size: 1.5rem; } .container { padding: 1.5rem 1rem; } }
+    </style>
+</head>
+<body>
+    <div class="site-header">
+        <a href="/"><img src="/logo.png" alt="KS Polonia Hamburg" onerror="this.style.display='none'"></a>
+        <a href="/">KS Polonia Hamburg</a>
+    </div>
+    <div class="container">
+        <a href="/news" class="back-link">← Zurück zu Nachrichten</a>
+        <article>
+            <h1>{{ article.title }}</h1>
+            <div class="article-meta">
+                {% if article.published_at %}
+                <time datetime="{{ article.published_at.isoformat() }}">
+                    {{ article.published_at.strftime('%d. %B %Y') if article.published_at else '' }}
+                </time>
+                {% endif %}
+                {% if article.category %}
+                <span class="category">{{ article.category }}</span>
+                {% endif %}
+                {% if article.author_name %}
+                <span>von {{ article.author_name }}</span>
+                {% endif %}
+                {% if article.team_name %}
+                <span>· {{ article.team_name }}</span>
+                {% endif %}
+            </div>
+
+            {% if article.cover_image %}
+            <img src="{{ article.cover_image }}" alt="{{ article.title }}" class="cover-img">
+            {% endif %}
+
+            <div class="article-body" id="articleBody">{{ article.content_html | safe }}</div>
+        </article>
+    </div>
+    <div class="footer">
+        <a href="/">KS Polonia Hamburg e.V. 1988</a> · <a href="/news">Alle Nachrichten</a>
+    </div>
+</body>
+</html>

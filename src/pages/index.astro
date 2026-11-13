@@ -121,12 +121,13 @@ const latestNews = sortedNews.slice(0, 3);
             <h2>Aktuelle Nachrichten</h2>
             <a href="/news" class="view-all">Alle anzeigen →</a>
         </div>
-        <div class="news-grid">
+        <!-- Dynamic DB news injected here -->
+        <div class="news-grid" id="homeNewsGrid">
             {latestNews.map((post) => {
                 const imgData = post.data.coverImage && typeof post.data.coverImage === 'object' && post.data.coverImage.src
                     ? post.data.coverImage : null;
                 return (
-                    <a href={`/news/${post.id}`} class="news-card">
+                    <a href={`/news/${post.id}`} class="news-card" data-date={post.data.date ? new Date(post.data.date).toISOString() : ''}>
                         <div class="news-card-image">
                             {imgData ? (
                                 <Image src={imgData} alt={post.data.title || ''} width={400} height={267} />
@@ -933,4 +934,64 @@ const latestNews = sortedNews.slice(0, 3);
             ? 'Weniger Spiele <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="6 9 12 15 18 9"/></svg>'
             : 'Mehr Spiele anzeigen <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="6 9 12 15 18 9"/></svg>';
     });
+</script>
+
+
+<script>
+// Inject DB-managed news into homepage grid if newer than static ones
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const resp = await fetch('/api/news/api/articles?limit=6');
+        const data = await resp.json();
+        if (!data.articles || data.articles.length === 0) return;
+
+        const grid = document.getElementById('homeNewsGrid');
+        if (!grid) return;
+
+        // Get the date of the newest static article
+        const staticCards = grid.querySelectorAll('.news-card[data-date]');
+        let newestStaticDate = 0;
+        staticCards.forEach(card => {
+            const d = card.getAttribute('data-date');
+            if (d) newestStaticDate = Math.max(newestStaticDate, new Date(d).getTime());
+        });
+
+        // Prepend DB articles that are newer than the newest static one
+        const dbCards = data.articles
+            .filter((a: any) => a.published_at && new Date(a.published_at).getTime() > newestStaticDate)
+            .slice(0, 3);
+
+        if (dbCards.length === 0) return;
+
+        // Remove excess static cards to keep total at 3
+        const existingCards = Array.from(grid.children);
+        const toRemove = Math.min(dbCards.length, existingCards.length);
+        for (let i = existingCards.length - 1; i >= existingCards.length - toRemove; i--) {
+            existingCards[i].remove();
+        }
+
+        // Prepend new cards
+        dbCards.reverse().forEach((a: any) => {
+            const dateStr = new Date(a.published_at).toLocaleDateString('de-DE', {
+                day: '2-digit', month: 'long', year: 'numeric'
+            });
+            const card = document.createElement('a');
+            card.href = `/api/news/article/${a.slug}`;
+            card.className = 'news-card';
+            card.innerHTML = `
+                <div class="news-card-image">
+                    ${a.cover_image
+                        ? `<img src="${a.cover_image}" alt="${a.title}" width="400" height="267" style="width:100%;height:100%;object-fit:cover;" />`
+                        : `<div class="news-image-placeholder"><svg viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" stroke-width="1.5" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`}
+                </div>
+                <div class="news-card-body">
+                    <h3>${a.title}</h3>
+                    <time class="news-date" datetime="${a.published_at}">Veröffentlicht am ${dateStr}</time>
+                    ${a.category ? `<span class="news-category">${a.category}</span>` : ''}
+                </div>
+            `;
+            grid.prepend(card);
+        });
+    } catch {}
+});
 </script>

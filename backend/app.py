@@ -93,6 +93,88 @@ app.include_router(teamadmin_router)
 
 
 # ═══════════════════════════════════════
+#  Public News API (for website frontend)
+# ═══════════════════════════════════════
+from services import news_service as _news_svc
+
+@app.get("/news/api/articles")
+async def public_news_articles(page: int = 1, limit: int = 12, category: Optional[str] = None):
+    """Public endpoint: get published news articles with pagination."""
+    offset = (max(1, page) - 1) * limit
+    result = await _news_svc.get_news_list(published_only=True, limit=limit, offset=offset)
+    articles = []
+    for a in result["articles"]:
+        articles.append({
+            "id": a["id"],
+            "title": a["title"],
+            "slug": a["slug"],
+            "summary": a.get("summary") or "",
+            "category": a.get("category") or "Allgemein",
+            "cover_image": a.get("cover_image"),
+            "team_name": a.get("team_name"),
+            "author_name": f"{a.get('vorname', '')} {a.get('nachname', '')}".strip() if a.get("nachname") else "KS Polonia",
+            "published_at": a["published_at"].isoformat() if a.get("published_at") else None,
+        })
+    return {
+        "articles": articles,
+        "total": result["total"],
+        "page": page,
+        "pages": max(1, (result["total"] + limit - 1) // limit),
+    }
+
+@app.get("/news/api/articles/{slug}")
+async def public_news_article_detail(slug: str):
+    """Public endpoint: get a single published news article by slug."""
+    article = await _news_svc.get_news_by_slug(slug)
+    if not article or not article.get("is_published"):
+        raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
+    return {
+        "id": article["id"],
+        "title": article["title"],
+        "slug": article["slug"],
+        "summary": article.get("summary") or "",
+        "content": article.get("content") or "",
+        "category": article.get("category") or "Allgemein",
+        "cover_image": article.get("cover_image"),
+        "team_name": article.get("team_name"),
+        "author_name": f"{article.get('vorname', '')} {article.get('nachname', '')}".strip() if article.get("nachname") else "KS Polonia",
+        "published_at": article["published_at"].isoformat() if article.get("published_at") else None,
+    }
+
+
+import re as _re
+
+def _markdown_to_html(text: str) -> str:
+    """Simple markdown to HTML for news articles."""
+    import html as _html
+    text = _html.escape(text)
+    text = _re.sub(r'^### (.+)$', r'<h3>\1</h3>', text, flags=_re.MULTILINE)
+    text = _re.sub(r'^## (.+)$', r'<h2>\1</h2>', text, flags=_re.MULTILINE)
+    text = _re.sub(r'^# (.+)$', r'<h1>\1</h1>', text, flags=_re.MULTILINE)
+    text = _re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
+    text = _re.sub(r'\*(.+?)\*', r'<em>\1</em>', text)
+    text = _re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', r'<img src="\2" alt="\1" />', text)
+    text = _re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2" target="_blank" rel="noopener">\1</a>', text)
+    text = _re.sub(r'^- (.+)$', r'<li>\1</li>', text, flags=_re.MULTILINE)
+    text = _re.sub(r'((?:<li>.*?</li>\n?)+)', r'<ul>\1</ul>', text)
+    text = _re.sub(r'^---$', r'<hr />', text, flags=_re.MULTILINE)
+    text = _re.sub(r'\n\n+', '</p><p>', text)
+    text = text.replace('\n', '<br />')
+    return f'<p>{text}</p>'
+
+
+@app.get("/news/article/{slug}")
+async def public_news_article_page(request: Request, slug: str):
+    """Server-rendered public news article page (SEO-friendly)."""
+    article = await _news_svc.get_news_by_slug(slug)
+    if not article or not article.get("is_published"):
+        raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
+    article["author_name"] = f"{article.get('vorname', '')} {article.get('nachname', '')}".strip() if article.get("nachname") else "KS Polonia Hamburg"
+    article["content_html"] = _markdown_to_html(article.get("content") or "")
+    return templates.TemplateResponse(request, "news_article_public.html", {"article": article})
+
+
+# ═══════════════════════════════════════
 #  CAPTCHA TOKEN HELPERS
 # ═══════════════════════════════════════
 

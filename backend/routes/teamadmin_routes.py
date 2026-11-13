@@ -16,8 +16,9 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from auth import get_current_member
-from models.team_management import TeamWebProfileUpdate, TeamPhotoDelete, AnnouncementCreate, AnnouncementUpdate
+from models.team_management import TeamWebProfileUpdate, TeamPhotoDelete, AnnouncementCreate, AnnouncementUpdate, NewsArticleCreate, NewsArticleUpdate
 from services import member_service, team_service
+from services import news_service
 from database import get_pool
 from config import UPLOAD_DIR
 
@@ -537,3 +538,150 @@ async def teamadmin_delete_announcement(request: Request, team_id: int, ann_id: 
     if not ok:
         raise HTTPException(status_code=404, detail="Meldung nicht gefunden")
     return JSONResponse({"success": True, "message": "Meldung gelöscht"})
+
+
+
+# ═══════════════════════════════════════
+#  14. News Articles (Nachrichten)
+# ═══════════════════════════════════════
+
+async def _require_teamadmin(request: Request) -> dict:
+    """Require any team admin role (trainer/manager/teamoffizieller) or superadmin."""
+    member = await get_current_member(request)
+    if not member:
+        raise HTTPException(status_code=401, detail="Nicht angemeldet")
+    if member.get("is_admin") or member.get("is_superadmin"):
+        return member
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT 1 FROM member_teams
+            WHERE member_id = $1 AND role IN ('trainer', 'manager', 'teamoffizieller')
+            LIMIT 1
+        """, member["member_id"])
+        if not row:
+            raise HTTPException(status_code=403, detail="Kein Teamoffizieller")
+    return member
+
+
+@router.get("/news")
+async def teamadmin_news_list(request: Request):
+    """List news articles for this team admin."""
+    member = await _require_teamadmin(request)
+    sidebar_teams = await _get_team_admin_teams(member["member_id"])
+    # Superadmin sees all, team admin sees own articles
+    if member.get("is_admin") or member.get("is_superadmin"):
+        result = await news_service.get_news_list(limit=100)
+    else:
+        result = await news_service.get_news_list(author_id=member["member_id"], limit=100)
+    return templates.TemplateResponse(request, "teamadmin_news.html", {
+        "mode": "list",
+        "articles": result["articles"],
+        "member": member,
+        "sidebar_teams": sidebar_teams,
+    })
+
+
+@router.get("/news/new")
+async def teamadmin_news_new(request: Request):
+    """New article editor."""
+    member = await _require_teamadmin(request)
+    sidebar_teams = await _get_team_admin_teams(member["member_id"])
+    # Get all teams for the team selector
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        teams = await conn.fetch("SELECT id, mannschaftsname FROM teams WHERE is_active = TRUE ORDER BY sort_order, mannschaftsname")
+    return templates.TemplateResponse(request, "teamadmin_news.html", {
+        "mode": "edit",
+        "article": None,
+        "all_teams": [dict(t) for t in teams],
+        "member": member,
+        "sidebar_teams": sidebar_teams,
+    })
+
+
+@router.get("/news/{article_id}")
+async def teamadmin_news_edit(request: Request, article_id: int):
+    """Edit existing article."""
+    member = await _require_teamadmin(request)
+    sidebar_teams = await _get_team_admin_teams(member["member_id"])
+    article = await news_service.get_news_article(article_id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
+    # Only author or admin can edit
+    if not (member.get("is_admin") or member.get("is_superadmin")) and article["author_id"] != member["member_id"]:
+        raise HTTPException(status_code=403, detail="Kein Zugriff auf diesen Artikel")
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        teams = await conn.fetch("SELECT id, mannschaftsname FROM teams WHERE is_active = TRUE ORDER BY sort_order, mannschaftsname")
+    return templates.TemplateResponse(request, "teamadmin_news.html", {
+        "mode": "edit",
+        "article": article,
+        "all_teams": [dict(t) for t in teams],
+        "member": member,
+        "sidebar_teams": sidebar_teams,
+    })
+
+
+@router.post("/news")
+async def teamadmin_news_create(request: Request, data: NewsArticleCreate):
+    """Create a new news article."""
+    member = await _require_teamadmin(request)
+    article = await news_service.create_news_article(
+        title=data.title,
+        content=data.content,
+        author_id=member["member_id"],
+        summary=data.summary,
+        category=data.category,
+        team_id=data.team_id,
+        is_published=data.is_published,
+    )
+    return JSONResponse({"success": True, "id": article["id"], "slug": article["slug"]})
+
+
+@router.put("/news/{article_id}")
+async def teamadmin_news_update(request: Request, article_id: int, data: NewsArticleUpdate):
+    """Update an existing news article."""
+    member = await _require_teamadmin(request)
+    article = await news_service.get_news_article(article_id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
+    if not (member.get("is_admin") or member.get("is_superadmin")) and article["author_id"] != member["member_id"]:
+        raise HTTPException(status_code=403, detail="Kein Zugriff")
+    updates = data.model_dump(exclude_unset=True)
+    ok = await news_service.update_news_article(article_id, updates)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
+    return JSONResponse({"success": True, "message": "Artikel aktualisiert"})
+
+
+@router.delete("/news/{article_id}")
+async def teamadmin_news_delete(request: Request, article_id: int):
+    """Delete a news article."""
+    member = await _require_teamadmin(request)
+    article = await news_service.get_news_article(article_id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
+    if not (member.get("is_admin") or member.get("is_superadmin")) and article["author_id"] != member["member_id"]:
+        raise HTTPException(status_code=403, detail="Kein Zugriff")
+    ok = await news_service.delete_news_article(article_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
+    return JSONResponse({"success": True, "message": "Artikel gelöscht"})
+
+
+@router.post("/news/upload-cover")
+async def teamadmin_news_upload_cover(request: Request, photo: UploadFile = File(...)):
+    """Upload a cover image for a news article."""
+    await _require_teamadmin(request)
+    ext = os.path.splitext(photo.filename or "img.jpg")[1].lower()
+    if ext not in (".jpg", ".jpeg", ".png", ".webp"):
+        raise HTTPException(status_code=400, detail="Nur JPG, PNG oder WebP erlaubt")
+    filename = f"news-{secrets.token_hex(8)}{ext}"
+    upload_path = os.path.join(UPLOAD_DIR, filename)
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    content = await photo.read()
+    with open(upload_path, "wb") as f:
+        f.write(content)
+    url = f"/uploads/{filename}"
+    return JSONResponse({"success": True, "url": url})

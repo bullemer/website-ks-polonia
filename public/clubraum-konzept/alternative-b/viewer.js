@@ -417,6 +417,7 @@ function surface(x, z, id) {
   if (Math.abs(x - 4.32) < .15) return [4.30, z, -Math.PI / 2];
   if (x < .3) return [.075, z, Math.PI / 2];
   if (x > 11.2) return [11.48, z, -Math.PI / 2];
+  if (z > 15.2) return [x, 15.46, Math.PI];
   if (z < .9) return [x, .075, 0];
   return [x, z, 0];
 }

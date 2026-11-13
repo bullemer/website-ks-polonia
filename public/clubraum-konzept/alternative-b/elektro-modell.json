@@ -212,6 +212,20 @@
       "Polonia_Entscheid": "offen"
     },
     {
+      "ID": "G16",
+      "Typ": "Steckdose",
+      "Bereich": "Gemeinsam",
+      "X_m": "3.00",
+      "Z_m": "15.46",
+      "Hoehe_m": "0.30",
+      "Anzahl": "2",
+      "Funktion": "Doppelsteckdose innen am Ausgang 1 nahe Küche für gelegentliche Außenversorgung",
+      "Funktionsgruppe": "Aussenreserve",
+      "Hinweis": "Feste Wand rechts neben Außentür nahe S01; Türbereich und Kabelweg nach draußen prüfen; feste Außensteckdose als Alternative gesondert anbieten",
+      "Croatia_Entscheid": "offen",
+      "Polonia_Entscheid": "offen"
+    },
+    {
       "ID": "L01",
       "Typ": "Leuchte",
       "Bereich": "Croatia",

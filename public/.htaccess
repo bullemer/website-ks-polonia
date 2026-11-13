@@ -19,6 +19,13 @@
   RewriteRule ^(.*)$ https://www.ks-polonia.de/$1 [L,R=301]
 
   # ============================================
+  # Portal & Teamadmin → Backend API redirects
+  # ============================================
+  RewriteRule ^portal/login/?$ /api/portal/login [R=302,L]
+  RewriteRule ^portal/?$ /api/portal [R=302,L]
+  RewriteRule ^teamadmin/?(.*)$ /api/teamadmin/$1 [R=302,L]
+
+  # ============================================
   # 301 Redirects: Old WordPress URLs → New Astro URLs
   # ============================================
 

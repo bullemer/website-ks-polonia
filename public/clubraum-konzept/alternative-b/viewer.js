@@ -1,11 +1,11 @@
 // Alternative B – Clubraum in drei Bereichen (Croatia | Polonia | gemeinsam).
-// Maße identisch mit scripts/build_grundriss_3bereiche.py (Grundriss B-04):
+// Maße identisch mit scripts/build_grundriss_3bereiche.py (Grundriss B-05):
 // Ursprung linke obere Innenecke, x nach rechts, z plan-abwärts, y nach oben, Meter.
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { GLTFExporter } from './vendor/GLTFExporter.js';
 
-const W = 11.55, D = 11.10, AW = 4.40, AD = 4.44, MID = W / 2, ZONE = 8.15;
+const W = 11.55, D = 11.10, AW = 4.40, AD = 4.44, MID = W / 2, ZONE = 9.15;
 const COLS = [[4.532, 5.6], [7.717, 5.6]];
 const TOP = 0.93;
 const HALL_WIN = { center: 3.9, width: 2.2, height: 2.05, sill: 0.925 };
@@ -47,7 +47,7 @@ scene.add(sun, sun.target);
 
 const model = new THREE.Group();
 model.name = 'Clubraum_Alternative_B_drei_Bereiche';
-model.userData = { status: 'Konzept, Aufmaß erforderlich', units: 'metres', plan: 'Grundriss B-04' };
+model.userData = { status: 'Konzept, Aufmaß erforderlich', units: 'metres', plan: 'Grundriss B-05' };
 scene.add(model);
 const groups = {};
 for (const n of ['base', 'zones', 'routes', 'shared', 'croatia', 'polonia', 'divider', 'lights', 'roof', 'labels']) {
@@ -359,24 +359,24 @@ for (const mode of ['walls', 'plants', 'mix', 'open']) {
   g.name = 'Trennung ' + mode;
   DV.add(g);
   dividerModes[mode] = g;
-  for (let i = 0; i < 6; i++) {
-    const z0 = 0.10 + i * 1.20;
+  for (let i = 0; i < 7; i++) {
+    const z0 = 0.375 + i * 1.20;
     if (mode === 'walls' || (mode === 'mix' && i < 4)) panel(g, z0, i + 1);
     else if (mode === 'plants' || mode === 'mix') planter(g, z0, i + 1);
   }
   if (mode === 'open') {
-    // 6 Stellwände an der Nordwand zusammengeschoben (Parkposition)
-    for (let i = 0; i < 6; i++) {
-      const x = MID - 0.25 + i * 0.1;
+    // 7 Stellwände an der Nordwand zusammengeschoben (Parkposition)
+    for (let i = 0; i < 7; i++) {
+      const x = MID - 0.30 + i * 0.1;
       block(g, `Stellwand ${i + 1} geparkt`, x - 0.04, 0.65, x + 0.04, 1.83, 0.12, 1.9, C.felt);
     }
-    block(g, 'Parkposition Fußplatte', MID - 0.3, 0.65, MID + 0.3, 1.83, 0.0, 0.06, C.steel);
+    block(g, 'Parkposition Fußplatte', MID - 0.35, 0.65, MID + 0.35, 1.83, 0.0, 0.06, C.steel);
   }
 }
 const dividerNotes = {
-  walls: '6 freistehende Akustik-Stellwände à 1,20 m, ca. 2,0 m hoch, auf Rollen mit Bremse. Beidseitig Filz, Polonia-Seite mit Band in Vereinsrot.',
-  plants: '6 Pflanzkübel auf Rollen à 1,20 × 0,45 m im selben Raster. Durchlässiger, wohnlicher – weniger Sicht- und Schallschutz, Pflege nötig.',
-  mix: '4 Stellwände im Lounge-/TV-Bereich (Sicht- und Schallschutz), 2 Pflanzkübel zum gemeinsamen Bereich hin.',
+  walls: '7 freistehende Akustik-Stellwände à 1,20 m, ca. 2,0 m hoch, auf Rollen mit Bremse. Beidseitig Filz, Polonia-Seite mit Band in Vereinsrot.',
+  plants: '7 Pflanzkübel auf Rollen à 1,20 × 0,45 m im selben Raster. Durchlässiger, wohnlicher – weniger Sicht- und Schallschutz, Pflege nötig.',
+  mix: '4 Stellwände im Lounge-/TV-Bereich (Sicht- und Schallschutz), 3 Pflanzkübel zum Querweg hin.',
   open: 'Gemeinsames Event: Stellwände an der Nordwand zusammengeschoben – ein großer, offener Raum.',
 };
 function setDivider(mode) {
@@ -405,9 +405,9 @@ for (let x = 0.3; x < W; x += 0.3) box(RF, 'Trapezblech', x, 4.9, D / 2, 0.065, 
 box(RF, 'Oberlicht', 7.75, 4.95, 7.95, 0.6, 0.02, 1.3, glass);
 
 // ---------------------------------------------------------------- Beschriftung
-label('CROATIA', 'Bereich frei · 47,1 m²', '#6b736d', 2.9, 3.4, 4.2);
-label('POLONIA', 'Vereinsbereich · 47,1 m²', C.polRed, 8.65, 3.4, 4.2);
-label('GEMEINSAM', 'Freifläche · Küche · 53,6 m²', '#5d5446', 9.4, 2.6, 9.85, 0.85);
+label('CROATIA', 'Bereich frei · 52,8 m²', '#6b736d', 2.9, 3.4, 4.2);
+label('POLONIA', 'Vereinsbereich · 52,8 m²', C.polRed, 8.65, 3.4, 4.2);
+label('QUERWEG', 'Ehemalige Theke · 1,20 m', '#3f8a63', 8.9, 2.6, 9.72, 0.85);
 
 // ---------------------------------------------------------------- Kamera
 const state = { divider: 'walls', view: 'overview' };
@@ -466,5 +466,5 @@ resize();
 setDivider('walls');
 setView('overview');
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
-status.textContent = 'Konzeptmodell · Maße lt. Grundriss B-04 · vor Ort prüfen';
+status.textContent = 'Konzeptmodell · Maße lt. Grundriss B-05 · vor Ort prüfen';
 window.alternativeB = { scene, model, camera, controls, renderer, setView, setDivider, groups, ready: true };

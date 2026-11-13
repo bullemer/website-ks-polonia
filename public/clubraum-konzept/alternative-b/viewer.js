@@ -50,7 +50,7 @@ model.name = 'Clubraum_Alternative_B_drei_Bereiche';
 model.userData = { status: 'Konzept, Aufmaß erforderlich', units: 'metres', plan: 'Grundriss B-05' };
 scene.add(model);
 const groups = {};
-for (const n of ['base', 'zones', 'routes', 'shared', 'croatia', 'polonia', 'divider', 'lights', 'roof', 'labels']) {
+for (const n of ['base', 'zones', 'routes', 'shared', 'croatia', 'polonia', 'divider', 'lights', 'electroBase', 'electroWish', 'network', 'roof', 'labels']) {
   groups[n] = new THREE.Group();
   groups[n].name = n;
   model.add(groups[n]);
@@ -238,17 +238,11 @@ function clubArea(side) {
   const span = (a, b) => [Math.min(m(a), m(b)), Math.max(m(a), m(b))];
   const accent = side === 'croatia' ? C.croBlue : C.polRed;
   const lounge = side === 'croatia' ? '#2c477f' : C.wine;
-  // Lowboard + TV 75" + Soundbar
+  // Medienboard; der Polonia-TV steht mobil auf einem Rollständer.
   const [lb0, lb1] = span(3.60, 5.60);
   block(g, 'Lowboard', lb0, 0.05, lb1, 0.5, 0.08, 0.42, C.charcoal);
   block(g, 'Lowboard Deckplatte', lb0, 0.05, lb1, 0.5, 0.5, 0.03, C.oak);
   const tvx = (lb0 + lb1) / 2;
-  box(g, 'TV 75 Zoll', tvx, 1.55, 0.05, 1.68, 0.97, 0.06, '#121816');
-  const screen = side === 'croatia'
-    ? textTex([['CROATIA', 150, -20], ['MATCHDAY', 70, 95]], '#1b2d5a', '#ffffff', 1024, 592)
-    : textTex([['POLONIA', 150, -20], ['MATCHDAY', 70, 95]], '#4a1a24', '#ffffff', 1024, 592);
-  plane(g, 'TV Bild', screen, tvx, 1.55, 0.085, 1.62, 0.92, 0);
-  box(g, 'Soundbar', tvx, 0.98, 0.07, 0.95, 0.07, 0.08, '#20272a');
   // Wandgestaltung über dem TV: Croatia Schachbrettband, Polonia Wappen auf Vereinsrot
   if (side === 'croatia') {
     plane(g, 'Wandband Schachbrett', checker(12, 2), tvx, 2.55, 0.012, 2.4, 0.4, 0, false);
@@ -286,6 +280,23 @@ function clubArea(side) {
 }
 // Croatia-Bereich bleibt leer und neutral – Einrichtung durch Croatia.
 clubArea('polonia');
+const mobileTV = new THREE.Group();
+mobileTV.name = 'Polonia mobiler TV auf Rollständer';
+mobileTV.userData = { status: 'Konzept', note: 'Nur am Stellplatz anschließen; Kabel nicht über Verkehrswege führen' };
+groups.polonia.add(mobileTV);
+box(mobileTV, 'TV 75 Zoll', 0, 1.58, 0, 1.68, .97, .07, '#121816');
+plane(mobileTV, 'TV Bild', textTex([['POLONIA', 150, -20], ['MATCHDAY', 70, 95]], '#4a1a24', '#ffffff', 1024, 592),
+  0, 1.58, .043, 1.62, .92, 0);
+box(mobileTV, 'Rollständer Säule', 0, .85, -.10, .09, 1.35, .10, C.steel);
+box(mobileTV, 'Rollständer Fuß', 0, .09, -.10, .85, .08, .48, C.steel);
+for (const x of [-.36,.36]) for (const z of [-.27,.07]) cyl(mobileTV, 'Lenkrolle', x, .04, z, .04, .06, '#222');
+function setTVPosition(position) {
+  const places = { park: [6.93,.84], use: [8.05,7.35] };
+  const [x,z] = places[position];
+  mobileTV.position.set(x,0,z);
+  for (const b of document.querySelectorAll('#tv-positions button')) b.classList.toggle('active', b.dataset.tv === position);
+  state.tv = position;
+}
 logo(groups.polonia, 8.55, 0.012, 6.75, 0.9, 0).rotation.set(-Math.PI / 2, 0, 0);
 groups.polonia.children.at(-1).name = 'Bodenmarke Polonia';
 groups.polonia.children.at(-1).position.y = 0.013;
@@ -386,17 +397,65 @@ function setDivider(mode) {
   state.divider = mode;
 }
 
+// ---------------------------------------------------------------- Elektro-Bedarfsplan E-02: gemeinsame Basis und Polonia-Wünsche
+const electrical = await (await fetch('./elektro-modell.json')).json();
+const baseDevices = groups.electroBase, wishDevices = groups.electroWish, network = groups.network;
+const lightMeshes = new Map();
+function deviceTex(id, kind, color, count) {
+  return canvasTex(256, 256, (ctx) => {
+    ctx.fillStyle = '#fffdf9'; ctx.fillRect(0, 0, 256, 256);
+    ctx.strokeStyle = color; ctx.lineWidth = 14; ctx.strokeRect(8, 8, 240, 240);
+    ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = 'bold 84px Arial'; ctx.fillText(id, 128, 98);
+    ctx.font = 'bold 63px Arial'; ctx.fillText(kind === 'Steckdose' || kind === 'Schalter' && count > 1 ? `${count}×` : kind === 'Schalter' ? 'S' : 'D', 128, 182);
+  });
+}
+function surface(x, z, id) {
+  if (id === 'P01') return [7.86, 5.39, Math.PI / 2];
+  if (id === 'P02') return [7.86, 5.81, Math.PI / 2];
+  if (Math.abs(x - 4.32) < .15) return [4.30, z, -Math.PI / 2];
+  if (x < .3) return [.075, z, Math.PI / 2];
+  if (x > 11.2) return [11.48, z, -Math.PI / 2];
+  if (z < .9) return [x, .075, 0];
+  return [x, z, 0];
+}
+function device(g, row, id, color) {
+  const x = Number(row.X_m), z = Number(row.Z_m), h = Number(row.Hoehe_m);
+  const [sx, sz, ry] = surface(x, z, id);
+  const kind = row.Typ, count = Number(row.Anzahl);
+  const m = plane(g, `${id} ${kind} ${row.Funktion || row.Beschreibung}`, deviceTex(id, kind, color, count),
+    sx, h, sz, .19, .19, ry);
+  m.userData = { id, kind, count, area: row.Bereich || row.Verein, status: row.Status || 'offen',
+    description: row.Funktion || row.Beschreibung, height: h };
+}
+for (const row of electrical.basis) {
+  if (row.Typ !== 'Leuchte') device(baseDevices, row, row.ID, row.Typ === 'Schalter' ? '#704a9f' : '#236798');
+}
+for (const row of electrical.poloniaWuensche) device(wishDevices, row, row.Wunsch_ID, '#c8105d');
+const modem = box(network, 'M01 DSL-Modem am Steigschacht', 2.50, 2.10, .65, .32, .18, .12, '#177d78');
+modem.userData = { id: 'M01', description: 'DSL-Modem neben dem Steigschacht; Standort vor Ort prüfen' };
+for (const row of electrical.datenkabel) {
+  const x = Number(row.Ziel_X_m), z = Number(row.Ziel_Z_m), h = Number(row.Ziel_Hoehe_m);
+  const [sx, sz, ry] = surface(x, z, row.ID);
+  const endpoint = plane(network, `${row.ID} Datenendpunkt ${row.Ziel}`, deviceTex(row.ID, 'Daten', '#177d78', 1), sx, h, sz, .20, .20, ry);
+  endpoint.userData = { id: row.ID, source: row.Quelle, target: row.Ziel, status: 'offen', route: 'nicht festgelegt' };
+}
+
 // ---------------------------------------------------------------- Leuchten + Dach
 const L = groups.lights;
 const lampMat = new THREE.MeshStandardMaterial({ color: '#fff3d6', emissive: '#ffe2a8', emissiveIntensity: 1.2 });
-for (const x of [2.9, 8.65]) for (const z of [1.6, 4.0, 6.4]) {
-  box(L, 'LED-Linienleuchte (Bereich)', x, 3.65, z, 1.2, 0.05, 0.12, '#1c1f1e');
-  box(L, 'Lichtaustritt', x, 3.62, z, 1.14, 0.01, 0.08, lampMat);
-  for (const d of [-0.4, 0.4]) box(L, 'Abhängung', x + d, 4.2, z, 0.012, 1.1, 0.012, '#3d4440');
-}
-for (const z of [11.6, 13.4]) {
-  box(L, 'Küchenleuchte', 3.9, 2.7, z, 0.12, 0.05, 1.1, '#1c1f1e');
-  box(L, 'Lichtaustritt', 3.9, 2.67, z, 0.08, 0.01, 1.04, lampMat);
+for (const row of electrical.basis.filter(r => r.Typ === 'Leuchte')) {
+  const x = Number(row.X_m), z = Number(row.Z_m), y = Number(row.Hoehe_m), id = row.ID;
+  const g = new THREE.Group(); g.name = `${id} ${row.Funktion}`; L.add(g);
+  const kitchen = row.Bereich.startsWith('Pantry');
+  const w = kitchen ? .12 : row.Bereich === 'Gemeinsam' ? .65 : 1.2;
+  const d = kitchen ? 1.1 : row.Bereich === 'Gemeinsam' ? .3 : .12;
+  box(g, `${id} Leuchtenkörper`, x, y, z, w, .05, d, '#1c1f1e');
+  box(g, `${id} Lichtaustritt`, x, y-.035, z, w-.04, .01, d-.04, lampMat);
+  if (!kitchen && row.Bereich !== 'Gemeinsam') for (const dx of [-.4,.4])
+    box(g, `${id} Abhängung`, x+dx, y+.28, z, .012, .55, .012, '#3d4440');
+  g.userData = { id, group: row.Funktionsgruppe, status: 'offen' };
+  lightMeshes.set(id, g);
 }
 const RF = groups.roof;
 box(RF, 'Holzpfette 24/45 (Annahme)', MID, 4.4, COLS[0][1], W, 0.45, 0.24, '#b78b57');
@@ -410,7 +469,7 @@ label('POLONIA', 'Vereinsbereich · 52,8 m²', C.polRed, 8.65, 3.4, 4.2);
 label('QUERWEG', 'Ehemalige Theke · 1,20 m', '#3f8a63', 8.9, 2.6, 9.72, 0.85);
 
 // ---------------------------------------------------------------- Kamera
-const state = { divider: 'walls', view: 'overview' };
+const state = { divider: 'walls', view: 'overview', tv: 'park' };
 const views = {
   overview: [[6.0, 13.5, 23.5], [5.8, 0.2, 6.4]],
   croatia: [[5.0, 2.6, 7.6], [2.6, 1.0, 1.8]],
@@ -435,23 +494,37 @@ function setView(name) {
 }
 for (const b of document.querySelectorAll('#views button')) b.onclick = () => setView(b.dataset.view);
 for (const b of document.querySelectorAll('#dividers button')) b.onclick = () => setDivider(b.dataset.divider);
-const toggles = { 't-labels': 'labels', 't-zones': 'zones', 't-routes': 'routes', 't-lights': 'lights', 't-roof': 'roof' };
+for (const b of document.querySelectorAll('#tv-positions button')) b.onclick = () => setTVPosition(b.dataset.tv);
+const toggles = { 't-labels': 'labels', 't-zones': 'zones', 't-routes': 'routes', 't-lights': 'lights',
+  't-electro-base': 'electroBase', 't-electro-wish': 'electroWish', 't-network': 'network', 't-roof': 'roof' };
 for (const [id, g] of Object.entries(toggles)) {
   $('#' + id).onchange = e => { groups[g].visible = e.target.checked; };
   groups[g].visible = $('#' + id).checked;
 }
+for (const b of document.querySelectorAll('#polonia-lights button')) b.onclick = () => {
+  const light = lightMeshes.get(b.dataset.light);
+  light.visible = !light.visible;
+  b.classList.toggle('active', light.visible);
+};
 
 $('#export').onclick = () => {
-  const labelsWere = groups.labels.visible;
+  const saved = Object.fromEntries(['labels', 'lights', 'electroBase', 'electroWish', 'network'].map(k => [k, groups[k].visible]));
+  const lightState = Object.fromEntries(['L04', 'L05', 'L06'].map(k => [k, lightMeshes.get(k).visible]));
+  const restore = () => {
+    for (const [k, v] of Object.entries(saved)) groups[k].visible = v;
+    for (const [k, v] of Object.entries(lightState)) lightMeshes.get(k).visible = v;
+  };
   groups.labels.visible = false; // Sprites nicht exportieren
+  for (const k of ['lights', 'electroBase', 'electroWish', 'network']) groups[k].visible = true;
+  for (const k of ['L04', 'L05', 'L06']) lightMeshes.get(k).visible = true;
   new GLTFExporter().parse(model, (glb) => {
-    groups.labels.visible = labelsWere;
+    restore();
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' }));
     a.download = `clubraum-alternative-b-${state.divider}.glb`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  }, (err) => { groups.labels.visible = labelsWere; alert('Export fehlgeschlagen: ' + err); }, { binary: true, onlyVisible: true });
+  }, (err) => { restore(); alert('Export fehlgeschlagen: ' + err); }, { binary: true, onlyVisible: true });
 };
 
 function resize() {
@@ -464,7 +537,8 @@ function resize() {
 new ResizeObserver(resize).observe(view);
 resize();
 setDivider('walls');
+setTVPosition('park');
 setView('overview');
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 status.textContent = 'Konzeptmodell · Maße lt. Grundriss B-05 · vor Ort prüfen';
-window.alternativeB = { scene, model, camera, controls, renderer, setView, setDivider, groups, ready: true };
+window.alternativeB = { scene, model, camera, controls, renderer, setView, setDivider, setTVPosition, groups, lightMeshes, ready: true };

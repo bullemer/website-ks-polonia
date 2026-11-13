@@ -557,6 +557,36 @@
       "Kosten_wer": "Polonia",
       "Status": "Wunsch",
       "Kommentar_Elektrofachplanung": "Bezeichnung vorne/am Anfang und genauer Fensterpfeiler vor Ort bestätigen; Abstand zum Fenster prüfen; Koordinaten nur schematisch für Entwurfsplan"
+    },
+    {
+      "Wunsch_ID": "P06",
+      "Verein": "Polonia",
+      "Typ": "Leuchte",
+      "Beschreibung": "Indirekte dimmbare RGBW-LED-Lichtbänder an fester Nord- und Ostwand",
+      "X_m": "7.00",
+      "Z_m": "0.20",
+      "Hoehe_m": "3.10",
+      "Anzahl": "2",
+      "Nutzung": "Stimmungslicht mit Weiß und frei wählbaren Farben",
+      "Prioritaet": "mittel",
+      "Kosten_wer": "Polonia",
+      "Status": "Wunsch",
+      "Kommentar_Elektrofachplanung": "Zwei schematische Abschnitte: Nordwand x 5.9–8.0 und Ostwand z 5.2–8.9; Profile/Blendung, Treiberzugang, Leitungslänge und Leistung vor Ort planen; unabhängig von Sicherheitsbeleuchtung"
+    },
+    {
+      "Wunsch_ID": "P07",
+      "Verein": "Polonia",
+      "Typ": "Schalter",
+      "Beschreibung": "Eigene Bedienung für RGBW-Stimmungslicht mit Dimmen und Farbwahl",
+      "X_m": "7.717",
+      "Z_m": "5.60",
+      "Hoehe_m": "1.05",
+      "Anzahl": "1",
+      "Nutzung": "Lichtszenen und Aus am Polonia-Pfeiler",
+      "Prioritaet": "mittel",
+      "Kosten_wer": "Polonia",
+      "Status": "Wunsch",
+      "Kommentar_Elektrofachplanung": "Bedienung neben P01 am Holzpfeiler oder geeignete Alternative; Platz, Montage und Leitung/Steuerung fachlich prüfen"
     }
   ]
 }

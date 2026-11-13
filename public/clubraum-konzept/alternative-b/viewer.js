@@ -413,6 +413,7 @@ function deviceTex(id, kind, color, count) {
 function surface(x, z, id) {
   if (id === 'P01') return [7.86, 5.39, Math.PI / 2];
   if (id === 'P02') return [7.86, 5.81, Math.PI / 2];
+  if (id === 'P07') return [7.58, 5.60, -Math.PI / 2];
   if (Math.abs(x - 4.32) < .15) return [4.30, z, -Math.PI / 2];
   if (x < .3) return [.075, z, Math.PI / 2];
   if (x > 11.2) return [11.48, z, -Math.PI / 2];
@@ -431,7 +432,36 @@ function device(g, row, id, color) {
 for (const row of electrical.basis) {
   if (row.Typ !== 'Leuchte') device(baseDevices, row, row.ID, row.Typ === 'Schalter' ? '#704a9f' : '#236798');
 }
-for (const row of electrical.poloniaWuensche) device(wishDevices, row, row.Wunsch_ID, '#c8105d');
+for (const row of electrical.poloniaWuensche) {
+  if (row.Wunsch_ID !== 'P06') device(wishDevices, row, row.Wunsch_ID, '#c8105d');
+}
+const mood = new THREE.Group();
+mood.name = 'P06 RGBW indirektes Stimmungslicht Nord- und Ostwand';
+mood.userData = { id: 'P06', status: 'Polonia-Wunsch', note: 'Zwei schematische Abschnitte; Profile, Treiber und Steuerung durch Fachplanung' };
+wishDevices.add(mood);
+const moodMat = new THREE.MeshStandardMaterial({ color: '#fff1cf', emissive: '#ffe0a2', emissiveIntensity: 1.8, roughness: .55 });
+box(mood, 'P06 LED-Band Nordwand', 7.0, 3.1, .20, 2.0, .045, .055, moodMat);
+box(mood, 'P06 LED-Band Ostwand', 11.32, 3.1, 7.05, .055, .045, 3.7, moodMat);
+const washMat = new THREE.MeshBasicMaterial({ color: '#ffe0a2', transparent: true, opacity: .14, side: THREE.DoubleSide, depthWrite: false });
+const washNorth = new THREE.Mesh(new THREE.PlaneGeometry(2.05,.65), washMat);
+washNorth.name = 'P06 indirekter Lichtschein Nordwand'; washNorth.position.set(7.0,2.82,.015); mood.add(washNorth);
+const washEast = new THREE.Mesh(new THREE.PlaneGeometry(3.7,.65), washMat);
+washEast.name = 'P06 indirekter Lichtschein Ostwand'; washEast.position.set(11.54,2.82,7.05); washEast.rotation.y = -Math.PI/2; mood.add(washEast);
+function setMood(name) {
+  const colors = { white: '#ffe0a2', red: '#d6234a', blue: '#2a60d0', green: '#32a078' };
+  mood.visible = name !== 'off';
+  const color = colors[name] || colors.white;
+  moodMat.color.set(color); moodMat.emissive.set(color); washMat.color.set(color);
+  for (const b of document.querySelectorAll('#mood-colors button')) b.classList.toggle('active', b.dataset.mood === name);
+  state.mood = name;
+}
+function setMoodBrightness(value) {
+  const level = Math.max(10, Math.min(100, Number(value)));
+  moodMat.emissiveIntensity = .4 + level / 50;
+  washMat.opacity = .03 + level / 550;
+  $('#mood-value').textContent = `${level} %`;
+  state.moodBrightness = level;
+}
 const modem = box(network, 'M01 DSL-Modem am Steigschacht', 2.50, 2.10, .65, .32, .18, .12, '#177d78');
 modem.userData = { id: 'M01', description: 'DSL-Modem neben dem Steigschacht; Standort vor Ort prüfen' };
 for (const row of electrical.datenkabel) {
@@ -469,11 +499,12 @@ label('POLONIA', 'Vereinsbereich · 52,8 m²', C.polRed, 8.65, 3.4, 4.2);
 label('QUERWEG', 'Ehemalige Theke · 1,20 m', '#3f8a63', 8.9, 2.6, 9.72, 0.85);
 
 // ---------------------------------------------------------------- Kamera
-const state = { divider: 'walls', view: 'overview', tv: 'park' };
+const state = { divider: 'walls', view: 'overview', tv: 'park', mood: 'white' };
 const views = {
   overview: [[6.0, 13.5, 23.5], [5.8, 0.2, 6.4]],
   croatia: [[5.0, 2.6, 7.6], [2.6, 1.0, 1.8]],
   polonia: [[6.6, 2.6, 7.6], [9.0, 1.0, 1.8]],
+  mood: [[6.35, 3.3, 8.55], [10.65, 2.75, 6.55]],
   shared: [[3.4, 2.7, 6.3], [6.0, 0.6, 10.1]],
   pantryCroatia: [[1.35, 2.65, 11.25], [3.8, 1.35, 12.1]],
   pantryPolonia: [[1.35, 2.65, 14.65], [3.8, 1.35, 14.0]],
@@ -495,6 +526,8 @@ function setView(name) {
 for (const b of document.querySelectorAll('#views button')) b.onclick = () => setView(b.dataset.view);
 for (const b of document.querySelectorAll('#dividers button')) b.onclick = () => setDivider(b.dataset.divider);
 for (const b of document.querySelectorAll('#tv-positions button')) b.onclick = () => setTVPosition(b.dataset.tv);
+for (const b of document.querySelectorAll('#mood-colors button')) b.onclick = () => setMood(b.dataset.mood);
+$('#mood-brightness').oninput = e => setMoodBrightness(e.target.value);
 const toggles = { 't-labels': 'labels', 't-zones': 'zones', 't-routes': 'routes', 't-lights': 'lights',
   't-electro-base': 'electroBase', 't-electro-wish': 'electroWish', 't-network': 'network', 't-roof': 'roof' };
 for (const [id, g] of Object.entries(toggles)) {
@@ -510,13 +543,16 @@ for (const b of document.querySelectorAll('#polonia-lights button')) b.onclick =
 $('#export').onclick = () => {
   const saved = Object.fromEntries(['labels', 'lights', 'electroBase', 'electroWish', 'network'].map(k => [k, groups[k].visible]));
   const lightState = Object.fromEntries(['L04', 'L05', 'L06'].map(k => [k, lightMeshes.get(k).visible]));
+  const moodWas = mood.visible;
   const restore = () => {
     for (const [k, v] of Object.entries(saved)) groups[k].visible = v;
     for (const [k, v] of Object.entries(lightState)) lightMeshes.get(k).visible = v;
+    mood.visible = moodWas;
   };
   groups.labels.visible = false; // Sprites nicht exportieren
   for (const k of ['lights', 'electroBase', 'electroWish', 'network']) groups[k].visible = true;
   for (const k of ['L04', 'L05', 'L06']) lightMeshes.get(k).visible = true;
+  mood.visible = true;
   new GLTFExporter().parse(model, (glb) => {
     restore();
     const a = document.createElement('a');
@@ -538,7 +574,9 @@ new ResizeObserver(resize).observe(view);
 resize();
 setDivider('walls');
 setTVPosition('park');
+setMood('white');
+setMoodBrightness($('#mood-brightness').value);
 setView('overview');
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 status.textContent = 'Konzeptmodell · Maße lt. Grundriss B-05 · vor Ort prüfen';
-window.alternativeB = { scene, model, camera, controls, renderer, setView, setDivider, setTVPosition, groups, lightMeshes, ready: true };
+window.alternativeB = { scene, model, camera, controls, renderer, setView, setDivider, setTVPosition, setMood, setMoodBrightness, groups, lightMeshes, ready: true };

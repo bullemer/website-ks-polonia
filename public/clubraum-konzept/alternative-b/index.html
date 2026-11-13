@@ -45,7 +45,7 @@ label.check{display:flex;gap:7px;align-items:center;font-size:13px;margin:4px 0}
  <img src="assets/original-logo.png" alt="Wappen KS Polonia Hamburg">
  <div><h1>Clubraum 201 · Alternative B – Drei Bereiche</h1>
  <p>3D-Konzeptmodell · Croatia | Polonia | gemeinsamer Bereich · Entwurf 05 · 13.11.2026</p></div>
- <div class="links"><a class="button" href="grundriss-3-bereiche.pdf" target="_blank">Grundriss PDF</a><a class="button" href="elektro-konzept.pdf" target="_blank">Elektroplan PDF</a><a class="button" href="elektro-konzept-e02.zip" download>Elektro-Unterlagen ↓</a><button id="export">3D-Modell (GLB) ↓</button></div>
+ <div class="links"><a class="button" href="grundriss-3-bereiche.pdf" target="_blank">Grundriss PDF</a><a class="button" href="elektro-konzept.pdf" target="_blank">Elektroplan PDF</a><a class="button" href="elektro-konzept-e03.zip" download>Elektro-Unterlagen ↓</a><button id="export">3D-Modell (GLB) ↓</button></div>
 </header>
 <div class="layout">
  <div id="viewport"><div id="status">Modell wird geladen …</div></div>
@@ -55,6 +55,7 @@ label.check{display:flex;gap:7px;align-items:center;font-size:13px;margin:4px 0}
    <button data-view="overview" class="active">Übersicht</button>
    <button data-view="croatia">Croatia</button>
    <button data-view="polonia">Polonia</button>
+   <button data-view="mood">LED-Stimmung</button>
    <button data-view="shared">Gemeinsame Freifläche</button>
    <button data-view="pantryCroatia">Pantry Croatia</button>
    <button data-view="pantryPolonia">Pantry Polonia</button>
@@ -84,8 +85,12 @@ label.check{display:flex;gap:7px;align-items:center;font-size:13px;margin:4px 0}
   <h2>Polonia-Licht einzeln schalten</h2>
   <div class="group" id="polonia-lights"><button data-light="L04" class="active">L04 Nord</button><button data-light="L05" class="active">L05 Mitte</button><button data-light="L06" class="active">L06 Süd</button></div>
   <p class="note">Simulation der gewünschten drei Einzelschalter P01 am Holzpfeiler. Die Montage ist noch zu prüfen.</p>
+  <h2>Indirektes Polonia-Licht · Wunsch P06/P07</h2>
+  <div class="group" id="mood-colors"><button data-mood="white" class="active">Warmweiß</button><button data-mood="red">Rot</button><button data-mood="blue">Blau</button><button data-mood="green">Grün</button><button data-mood="off">Aus</button></div>
+  <label class="check" for="mood-brightness">Helligkeit <input id="mood-brightness" type="range" min="10" max="100" value="60"> <output id="mood-value">60 %</output></label>
+  <p class="note">Zwei feste, dimmbare RGBW-Lichtbänder an Nord- und Ostwand. Farben hier als Vorschau; Steuerung, Leistung und Montage sind noch zu planen.</p>
   <h2>Elektro-Entwurf</h2>
-  <p class="note">Gemeinsame Basis: 15 Steckdosenorte mit 26 Einzelplätzen, 11 Leuchten, 6 Schalter, M01 und genau 2 Datenendpunkte. Polonia zusätzlich: P01–P05. Positionen und Höhen sind schematisch; Leitungswege und Stromkreise sind nicht festgelegt.</p>
+  <p class="note">Gemeinsame Basis: 15 Steckdosenorte mit 26 Einzelplätzen, 11 Leuchten, 6 Schalter, M01 und genau 2 Datenendpunkte. Polonia zusätzlich: P01–P07 einschließlich indirektem RGBW-Stimmungslicht. Positionen und Höhen sind schematisch; Leitungswege und Stromkreise sind nicht festgelegt.</p>
   <h2>Bereiche</h2>
   <div class="zones">
    <span class="sw" style="background:#dddbd4"></span><b>Croatia</b><span>52,8 m² · leer</span>

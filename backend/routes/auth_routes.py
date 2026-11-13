@@ -45,6 +45,18 @@ async def login(req: LoginRequest):
         role=role,
     )
 
+    # Track login time and count
+    from database import get_pool
+    try:
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE members SET last_login_at = NOW(), login_count = COALESCE(login_count, 0) + 1 WHERE id = $1",
+                member["id"],
+            )
+    except Exception:
+        pass  # Don't block login if tracking fails
+
     response = JSONResponse({
         "success": True,
         "message": f"Willkommen, {member['vorname']}!",

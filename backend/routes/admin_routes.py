@@ -65,6 +65,97 @@ async def admin_dashboard_stats(request: Request):
     return await member_service.get_dashboard_stats()
 
 
+# ═══════════════════════════════════════
+#  BENUTZERVERWALTUNG (User Management) — Superadmin only
+# ═══════════════════════════════════════
+
+class UserEmailUpdate(BaseModel):
+    email: str
+
+class UserPasswordReset(BaseModel):
+    new_password: str
+
+
+@router.get("/users")
+async def admin_users_page(request: Request):
+    """Benutzerverwaltung: list all portal users with login stats."""
+    admin = require_superadmin(request)
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        users = await conn.fetch("""
+            SELECT m.id, m.vorname, m.nachname, m.email, m.role,
+                   m.is_admin, m.is_active, m.last_login_at, m.login_count,
+                   m.mitgliedsnummer, m.password_hash IS NOT NULL as has_password,
+                   m.email_verified, m.created_at,
+                   STRING_AGG(DISTINCT t.mannschaftsname, ', ' ORDER BY t.mannschaftsname) as teams
+            FROM members m
+            LEFT JOIN member_teams mt ON mt.member_id = m.id AND mt.status = 'active'
+            LEFT JOIN teams t ON t.id = mt.team_id
+            WHERE m.email IS NOT NULL AND m.email != ''
+            GROUP BY m.id
+            ORDER BY m.last_login_at DESC NULLS LAST, m.nachname, m.vorname
+        """)
+    return templates.TemplateResponse(request, "admin_users.html", {
+        "users": [dict(u) for u in users],
+        "admin": admin,
+        "is_superadmin": True,
+        "active_nav": "users",
+    })
+
+
+@router.put("/users/{user_id}/email")
+async def admin_update_user_email(request: Request, user_id: int, data: UserEmailUpdate):
+    """Change a user's email address (superadmin only)."""
+    require_superadmin(request)
+    email = data.email.strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Ungültige E-Mail-Adresse")
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        existing = await conn.fetchval(
+            "SELECT id FROM members WHERE LOWER(email) = $1 AND id != $2", email, user_id
+        )
+        if existing:
+            raise HTTPException(status_code=409, detail="E-Mail bereits vergeben")
+        await conn.execute(
+            "UPDATE members SET email = $1, updated_at = NOW() WHERE id = $2", email, user_id
+        )
+    return JSONResponse({"success": True, "message": "E-Mail geändert"})
+
+
+@router.put("/users/{user_id}/password")
+async def admin_reset_user_password(request: Request, user_id: int, data: UserPasswordReset):
+    """Reset a user's password (superadmin only)."""
+    require_superadmin(request)
+    from auth import hash_password
+    pw = data.new_password.strip()
+    if len(pw) < 6:
+        raise HTTPException(status_code=400, detail="Passwort muss mindestens 6 Zeichen lang sein")
+    hashed = hash_password(pw)
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE members SET password_hash = $1, updated_at = NOW() WHERE id = $2", hashed, user_id
+        )
+    return JSONResponse({"success": True, "message": "Passwort geändert"})
+
+
+@router.put("/users/{user_id}/toggle-active")
+async def admin_toggle_user_active(request: Request, user_id: int):
+    """Toggle a user's active status (superadmin only)."""
+    require_superadmin(request)
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        new_status = await conn.fetchval(
+            "UPDATE members SET is_active = NOT is_active, updated_at = NOW() WHERE id = $1 RETURNING is_active",
+            user_id,
+        )
+    if new_status is None:
+        raise HTTPException(status_code=404)
+    label = "aktiviert" if new_status else "deaktiviert"
+    return JSONResponse({"success": True, "is_active": new_status, "message": f"Benutzer {label}"})
+
+
 @router.get("/members")
 async def admin_list_members(
     request: Request, search: str = "", division_id: Optional[int] = None,

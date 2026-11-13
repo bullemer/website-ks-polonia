@@ -1,0 +1,328 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Benutzerverwaltung – KS Polonia Admin{% endblock %}
+
+{% block extra_style %}
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.7rem; font-weight: 700; }
+    .page-header .subtitle { font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    .stats-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; flex: 1; min-width: 140px; }
+    .stat-card .label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; }
+    .stat-card .value { font-size: 1.5rem; font-weight: 700; margin-top: 0.25rem; }
+
+    .toolbar { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+    .toolbar input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.55rem 0.85rem; border-radius: 8px; font-size: 0.85rem; min-width: 250px; }
+    .toolbar input:focus { outline: none; border-color: var(--primary); }
+
+    .users-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .users-table th { background: rgba(0,0,0,0.2); padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+    .users-table td { padding: 0.7rem 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; vertical-align: middle; }
+    .users-table tr:hover td { background: var(--surface-hover); }
+    .users-table .name-col { font-weight: 600; white-space: nowrap; }
+    .users-table .email-col { color: var(--info); }
+    .users-table .muted { color: var(--text-muted); font-size: 0.8rem; }
+
+    .badge { display: inline-flex; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+    .badge-super { background: rgba(220,20,60,0.15); color: var(--primary); }
+    .badge-admin { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .badge-member { background: rgba(34,197,94,0.12); color: #22c55e; }
+    .badge-inactive { background: rgba(239,68,68,0.12); color: #ef4444; }
+    .badge-nologin { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+
+    .login-info { display: flex; flex-direction: column; gap: 0.15rem; }
+    .login-date { font-size: 0.82rem; }
+    .login-count { font-size: 0.72rem; color: var(--text-muted); }
+
+    .btn { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.7rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.78rem; font-weight: 500; transition: all 0.15s; font-family: inherit; }
+    .btn-sm { padding: 0.3rem 0.55rem; font-size: 0.72rem; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--surface-hover); border-color: var(--text-muted); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-danger { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+    .btn-danger:hover { background: #ef4444; color: #fff; }
+    .btn-warning { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; }
+    .btn-warning:hover { background: #f59e0b; color: #000; }
+
+    .actions-cell { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; max-width: 440px; width: 90%; box-shadow: 0 10px 35px rgba(0,0,0,0.5); }
+    .modal-content h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; }
+    .modal-content label { display: block; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; margin-top: 0.75rem; }
+    .modal-content input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.9rem; }
+    .modal-content input:focus { outline: none; border-color: var(--primary); }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
+
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--success); color: #fff; padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; z-index: 3000; opacity: 0; transform: translateY(20px); transition: all 0.3s; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: var(--danger); }
+
+    .table-wrap { overflow-x: auto; border-radius: 12px; }
+
+    @media (max-width: 768px) {
+        .stats-bar { flex-direction: column; }
+        .toolbar input { min-width: 100%; }
+        .users-table .hide-mobile { display: none; }
+    }
+{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/api/admin/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
+<a href="/api/admin/members" class="nav-link"><span class="icon">👥</span> Mitglieder</a>
+<a href="/api/admin/applications" class="nav-link"><span class="icon">📋</span> Anträge</a>
+<a href="/api/admin/divisions" class="nav-link"><span class="icon">🏆</span> Abteilungen</a>
+<a href="/api/admin/beitraege" class="nav-link"><span class="icon">💰</span> Beiträge</a>
+<a href="/api/admin/users" class="nav-link active"><span class="icon">🔐</span> Benutzer</a>
+<a href="/api/tickets/admin" class="nav-link"><span class="icon">🎫</span> Dauerkarten</a>
+<a href="/api/admin/donations/certificate" class="nav-link"><span class="icon">📄</span> Spendenbescheinigung</a>
+<a href="/api/portal" class="nav-link"><span class="icon">👤</span> Zum Portal</a>
+<a href="/api/auth/logout" class="nav-link"><span class="icon">🚪</span> Abmelden</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>🔐 Benutzerverwaltung</h1>
+        <p class="subtitle">Alle Portalbenutzer mit Login-Statistiken verwalten</p>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-bar">
+    <div class="stat-card">
+        <div class="label">Benutzer gesamt</div>
+        <div class="value">{{ users|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Aktive Logins</div>
+        <div class="value" style="color: var(--success);">{{ users|selectattr('last_login_at')|list|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Nie eingeloggt</div>
+        <div class="value" style="color: var(--text-muted);">{{ users|rejectattr('last_login_at')|list|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Deaktiviert</div>
+        <div class="value" style="color: var(--danger);">{{ users|rejectattr('is_active')|list|length }}</div>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="toolbar">
+    <input type="text" id="searchInput" placeholder="🔍 Benutzer suchen (Name, E-Mail, Team)..." oninput="filterTable()">
+</div>
+
+<!-- Users Table -->
+<div class="table-wrap">
+<table class="users-table" id="usersTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>E-Mail</th>
+            <th class="hide-mobile">Rolle</th>
+            <th class="hide-mobile">Teams</th>
+            <th>Letzter Login</th>
+            <th class="hide-mobile">Logins</th>
+            <th>Status</th>
+            <th>Aktionen</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+        <tr class="user-row" data-search="{{ u.nachname|lower }} {{ u.vorname|lower }} {{ u.email|lower }} {{ (u.teams or '')|lower }}">
+            <td class="name-col">
+                <a href="/api/admin/members/{{ u.id }}" style="color: var(--text); text-decoration: none;">
+                    {{ u.nachname }}, {{ u.vorname }}
+                </a>
+                {% if u.mitgliedsnummer %}<br><span class="muted">{{ u.mitgliedsnummer }}</span>{% endif %}
+            </td>
+            <td class="email-col">{{ u.email }}</td>
+            <td class="hide-mobile">
+                {% if u.role == 'superadmin' %}<span class="badge badge-super">Superadmin</span>
+                {% elif u.role == 'admin' %}<span class="badge badge-admin">Admin</span>
+                {% else %}<span class="badge badge-member">Mitglied</span>
+                {% endif %}
+            </td>
+            <td class="hide-mobile"><span class="muted">{{ u.teams or '—' }}</span></td>
+            <td>
+                {% if u.last_login_at %}
+                <div class="login-info">
+                    <span class="login-date">{{ u.last_login_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                </div>
+                {% else %}
+                <span class="badge badge-nologin">Nie</span>
+                {% endif %}
+            </td>
+            <td class="hide-mobile" style="text-align: center;">
+                {{ u.login_count or 0 }}
+            </td>
+            <td>
+                {% if u.is_active %}
+                <span class="badge badge-member">Aktiv</span>
+                {% else %}
+                <span class="badge badge-inactive">Inaktiv</span>
+                {% endif %}
+                {% if not u.has_password %}<br><span class="badge badge-nologin" style="margin-top:0.2rem;">Kein PW</span>{% endif %}
+            </td>
+            <td>
+                <div class="actions-cell">
+                    <button class="btn btn-outline btn-sm" onclick="openEmailModal({{ u.id }}, '{{ u.email|e }}', '{{ u.vorname|e }} {{ u.nachname|e }}')" title="E-Mail ändern">✏️</button>
+                    <button class="btn btn-warning btn-sm" onclick="openPasswordModal({{ u.id }}, '{{ u.vorname|e }} {{ u.nachname|e }}')" title="Passwort zurücksetzen">🔑</button>
+                    <button class="btn {{ 'btn-danger' if u.is_active else 'btn-outline' }} btn-sm" onclick="toggleActive({{ u.id }}, {{ 'true' if u.is_active else 'false' }})" title="{{ 'Deaktivieren' if u.is_active else 'Aktivieren' }}">{{ '🚫' if u.is_active else '✅' }}</button>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<!-- Email Modal -->
+<div class="modal" id="emailModal">
+    <div class="modal-content">
+        <h3>✏️ E-Mail ändern</h3>
+        <p class="muted" id="emailModalName" style="margin-bottom: 0.5rem;"></p>
+        <label for="newEmailInput">Neue E-Mail-Adresse</label>
+        <input type="email" id="newEmailInput" placeholder="neue@email.de">
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeModal('emailModal')">Abbrechen</button>
+            <button class="btn btn-primary" id="saveEmailBtn" onclick="saveEmail()">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- Password Modal -->
+<div class="modal" id="passwordModal">
+    <div class="modal-content">
+        <h3>🔑 Passwort zurücksetzen</h3>
+        <p class="muted" id="pwModalName" style="margin-bottom: 0.5rem;"></p>
+        <label for="newPasswordInput">Neues Passwort (mind. 6 Zeichen)</label>
+        <input type="text" id="newPasswordInput" placeholder="Neues Passwort eingeben">
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">💡 Das Passwort wird im Klartext angezeigt, damit du es dem Benutzer mitteilen kannst.</p>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeModal('passwordModal')">Abbrechen</button>
+            <button class="btn btn-primary" id="savePwBtn" onclick="savePassword()">Passwort setzen</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentUserId = null;
+
+function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    document.querySelectorAll('.user-row').forEach(row => {
+        row.style.display = row.dataset.search.includes(q) ? '' : 'none';
+    });
+}
+
+function openEmailModal(userId, email, name) {
+    currentUserId = userId;
+    document.getElementById('emailModalName').textContent = name;
+    document.getElementById('newEmailInput').value = email;
+    document.getElementById('emailModal').classList.add('active');
+    document.getElementById('newEmailInput').focus();
+}
+
+function openPasswordModal(userId, name) {
+    currentUserId = userId;
+    document.getElementById('pwModalName').textContent = name;
+    document.getElementById('newPasswordInput').value = '';
+    document.getElementById('passwordModal').classList.add('active');
+    document.getElementById('newPasswordInput').focus();
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+    currentUserId = null;
+}
+
+async function saveEmail() {
+    const email = document.getElementById('newEmailInput').value.trim();
+    if (!email || !email.includes('@')) { toast('Ungültige E-Mail', true); return; }
+    const btn = document.getElementById('saveEmailBtn');
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        const res = await fetch(`/api/admin/users/${currentUserId}/email`, {
+            method: 'PUT', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email}),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            toast(data.message);
+            closeModal('emailModal');
+            setTimeout(() => location.reload(), 800);
+        } else {
+            toast(data.detail || 'Fehler', true);
+        }
+    } catch (e) { toast('Verbindungsfehler', true); }
+    finally { btn.disabled = false; btn.textContent = 'Speichern'; }
+}
+
+async function savePassword() {
+    const pw = document.getElementById('newPasswordInput').value.trim();
+    if (pw.length < 6) { toast('Mindestens 6 Zeichen', true); return; }
+    const btn = document.getElementById('savePwBtn');
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        const res = await fetch(`/api/admin/users/${currentUserId}/password`, {
+            method: 'PUT', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({new_password: pw}),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            toast(data.message);
+            closeModal('passwordModal');
+        } else {
+            toast(data.detail || 'Fehler', true);
+        }
+    } catch (e) { toast('Verbindungsfehler', true); }
+    finally { btn.disabled = false; btn.textContent = 'Passwort setzen'; }
+}
+
+async function toggleActive(userId, isCurrentlyActive) {
+    const action = isCurrentlyActive ? 'deaktivieren' : 'aktivieren';
+    if (!confirm(`Benutzer wirklich ${action}?`)) return;
+    try {
+        const res = await fetch(`/api/admin/users/${userId}/toggle-active`, {
+            method: 'PUT', headers: {'Content-Type': 'application/json'},
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            toast(data.message);
+            setTimeout(() => location.reload(), 800);
+        } else {
+            toast(data.detail || 'Fehler', true);
+        }
+    } catch (e) { toast('Verbindungsfehler', true); }
+}
+
+function toast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isError ? ' error' : '');
+    setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+// Close modals on Escape
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal.active').forEach(m => closeModal(m.id));
+    }
+});
+</script>
+{% endblock %}

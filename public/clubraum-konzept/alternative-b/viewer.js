@@ -451,11 +451,11 @@ for (const row of electrical.basis.filter(r => r.Typ === 'Leuchte')) {
   const w = kitchen ? .12 : row.Bereich === 'Gemeinsam' ? .65 : 1.2;
   const d = kitchen ? 1.1 : row.Bereich === 'Gemeinsam' ? .3 : .12;
   box(g, `${id} Leuchtenkörper`, x, y, z, w, .05, d, '#1c1f1e');
-  box(g, `${id} Lichtaustritt`, x, y-.035, z, w-.04, .01, d-.04, lampMat);
+  const glow = box(g, `${id} Lichtaustritt`, x, y-.035, z, w-.04, .01, d-.04, lampMat);
   if (!kitchen && row.Bereich !== 'Gemeinsam') for (const dx of [-.4,.4])
     box(g, `${id} Abhängung`, x+dx, y+.28, z, .012, .55, .012, '#3d4440');
   g.userData = { id, group: row.Funktionsgruppe, status: 'offen' };
-  lightMeshes.set(id, g);
+  lightMeshes.set(id, glow);
 }
 const RF = groups.roof;
 box(RF, 'Holzpfette 24/45 (Annahme)', MID, 4.4, COLS[0][1], W, 0.45, 0.24, '#b78b57');
